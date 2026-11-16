@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.py": {
+      "excludeFiles": "{data/raw_xbrl/**,data/bbri/**,data/downloads/**,spikes/**,fcmg_bank_spikes/**,spike_samples/**,docs/**,tests/**,deploy_web/**,scripts/**,*.db,*.sqlite3}"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
