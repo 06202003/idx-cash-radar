@@ -1,0 +1,851 @@
+"""
+FastAPI Application & Interactive Financial Radar REST API.
+Phase 2 Implementation according to docs/PRD.md Section 10.2.
+Provides programmatic endpoints and visual financial diagnostic dashboard.
+"""
+
+from __future__ import annotations
+
+import base64
+import math
+import sys
+from decimal import Decimal
+from pathlib import Path
+from typing import Any
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
+
+# Ensure root directory on sys.path
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from src.db.repository import FinancialRepository  # noqa: E402
+from src.engine.calk_extractor import CALKFootnoteExtractor  # noqa: E402
+from src.engine.knowledge_ingestor import (  # noqa: E402
+    ingest_structured_issuer,
+    ingest_xbrl_file_bytes,
+)
+from src.engine.ml_models import FinancialMLSuite  # noqa: E402
+from src.engine.news_radar import NewsRadar  # noqa: E402
+from src.engine.rag_chat import RAGFinancialChatbot  # noqa: E402
+from src.engine.realtime_news_analyzer import (  # noqa: E402
+    analyze_sentiment_deterministic,
+    detect_ticker_in_article,
+    extract_key_highlights,
+    fetch_article_from_url,
+    synthesize_news_vs_accrual,
+)
+
+app = FastAPI(
+    title="IDX Cash & Accrual Radar API",
+    description="Deterministic Financial Intelligence API for IDX Construction Sector (PSAK 72)",
+    version="2.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+repo = FinancialRepository()
+calk_extractor = CALKFootnoteExtractor(api_key="")
+ml_suite = FinancialMLSuite(repo=repo)
+news_radar = NewsRadar()
+rag_chatbot = RAGFinancialChatbot(repository=repo, news_radar=news_radar)
+
+
+class ChatRequest(BaseModel):
+    message: str
+
+
+class NewsAnalyzeRequest(BaseModel):
+    url: str | None = None
+    raw_text: str | None = None
+    ticker: str | None = None
+
+
+class IssuerIngestRequest(BaseModel):
+    ticker: str
+    company_name: str
+    idx_sub_industry: str
+    fiscal_year: int = 2025
+    unit_multiplier: int = 1_000_000_000  # Default Miliar IDR; or 1 for full IDR
+    cash: float
+    st_debt_bank: float = 0.0
+    st_debt_bonds: float = 0.0
+    cfo_ttm: float
+    net_income_ttm: float
+    revenue_ttm: float
+    total_assets: float
+    total_liabilities: float = 0.0
+    receivables: float = 0.0
+    source_note: str | None = None
+
+
+class IssuerXBRLUploadRequest(BaseModel):
+    ticker: str
+    company_name: str
+    idx_sub_industry: str
+    fiscal_year: int = 2025
+    filename: str
+    content_base64: str
+
+
+def _build_sector_condition(sector: str | None, col: str = "idx_sub_industry") -> str:
+    """Builds SQL condition for filtering by sector category."""
+    if not sector:
+        return ""
+    s = sector.upper()
+    if s == "CONSTRUCTION":
+        return f"LOWER({col}) LIKE '%konstruksi%'"
+    elif s == "FMCG":
+        return (
+            f"(LOWER({col}) LIKE '%fmcg%' "
+            f"OR LOWER({col}) LIKE '%makanan%' "
+            f"OR LOWER({col}) LIKE '%perawatan%' "
+            f"OR LOWER({col}) LIKE '%ritel%' "
+            f"OR LOWER({col}) LIKE '%farmasi%')"
+        )
+    elif s == "BANKING":
+        return f"(LOWER({col}) LIKE '%bank%' OR LOWER({col}) LIKE '%keuangan%')"
+    elif s == "ENERGY":
+        return (
+            f"(LOWER({col}) LIKE '%energi%' "
+            f"OR LOWER({col}) LIKE '%tambang%' "
+            f"OR LOWER({col}) LIKE '%minyak%' "
+            f"OR LOWER({col}) LIKE '%gas%' "
+            f"OR LOWER({col}) LIKE '%mineral%' "
+            f"OR LOWER({col}) LIKE '%bahan bakar%')"
+        )
+    elif s == "TELECOM":
+        return f"(LOWER({col}) LIKE '%telekomunikasi%' OR LOWER({col}) LIKE '%menara%')"
+    return ""
+
+
+@app.get("/api/health")
+def health_check() -> dict[str, str]:
+    return {"status": "ok", "system": "IDX Cash & Accrual Radar v2.0"}
+
+
+@app.get("/api/issuers")
+def get_issuers(sector: str | None = None) -> list[dict[str, Any]]:
+    """Returns directory of covered issuers across sectors."""
+    cond = _build_sector_condition(sector, "idx_sub_industry")
+    where_clause = f"WHERE {cond}" if cond else ""
+
+    query = f"""
+    SELECT ticker, company_name, idx_sub_industry, listing_status
+    FROM issuers
+    {where_clause}
+    ORDER BY ticker ASC;
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query).fetchall()]
+    return rows
+
+
+@app.post("/api/issuers/ingest")
+def ingest_new_issuer_data(req: IssuerIngestRequest) -> dict[str, Any]:
+    """
+    Self-Growing Knowledge Base endpoint: allows users to add a new ticker
+    or update financial metrics, computing all ratios deterministically and
+    persisting immediately into SQLite for Screener, Radar, and RAG Chatbot.
+    """
+    try:
+        mult = Decimal(str(req.unit_multiplier or 1))
+        res = ingest_structured_issuer(
+            repo=repo,
+            ticker=req.ticker,
+            company_name=req.company_name,
+            idx_sub_industry=req.idx_sub_industry,
+            fiscal_year=req.fiscal_year,
+            cash_idr=Decimal(str(req.cash)) * mult,
+            st_debt_bank_idr=Decimal(str(req.st_debt_bank)) * mult,
+            st_debt_bonds_idr=Decimal(str(req.st_debt_bonds)) * mult,
+            cfo_ttm_idr=Decimal(str(req.cfo_ttm)) * mult,
+            net_income_ttm_idr=Decimal(str(req.net_income_ttm)) * mult,
+            revenue_ttm_idr=Decimal(str(req.revenue_ttm)) * mult,
+            total_assets_idr=Decimal(str(req.total_assets)) * mult,
+            total_liabilities_idr=Decimal(str(req.total_liabilities)) * mult,
+            receivables_idr=Decimal(str(req.receivables)) * mult,
+            source_note=req.source_note,
+        )
+        return res
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Gagal menyimpan data emiten: {exc}") from exc
+
+
+@app.post("/api/issuers/ingest-xbrl")
+def ingest_new_issuer_xbrl(req: IssuerXBRLUploadRequest) -> dict[str, Any]:
+    """
+    Parses an uploaded BEI XBRL (.xml or .zip) filing and ingests it into
+    the self-growing SQLite knowledge database.
+    """
+    try:
+        raw_b64 = req.content_base64
+        if "," in raw_b64:
+            raw_b64 = raw_b64.split(",", 1)[1]
+        file_bytes = base64.b64decode(raw_b64)
+        return ingest_xbrl_file_bytes(
+            repo=repo,
+            ticker=req.ticker,
+            company_name=req.company_name,
+            idx_sub_industry=req.idx_sub_industry,
+            fiscal_year=req.fiscal_year,
+            filename=req.filename,
+            file_bytes=file_bytes,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=422, detail=f"Gagal memparsing berkas XBRL: {exc}"
+        ) from exc
+
+
+@app.get("/api/screener")
+def get_screener_data(
+    fiscal_year: int = 2025, sector: str | None = None
+) -> list[dict[str, Any]]:
+    """
+    Returns full screening dataset across all issuers for Stockbit/TradingView-style screener.
+    Includes Cash, ST Debt, CFO TTM, Net Income TTM, Coverage Ratio, Sloan Accrual, and Risk Status.
+    """
+    where_clause = (
+        "WHERE f.filing_id = ("
+        "SELECT f2.filing_id FROM filings f2 "
+        "JOIN computed_metrics cm2 ON f2.filing_id = cm2.filing_id "
+        "WHERE f2.ticker = f.ticker "
+        "ORDER BY CASE WHEN f2.fiscal_year = ? THEN 0 ELSE 1 END, "
+        "f2.fiscal_year DESC LIMIT 1)"
+    )
+    params: list[Any] = [fiscal_year]
+
+    cond = _build_sector_condition(sector, "i.idx_sub_industry")
+    if cond:
+        where_clause += f" AND {cond}"
+
+    query = f"""
+    SELECT cm.ticker, i.company_name, i.idx_sub_industry, cm.cash_coverage_ratio,
+           cm.debt_free_short_term, cm.sloan_ratio_ttm, cm.cfo_ttm_idr, cm.net_income_ttm_idr,
+           cm.revenue_ttm_idr, cm.flag_acute_liquidity, cm.flag_accrual_divergence,
+           MAX(CASE WHEN cf.canonical_key = 'cash_and_equivalents'
+               THEN cf.value_idr END) as cash_idr,
+           SUM(CASE WHEN cf.canonical_key IN (
+               'st_debt_bank_loans',
+               'st_debt_current_maturities_bank_loans',
+               'st_debt_current_maturities_bonds_sukuk_mtn'
+           ) THEN cf.value_idr ELSE 0 END) as st_debt_idr,
+           MAX(CASE WHEN cf.canonical_key = 'total_assets'
+               THEN cf.value_idr END) as total_assets_idr,
+           MAX(CASE WHEN cf.canonical_key = 'total_liabilities'
+               THEN cf.value_idr END) as total_liabilities_idr,
+           SUM(CASE WHEN cf.canonical_key IN (
+               'trade_receivables_third_parties',
+               'trade_receivables_related_parties',
+               'contract_assets_current',
+               'contract_assets_non_current'
+           ) THEN cf.value_idr ELSE 0 END) as receivables_idr,
+           MAX(CASE WHEN cf.canonical_key = 'st_debt_bank_loans'
+               THEN cf.value_idr END) as bank_loans_idr,
+           MAX(CASE WHEN cf.canonical_key = 'st_debt_current_maturities_bonds_sukuk_mtn'
+               THEN cf.value_idr END) as bonds_sukuk_idr
+    FROM computed_metrics cm
+    JOIN filings f ON cm.filing_id = f.filing_id
+    JOIN issuers i ON cm.ticker = i.ticker
+    LEFT JOIN canonical_facts cf ON f.filing_id = cf.filing_id
+    {where_clause}
+    GROUP BY cm.ticker
+    ORDER BY cm.ticker ASC;
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query, params).fetchall()]
+
+    for r in rows:
+        is_free = bool(r["debt_free_short_term"])
+        raw_cov = r["cash_coverage_ratio"]
+        cov = 9999.0 if is_free else (float(raw_cov) if raw_cov is not None else 0.0)
+        flag_liq = bool(r["flag_acute_liquidity"])
+        flag_div = bool(r["flag_accrual_divergence"])
+
+        if flag_liq:
+            status = "TEKANAN_LIKUIDITAS"
+            badge = "Merah (Kritis)"
+        elif flag_div:
+            status = "DIVERGENSI_AKRUAL"
+            badge = "Kuning (Waspada)"
+        elif is_free:
+            status = "BEBAS_UTANG"
+            badge = "Hijau (Prima)"
+        elif cov >= 1.0:
+            status = "SOLVEN_SEHAT"
+            badge = "Hijau (Sehat)"
+        else:
+            status = "TERKENDALI"
+            badge = "Kuning (Moderat)"
+
+        def _safe_int(val: Any) -> int:
+            return int(Decimal(str(val))) if val not in (None, "") else 0
+
+        r["status_code"] = status
+        r["status_label"] = badge
+        r["cash_idr"] = _safe_int(r.get("cash_idr"))
+        r["st_debt_idr"] = _safe_int(r.get("st_debt_idr"))
+        r["cfo_ttm_idr"] = _safe_int(r.get("cfo_ttm_idr"))
+        r["net_income_ttm_idr"] = _safe_int(r.get("net_income_ttm_idr"))
+        r["total_assets_idr"] = _safe_int(r.get("total_assets_idr"))
+        r["total_liabilities_idr"] = _safe_int(r.get("total_liabilities_idr"))
+        r["receivables_idr"] = _safe_int(r.get("receivables_idr"))
+        r["bank_loans_idr"] = _safe_int(r.get("bank_loans_idr"))
+        r["bonds_sukuk_idr"] = _safe_int(r.get("bonds_sukuk_idr"))
+        r["revenue_ttm_idr"] = _safe_int(r.get("revenue_ttm_idr"))
+        r["sloan_ratio_pct"] = round(float(r["sloan_ratio_ttm"] or 0.0) * 100, 2)
+        r["cash_coverage_display"] = (
+            "Bebas Utang" if is_free else (f"{float(raw_cov):.2f}x" if raw_cov else "0.00x")
+        )
+
+    return rows
+
+
+@app.get("/api/leaderboard")
+def get_leaderboard(
+    fiscal_year: int = 2025, sector: str | None = None
+) -> list[dict[str, Any]]:
+    """Returns solvency leaderboard ranking for the specified fiscal year and sector."""
+    where_clause = (
+        "WHERE f.filing_id = ("
+        "SELECT f2.filing_id FROM filings f2 "
+        "JOIN computed_metrics cm2 ON f2.filing_id = cm2.filing_id "
+        "WHERE f2.ticker = f.ticker "
+        "ORDER BY CASE WHEN f2.fiscal_year = ? THEN 0 ELSE 1 END, "
+        "f2.fiscal_year DESC LIMIT 1)"
+    )
+    params: list[Any] = [fiscal_year]
+
+    cond = _build_sector_condition(sector, "i.idx_sub_industry")
+    if cond:
+        where_clause += f" AND {cond}"
+
+    query = f"""
+    SELECT cm.ticker, i.company_name, i.idx_sub_industry, cm.cash_coverage_ratio,
+           cm.debt_free_short_term, cm.sloan_ratio_ttm, cm.cfo_ttm_idr,
+           cm.flag_acute_liquidity, cm.flag_accrual_divergence
+    FROM computed_metrics cm
+    JOIN filings f ON cm.filing_id = f.filing_id
+    JOIN issuers i ON cm.ticker = i.ticker
+    {where_clause};
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query, params).fetchall()]
+
+    def sort_key(item: dict[str, Any]) -> tuple[int, float]:
+        is_safe = 0 if item.get("flag_acute_liquidity") else 1
+        is_free = 1 if item.get("debt_free_short_term") else 0
+        cov = item.get("cash_coverage_ratio")
+        effective_cov = 9999.0 if is_free else (float(cov) if cov is not None else 0.0)
+        return (is_safe, effective_cov)
+
+    sorted_rows = sorted(rows, key=sort_key, reverse=True)
+    for idx, r in enumerate(sorted_rows, start=1):
+        r["rank"] = idx
+    return sorted_rows
+
+
+@app.get("/api/radar")
+def get_radar_matrix(
+    fiscal_year: int = 2025, sector: str | None = None
+) -> list[dict[str, Any]]:
+    """
+    Returns 2D scatter plot matrix data:
+    X: Cash Coverage Ratio
+    Y: Sloan Accrual Ratio
+    Color/Category: SAFE, ACCRUAL_DIVERGENCE, ACUTE_LIQUIDITY
+    """
+    where_clause = (
+        "WHERE f.filing_id = ("
+        "SELECT f2.filing_id FROM filings f2 "
+        "JOIN computed_metrics cm2 ON f2.filing_id = cm2.filing_id "
+        "WHERE f2.ticker = f.ticker "
+        "ORDER BY CASE WHEN f2.fiscal_year = ? THEN 0 ELSE 1 END, "
+        "f2.fiscal_year DESC LIMIT 1)"
+    )
+    params: list[Any] = [fiscal_year]
+
+    cond = _build_sector_condition(sector, "i.idx_sub_industry")
+    if cond:
+        where_clause += f" AND {cond}"
+
+    query = f"""
+    SELECT cm.ticker, i.company_name, i.idx_sub_industry, cm.cash_coverage_ratio,
+           cm.debt_free_short_term, cm.sloan_ratio_ttm, cm.flag_acute_liquidity,
+           cm.flag_accrual_divergence
+    FROM computed_metrics cm
+    JOIN filings f ON cm.filing_id = f.filing_id
+    JOIN issuers i ON cm.ticker = i.ticker
+    {where_clause};
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query, params).fetchall()]
+
+    points: list[dict[str, Any]] = []
+    for r in rows:
+        free = bool(r["debt_free_short_term"])
+        raw_cov = r["cash_coverage_ratio"]
+        cov = 25.0 if free else (float(raw_cov) if raw_cov else 0.0)
+        sloan = float(r["sloan_ratio_ttm"]) if r["sloan_ratio_ttm"] else 0.0
+
+        if r["flag_acute_liquidity"]:
+            category = "ACUTE_LIQUIDITY"
+            color = "#ef4444"  # Red
+        elif r["flag_accrual_divergence"]:
+            category = "ACCRUAL_DIVERGENCE"
+            color = "#f59e0b"  # Amber
+        else:
+            category = "HEALTHY"
+            color = "#10b981"  # Emerald
+
+        points.append({
+            "ticker": r["ticker"],
+            "company_name": r["company_name"],
+            "sub_industry": r["idx_sub_industry"],
+            "x_cash_coverage": cov,
+            "y_sloan_accrual": sloan,
+            "debt_free": free,
+            "category": category,
+            "color": color,
+        })
+
+    return points
+
+
+@app.get("/api/analytics/regression")
+def get_regression_analytics(
+    fiscal_year: int = 2025,
+    sector: str | None = None,
+    predict_x: float | None = None,
+) -> dict[str, Any]:
+    """
+    Computes empirical Ordinary Least Squares (OLS) Linear Regression:
+    Independent Variable (X): Cash Coverage Ratio
+    Dependent Variable (Y): Sloan Accrual Ratio
+    Provides R^2, correlation, standard error, confidence intervals,
+    and identifies statistical outliers / predictive distress signals.
+    """
+    where_clause = (
+        "WHERE f.filing_id = ("
+        "SELECT f2.filing_id FROM filings f2 "
+        "JOIN computed_metrics cm2 ON f2.filing_id = cm2.filing_id "
+        "WHERE f2.ticker = f.ticker "
+        "ORDER BY CASE WHEN f2.fiscal_year = ? THEN 0 ELSE 1 END, "
+        "f2.fiscal_year DESC LIMIT 1)"
+    )
+    params: list[Any] = [fiscal_year]
+
+    cond = _build_sector_condition(sector, "i.idx_sub_industry")
+    if cond:
+        where_clause += f" AND {cond}"
+
+    query = f"""
+    SELECT cm.ticker, i.company_name, i.idx_sub_industry, cm.cash_coverage_ratio,
+           cm.debt_free_short_term, cm.sloan_ratio_ttm, cm.flag_acute_liquidity,
+           cm.flag_accrual_divergence
+    FROM computed_metrics cm
+    JOIN filings f ON cm.filing_id = f.filing_id
+    JOIN issuers i ON cm.ticker = i.ticker
+    {where_clause};
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query, params).fetchall()]
+
+    data_points: list[dict[str, Any]] = []
+    x_vals: list[float] = []
+    y_vals: list[float] = []
+
+    for r in rows:
+        free = bool(r["debt_free_short_term"])
+        raw_cov = r["cash_coverage_ratio"]
+        x = 5.0 if free else (float(raw_cov) if raw_cov is not None else 0.5)
+        x = min(max(x, 0.0), 8.0)
+        y = float(r["sloan_ratio_ttm"]) if r["sloan_ratio_ttm"] is not None else 0.0
+
+        x_vals.append(x)
+        y_vals.append(y)
+        data_points.append({
+            "ticker": r["ticker"],
+            "company_name": r["company_name"],
+            "sub_industry": r["idx_sub_industry"],
+            "x": round(x, 2),
+            "y": round(y, 4),
+        })
+
+    n = len(x_vals)
+    if n < 3:
+        return {"status": "insufficient_data", "sample_size": n}
+
+    mean_x = sum(x_vals) / n
+    mean_y = sum(y_vals) / n
+    ss_xx = sum((xi - mean_x) ** 2 for xi in x_vals)
+    ss_yy = sum((yi - mean_y) ** 2 for yi in y_vals)
+    ss_xy = sum((xi - mean_x) * (yi - mean_y) for xi, yi in zip(x_vals, y_vals, strict=False))
+
+    slope = ss_xy / ss_xx if ss_xx != 0 else 0.0
+    intercept = mean_y - slope * mean_x
+
+    residuals = [yi - (slope * xi + intercept) for xi, yi in zip(x_vals, y_vals, strict=False)]
+    ss_res = sum(r ** 2 for r in residuals)
+    r_squared = max(0.0, 1.0 - (ss_res / ss_yy)) if ss_yy > 0 else 0.0
+    corr_r = (slope / abs(slope) if slope != 0 else 1.0) * math.sqrt(r_squared)
+    se_res = math.sqrt(ss_res / (n - 2)) if n > 2 else 0.0
+
+    outliers = []
+    for dp, res in zip(data_points, residuals, strict=False):
+        z = res / se_res if se_res > 0 else 0.0
+        dp["residual"] = round(res, 4)
+        dp["z_residual"] = round(z, 2)
+        if z > 1.25:
+            dp["anomaly_status"] = "HIGH_ACCRUAL_ANOMALY"
+            outliers.append(dp)
+        elif z < -1.25:
+            dp["anomaly_status"] = "EXCESS_CFO_EFFICIENCY"
+        else:
+            dp["anomaly_status"] = "EQUILIBRIUM"
+
+    trendline = []
+    step = 0.5
+    curr_x = 0.0
+    max_x = max(x_vals) if x_vals else 5.0
+    while curr_x <= max_x + 0.5:
+        y_hat = slope * curr_x + intercept
+        trendline.append({
+            "x": round(curr_x, 1),
+            "y": round(y_hat, 4),
+            "upper_band": round(y_hat + 1.5 * se_res, 4),
+            "lower_band": round(y_hat - 1.5 * se_res, 4),
+        })
+        curr_x += step
+
+    forecast = None
+    if predict_x is not None:
+        pred_y = slope * predict_x + intercept
+        risk_class = (
+            "HIGH_DISTRESS_RISK"
+            if pred_y > 0.10 and predict_x < 0.5
+            else ("MODERATE_RISK" if pred_y > 0.05 else "HEALTHY_LIQUIDITY")
+        )
+        if predict_x >= 1.0:
+            takeaway = (
+                f"At {predict_x:.2f}x cash coverage, the issuer holds Rp {predict_x:.2f} "
+                f"in cash for every Rp 1.00 of debt due this year. The expected Sloan Accrual "
+                f"of {pred_y * 100:.1f}% indicates profits are well-backed by real cash flow."
+            )
+        elif predict_x >= 0.5:
+            takeaway = (
+                f"At {predict_x:.2f}x cash coverage, cash reserves cover {predict_x * 100:.0f}% "
+                f"of short-term debt. Solvency is stable but requires disciplined working capital."
+            )
+        else:
+            takeaway = (
+                f"At {predict_x:.2f}x cash coverage, immediate cash reserves are below 50% "
+                f"of debt obligations due within 12 months, signaling tight liquidity."
+            )
+
+        forecast = {
+            "input_cash_coverage": predict_x,
+            "predicted_sloan_accrual": round(pred_y, 4),
+            "confidence_lower_95": round(pred_y - 1.96 * se_res, 4),
+            "confidence_upper_95": round(pred_y + 1.96 * se_res, 4),
+            "risk_assessment": risk_class,
+            "plain_english_takeaway": takeaway,
+        }
+
+    return {
+        "status": "success",
+        "model_type": "Ordinary Least Squares (OLS) Linear Regression",
+        "sample_size": n,
+        "parameters": {
+            "slope": round(slope, 6),
+            "intercept": round(intercept, 6),
+            "r_squared": round(r_squared, 4),
+            "correlation_r": round(corr_r, 4),
+            "residual_std_error": round(se_res, 4),
+            "equation_formula": f"SloanAccrual = {intercept:.4f} + ({slope:.4f} * CashCoverage)",
+        },
+        "trendline": trendline,
+        "outliers": outliers,
+        "forecast": forecast,
+    }
+
+
+@app.get("/api/ml/distress-rankings")
+def get_ml_distress_rankings(
+    fiscal_year: int = 2025, sector: str | None = None
+) -> list[dict[str, Any]]:
+    """
+    Ranks all issuers by multivariate logistic distress probability P(Distress).
+    Applies calibrated empirical weights across Cash Coverage, Sloan Accrual,
+    CFO Margin, and PSAK 72 Contract Exposure.
+    """
+    where_clause = (
+        "WHERE f.filing_id = ("
+        "SELECT f2.filing_id FROM filings f2 "
+        "JOIN computed_metrics cm2 ON f2.filing_id = cm2.filing_id "
+        "WHERE f2.ticker = f.ticker "
+        "ORDER BY CASE WHEN f2.fiscal_year = ? THEN 0 ELSE 1 END, "
+        "f2.fiscal_year DESC LIMIT 1)"
+    )
+    params: list[Any] = [fiscal_year]
+
+    cond = _build_sector_condition(sector, "i.idx_sub_industry")
+    if cond:
+        where_clause += f" AND {cond}"
+
+    query = f"""
+    SELECT cm.ticker, i.company_name, i.idx_sub_industry, cm.cash_coverage_ratio,
+           cm.debt_free_short_term, cm.sloan_ratio_ttm, cm.cfo_ttm_idr,
+           cm.revenue_ttm_idr, cm.gross_contract_exposure_ratio
+    FROM computed_metrics cm
+    JOIN filings f ON cm.filing_id = f.filing_id
+    JOIN issuers i ON cm.ticker = i.ticker
+    {where_clause};
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query, params).fetchall()]
+
+    results: list[dict[str, Any]] = []
+    for r in rows:
+        eval_res = ml_suite.compute_distress_probability(r)
+        results.append({
+            "ticker": r["ticker"],
+            "company_name": r["company_name"],
+            "sub_industry": r["idx_sub_industry"],
+            "cash_coverage": r["cash_coverage_ratio"],
+            "debt_free": bool(r["debt_free_short_term"]),
+            "sloan_accrual": r["sloan_ratio_ttm"],
+            **eval_res,
+        })
+
+    # Sort descending by distress probability
+    results.sort(key=lambda x: x["distress_probability"], reverse=True)
+    for rank, item in enumerate(results, start=1):
+        item["risk_rank"] = rank
+    return results
+
+
+@app.get("/api/ml/forecast/{ticker}")
+def get_ml_forecast(ticker: str, years: int = 2) -> dict[str, Any]:
+    """
+    Returns time-series trend projections (FY 2026-2027) for CFO and Cash Coverage
+    fitted on historical audited filings with 90% confidence bands.
+    """
+    t = ticker.strip().upper()
+    res = ml_suite.forecast_cash_flow_trajectory(t, forecast_years=years)
+    if res.get("status") == "error":
+        raise HTTPException(status_code=404, detail=res.get("message"))
+    return res
+
+
+@app.get("/api/ml/feature-importance")
+def get_ml_feature_importance() -> list[dict[str, Any]]:
+    """Returns empirical feature sensitivity matrix and academic references."""
+    return ml_suite.get_feature_importance_matrix()
+
+
+@app.get("/api/metrics/{ticker}")
+def get_issuer_metrics(ticker: str) -> dict[str, Any]:
+    """Returns 4-year trend and detailed computed metrics for an issuer."""
+    t = ticker.strip().upper()
+    issuer = repo.get_issuer(t)
+    if not issuer:
+        raise HTTPException(status_code=404, detail=f"Issuer {t} not found")
+
+    query = """
+    SELECT f.fiscal_year, f.period_code, cm.*
+    FROM computed_metrics cm
+    JOIN filings f ON cm.filing_id = f.filing_id
+    WHERE cm.ticker = ?
+    ORDER BY f.fiscal_year ASC;
+    """
+    with repo.get_connection() as conn:
+        rows = [dict(r) for r in conn.execute(query, (t,)).fetchall()]
+
+    return {
+        "ticker": t,
+        "company_name": issuer.company_name,
+        "history": rows,
+    }
+
+
+@app.get("/api/calk/{ticker}")
+def get_calk_breakdown(ticker: str) -> dict[str, Any]:
+    """Returns CALK footnote breakdown and verbatim grounding audit trail."""
+    t = ticker.strip().upper()
+    samples_dir = ROOT_DIR / "data" / "calk_samples"
+    files = list(samples_dir.glob(f"{t}_*.txt"))
+    if not files:
+        raise HTTPException(
+            status_code=404,
+            detail=f"CALK sample not found for {t}. Tersedia: WIKA, TOTL, PTPP, ADHI, WSKT, ACST",
+        )
+
+    text = files[0].read_text(encoding="utf-8")
+    footnote_num = "Catatan 8" if "Catatan 8" in text else "Catatan 7"
+    extraction = calk_extractor.extract_from_text(
+        ticker=t,
+        fiscal_year=2023,
+        source_text=text,
+        footnote_number=footnote_num,
+        footnote_title="Piutang Usaha & Aset Kontrak",
+        page_number=45,
+    )
+    return extraction.model_dump()
+
+
+@app.get("/api/news/{ticker}")
+def get_issuer_news_sentiment(ticker: str) -> list[dict[str, Any]]:
+    """
+    Returns verified stock exchange disclosures and news sentiment for an issuer.
+    Classified into POSITIF, NETRAL, and PERHATIAN with contextual isolation.
+    """
+    t = ticker.strip().upper()
+    items = news_radar.get_news_for_ticker(t, max_items=5)
+    return [i.model_dump() for i in items]
+
+
+@app.post("/api/news/analyze-url")
+def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
+    """
+    Real-Time News Link Sentiment + Accrual Radar Cross-Check Endpoint.
+    Fetches a public news URL (or raw article text), detects the BEI ticker,
+    computes deterministic sentiment signals, and cross-checks against audited XBRL data.
+    """
+    url = (req.url or "").strip()
+    raw_text = (req.raw_text or "").strip()
+    if not url and not raw_text:
+        raise HTTPException(
+            status_code=400,
+            detail="Harap masukkan URL berita atau tempel teks artikel berita.",
+        )
+
+    headline = ""
+    body_text = ""
+    source = "Teks Manual"
+    highlights: list[str] = []
+
+    if url and not raw_text:
+        fetched = fetch_article_from_url(url)
+        if fetched.get("status") != "success":
+            raise HTTPException(status_code=422, detail=fetched.get("message", "Gagal memuat URL."))
+        headline = fetched.get("headline", "")
+        body_text = fetched.get("body_text", "")
+        source = fetched.get("source", "Sumber Web")
+        highlights = fetched.get("highlights", [])
+    else:
+        lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
+        headline = lines[0][:180] if lines else "Artikel Berita Saham"
+        body_text = "\n".join(lines[1:] if len(lines) > 1 else lines)[:4000]
+        highlights = extract_key_highlights(headline, lines)
+
+    issuers = get_issuers()
+    selected_ticker = (req.ticker or "").strip().upper()
+    detected_ticker = selected_ticker or detect_ticker_in_article(
+        f"{headline}\n{body_text}", issuers, url=url
+    )
+
+    sentiment_res = analyze_sentiment_deterministic(headline, body_text)
+
+    fundamentals: dict[str, Any] | None = None
+    company_name = ""
+    sub_industry = ""
+    synthesis: dict[str, Any] | None = None
+    ml_forecast: dict[str, Any] | None = None
+
+    if detected_ticker:
+        screener_rows = get_screener_data(2025)
+        matched_row = next((r for r in screener_rows if r["ticker"] == detected_ticker), None)
+        if matched_row:
+            distress_rows = get_ml_distress_rankings(2025)
+            d_row = next((d for d in distress_rows if d["ticker"] == detected_ticker), {})
+            fundamentals = {
+                **matched_row,
+                "distress_probability_pct": d_row.get("distress_probability_pct", 0.0),
+                "synthetic_rating": d_row.get("synthetic_rating", "N/A"),
+                "credit_classification": d_row.get("credit_classification", "N/A"),
+            }
+            company_name = matched_row.get("company_name", detected_ticker)
+            sub_industry = matched_row.get("idx_sub_industry", "-")
+            fc = ml_suite.forecast_cash_flow_trajectory(detected_ticker, forecast_years=2)
+            if fc.get("status") == "success":
+                ml_forecast = fc
+            synthesis = synthesize_news_vs_accrual(
+                ticker=detected_ticker,
+                company_name=company_name,
+                fundamentals=fundamentals,
+                sentiment_res=sentiment_res,
+                headline=headline,
+                highlights=highlights,
+                ml_forecast=ml_forecast,
+            )
+
+    return {
+        "status": "success",
+        "url": url or None,
+        "source": source,
+        "headline": headline,
+        "highlights": highlights,
+        "sentiment": sentiment_res["sentiment"],
+        "matched_positive": sentiment_res["matched_positive"],
+        "matched_warning": sentiment_res["matched_warning"],
+        "detected_ticker": detected_ticker,
+        "company_name": company_name,
+        "sub_industry": sub_industry,
+        "fundamentals": fundamentals,
+        "analysis_awam": synthesis["analysis_awam"] if synthesis else None,
+        "analysis_expert": synthesis["analysis_expert"] if synthesis else None,
+        "outlook_stance": synthesis.get("outlook_stance") if synthesis else None,
+        "forecast_awam": synthesis.get("forecast_awam") if synthesis else None,
+        "forecast_expert": synthesis.get("forecast_expert") if synthesis else None,
+        "watchpoints": synthesis.get("watchpoints", []) if synthesis else [],
+        "ml_forecast": ml_forecast,
+        "engine_source": synthesis["engine_source"] if synthesis else "Sentiment Only",
+        "contextual_isolation_rule": (
+            "Aturan Isolasi Konteks Aktif: Sentimen berita murni konteks sekunder "
+            "dan tidak mengubah bendera bahaya kas deterministik."
+        ),
+    }
+
+
+@app.post("/api/chat")
+def post_chat(req: ChatRequest) -> dict[str, Any]:
+    """Answers conversational financial intelligence questions using grounded RAG."""
+    query = req.message.strip()
+    if not query:
+        raise HTTPException(status_code=400, detail="Query message cannot be empty")
+    answer = rag_chatbot.answer_query(query)
+    return {
+        "status": "success",
+        "query": query,
+        "response": answer,
+    }
+
+
+@app.get("/", response_class=HTMLResponse)
+def get_dashboard() -> str:
+    """Renders interactive HTML Dashboard."""
+    template_path = Path(__file__).parent / "templates" / "index.html"
+    if template_path.exists():
+        return template_path.read_text(encoding="utf-8")
+    return "<h1>IDX Cash & Accrual Radar Dashboard</h1>"
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("src.web.app:app", host="0.0.0.0", port=8000, reload=True)

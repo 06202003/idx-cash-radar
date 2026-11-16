@@ -1,0 +1,482 @@
+{
+  "ADHI_2023_FY": {
+    "ticker": "ADHI",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ADHI\\2023\\instance_ADHI_2023_FY.xbrl",
+    "sha256": "5ee9a4c641fc95be39ffe4288e134c59b6fa66ecc5572b33797398b3f466cf1c",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:26Z"
+  },
+  "PTPP_2023_FY": {
+    "ticker": "PTPP",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PTPP\\2023\\instance_PTPP_2023_FY.xbrl",
+    "sha256": "f1e41f4760fd8048e113a44419c232163e6a8c84cb27f48768e5e13a18c74ca5",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:47Z"
+  },
+  "WIKA_2023_FY": {
+    "ticker": "WIKA",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WIKA\\2023\\instance_WIKA_2023_FY.xbrl",
+    "sha256": "f66440dc61dadc79947fc485b6fb9a8817f64847b9ba69168f2e6415516028d5",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:19Z"
+  },
+  "ADHI_2024_FY": {
+    "ticker": "ADHI",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ADHI\\2024\\instance_ADHI_2024_FY.xbrl",
+    "sha256": "e56198200c60364b89c0929e2fbb74258a4f0ab26ff3d65f4dba348dd36aa33d",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:19Z"
+  },
+  "WIKA_2022_FY": {
+    "ticker": "WIKA",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WIKA\\2022\\instance_WIKA_2022_FY.xbrl",
+    "sha256": "3ae2b566902acd63167de799989edccf3f3a00401cf351bcf29aa3d1b2d082b2",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:21Z"
+  },
+  "WSKT_2022_FY": {
+    "ticker": "WSKT",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WSKT\\2022\\instance_WSKT_2022_FY.xbrl",
+    "sha256": "fc3d2621b9a9c95cf43d22ad10ba0458e657654d62dabfbba5aeaf47b8f02ed6",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:23Z"
+  },
+  "WSKT_2023_FY": {
+    "ticker": "WSKT",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WSKT\\2023\\instance_WSKT_2023_FY.xbrl",
+    "sha256": "fde64609a3ef322ce3a0c9139c324ec2202ee9ea7889f4bd608e6818a1904c48",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:23Z"
+  },
+  "WSKT_2024_FY": {
+    "ticker": "WSKT",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WSKT\\2024\\instance_WSKT_2024_FY.xbrl",
+    "sha256": "9da50bb35bc5ddd0d20b5728adc0bb5e41019e7e1161f79c03181856b705ed6c",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:23Z"
+  },
+  "WSKT_2025_FY": {
+    "ticker": "WSKT",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WSKT\\2025\\instance_WSKT_2025_FY.xbrl",
+    "sha256": "ccf8af42228ba6b3878e1a8e4970ac4f27b06bf210f071bacdc214d3915a08b9",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:24Z"
+  },
+  "WEGE_2025_FY": {
+    "ticker": "WEGE",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WEGE\\2025\\instance_WEGE_2025_FY.xbrl",
+    "sha256": "cad4f6a65f073fe49e5f2a000a940c44e9dd53dfca4cc72889c6c8e0220bf4d5",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:24Z"
+  },
+  "WEGE_2024_FY": {
+    "ticker": "WEGE",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WEGE\\2024\\instance_WEGE_2024_FY.xbrl",
+    "sha256": "c372e32c3789f1a25ea16c7124e5997284c931df5c2ff67eb92f22d313ed5ea8",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:24Z"
+  },
+  "WEGE_2023_FY": {
+    "ticker": "WEGE",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WEGE\\2023\\instance_WEGE_2023_FY.xbrl",
+    "sha256": "03dbf1eab96b43b94181b43a9d947a786df7a353b71b507c73b74a0fb1cce265",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:24Z"
+  },
+  "WEGE_2022_FY": {
+    "ticker": "WEGE",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WEGE\\2022\\instance_WEGE_2022_FY.xbrl",
+    "sha256": "ce234a030a94a84a8c724c2a58eb9194783446572163e5584ac2ef3f8a9047ab",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:26Z"
+  },
+  "PPRE_2022_FY": {
+    "ticker": "PPRE",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PPRE\\2022\\instance_PPRE_2022_FY.xbrl",
+    "sha256": "a0a1b9272243c57a87361b0bb189ce13eb96263d550fa15c7a181c848330a7a3",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "PPRE_2023_FY": {
+    "ticker": "PPRE",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PPRE\\2023\\instance_PPRE_2023_FY.xbrl",
+    "sha256": "0fec567920dfe7af4e6f6413e72bfafe52d39eb2d4048b317390ebec7a935df5",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "PPRE_2024_FY": {
+    "ticker": "PPRE",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PPRE\\2024\\instance_PPRE_2024_FY.xbrl",
+    "sha256": "515578634f44cbffc29ae455e866fb8ac760dbd780ec832c4888443007506a9d",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "PPRE_2025_FY": {
+    "ticker": "PPRE",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PPRE\\2025\\instance_PPRE_2025_FY.xbrl",
+    "sha256": "acd7b0999afe70ed5e73917297437f50a61495a4cb2b4cdef25097e1f603a040",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "TOTL_2025_FY": {
+    "ticker": "TOTL",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\TOTL\\2025\\instance_TOTL_2025_FY.xbrl",
+    "sha256": "fa09b61f4b1b5436c305c4f72ce0a5b973cf2f5c72847a019c2477072c663314",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "TOTL_2024_FY": {
+    "ticker": "TOTL",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\TOTL\\2024\\instance_TOTL_2024_FY.xbrl",
+    "sha256": "7961c4b828e49e78ae22179f5ed83229828e2a09af0abb0f039fe2f5bceeab35",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "TOTL_2023_FY": {
+    "ticker": "TOTL",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\TOTL\\2023\\instance_TOTL_2023_FY.xbrl",
+    "sha256": "62a6a7a21a67daf0ce6f13a3ac08b22055b260c4778960e3cb5e0b84545e86b9",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:28Z"
+  },
+  "TOTL_2022_FY": {
+    "ticker": "TOTL",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\TOTL\\2022\\instance_TOTL_2022_FY.xbrl",
+    "sha256": "3ea96ad96d1729d8190c1581fcbdbbc067ef7aa4348bb203335da407c328ef4c",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:29Z"
+  },
+  "NRCA_2022_FY": {
+    "ticker": "NRCA",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\NRCA\\2022\\instance_NRCA_2022_FY.xbrl",
+    "sha256": "2712d6a3a878d3d0493c8630939e25b493208498217062c2c9b19be396926d51",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:31Z"
+  },
+  "NRCA_2023_FY": {
+    "ticker": "NRCA",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\NRCA\\2023\\instance_NRCA_2023_FY.xbrl",
+    "sha256": "8e18d884505290ed0adbd0050b446c21e09708ae7c197002484daa9c0662ffd0",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:32Z"
+  },
+  "ADHI_2022_FY": {
+    "ticker": "ADHI",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ADHI\\2022\\instance_ADHI_2022_FY.xbrl",
+    "sha256": "9ed32172c04646d62817219a9f25cc18e32537603e5b2e6d687807667f73e7a9",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:35Z"
+  },
+  "NRCA_2024_FY": {
+    "ticker": "NRCA",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\NRCA\\2024\\instance_NRCA_2024_FY.xbrl",
+    "sha256": "7c236663f7d3bad6d616c755c83d3e1e0dda940700b12e00488c943d8864ebd1",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:36Z"
+  },
+  "NRCA_2025_FY": {
+    "ticker": "NRCA",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\NRCA\\2025\\instance_NRCA_2025_FY.xbrl",
+    "sha256": "641550101cd0924c64ca7e1af78891ef7a33b5bfc369e91f7560e83611ea53ce",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:36Z"
+  },
+  "ACST_2025_FY": {
+    "ticker": "ACST",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ACST\\2025\\instance_ACST_2025_FY.xbrl",
+    "sha256": "ddf47a96a9f60b2c83dcdff93be8ddb41989fea8c1a1468fe391fade702de589",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:36Z"
+  },
+  "ACST_2024_FY": {
+    "ticker": "ACST",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ACST\\2024\\instance_ACST_2024_FY.xbrl",
+    "sha256": "cc8290475becd35304b29efe4dea7eebb1e9cccc3c0269df1d8b639c070efe9b",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:37Z"
+  },
+  "ACST_2023_FY": {
+    "ticker": "ACST",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ACST\\2023\\instance_ACST_2023_FY.xbrl",
+    "sha256": "9bb0bf8f7625e5e5d62af1114982e1f35ddab66143f30e4024c71f89deb3c34e",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:37Z"
+  },
+  "ACST_2022_FY": {
+    "ticker": "ACST",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ACST\\2022\\instance_ACST_2022_FY.xbrl",
+    "sha256": "67a41127fee99355f23b1e215b8e0155c4a2490b34106e557b04ce45c32116df",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:39Z"
+  },
+  "JKON_2022_FY": {
+    "ticker": "JKON",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\JKON\\2022\\instance_JKON_2022_FY.xbrl",
+    "sha256": "5bef263541b2441bf59c872592415b5844947722c8b54b82c0d01ed0688faccb",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:40Z"
+  },
+  "JKON_2023_FY": {
+    "ticker": "JKON",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\JKON\\2023\\instance_JKON_2023_FY.xbrl",
+    "sha256": "15810260a5c710e69c705836be9e9f879d6e11621a81552281e3adb21d130ede",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:40Z"
+  },
+  "JKON_2024_FY": {
+    "ticker": "JKON",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\JKON\\2024\\instance_JKON_2024_FY.xbrl",
+    "sha256": "7fb39fb4df32d7cb72ad3c858487117ded146cbf256192023f329a95fa313565",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:40Z"
+  },
+  "JKON_2025_FY": {
+    "ticker": "JKON",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\JKON\\2025\\instance_JKON_2025_FY.xbrl",
+    "sha256": "db8c7d06f3513bbde2f84ae532c38d0910072812b75a3a10bac76c71e9f2bb17",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:41Z"
+  },
+  "PTPP_2022_FY": {
+    "ticker": "PTPP",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PTPP\\2022\\instance_PTPP_2022_FY.xbrl",
+    "sha256": "b0808a24ff4138b7a373bf904581e1b51ebb86f9df4513b58de3a151ba513e3d",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:42Z"
+  },
+  "DGIK_2025_FY": {
+    "ticker": "DGIK",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\DGIK\\2025\\instance_DGIK_2025_FY.xbrl",
+    "sha256": "c95e2074e021fa7a1061c51647d0ded31a492c7ce652b848d59d12b9a3efcac8",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:42Z"
+  },
+  "DGIK_2024_FY": {
+    "ticker": "DGIK",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\DGIK\\2024\\instance_DGIK_2024_FY.xbrl",
+    "sha256": "80bb8d4ab6fed3efe2c7027f8471f0e8907bd468fae934f5ba603a64484eea3f",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:42Z"
+  },
+  "DGIK_2023_FY": {
+    "ticker": "DGIK",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\DGIK\\2023\\instance_DGIK_2023_FY.xbrl",
+    "sha256": "c260b221a7d9e99c0861114c4a1f78562e222c963ea64a2f12fef695db448a60",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:42Z"
+  },
+  "DGIK_2022_FY": {
+    "ticker": "DGIK",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\DGIK\\2022\\instance_DGIK_2022_FY.xbrl",
+    "sha256": "776c9d24b7b3e67499288a904fc79cbadc3e70cfcdb322814cc7079af36a8d73",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:45Z"
+  },
+  "PBSA_2022_FY": {
+    "ticker": "PBSA",
+    "year": 2022,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PBSA\\2022\\instance_PBSA_2022_FY.xbrl",
+    "sha256": "2ab33d1da2390bb360dcf2772d2571c538edc02ff121a480a50ed1729f8aec7f",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:47Z"
+  },
+  "PBSA_2023_FY": {
+    "ticker": "PBSA",
+    "year": 2023,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PBSA\\2023\\instance_PBSA_2023_FY.xbrl",
+    "sha256": "61569cdf4a8e1c173aca82d6e64feda3256a33c1597f1c13aa1d365f05ab4033",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:47Z"
+  },
+  "PBSA_2024_FY": {
+    "ticker": "PBSA",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PBSA\\2024\\instance_PBSA_2024_FY.xbrl",
+    "sha256": "673a2ab54f3e0eaff6daafbeb6f7c6a282830a5685bbcbfe273fe41b41788b97",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:47Z"
+  },
+  "PBSA_2025_FY": {
+    "ticker": "PBSA",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PBSA\\2025\\instance_PBSA_2025_FY.xbrl",
+    "sha256": "451c93646b5a00251b0c0e4a47e481ed1496f5877df8fc54fede89472aa6d72d",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:47Z"
+  },
+  "PTPP_2024_FY": {
+    "ticker": "PTPP",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PTPP\\2024\\instance_PTPP_2024_FY.xbrl",
+    "sha256": "e8444a70e46df3fc449ffec7f775812578eca8f5a51831a7dbd6a31d379944a5",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:48Z"
+  },
+  "PTPP_2025_FY": {
+    "ticker": "PTPP",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\PTPP\\2025\\instance_PTPP_2025_FY.xbrl",
+    "sha256": "e6e238e83a1399ddcb187ee4d32bc226c1a6240ed72944e2ef66a8db9598946a",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:48Z"
+  },
+  "WIKA_2025_FY": {
+    "ticker": "WIKA",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WIKA\\2025\\instance_WIKA_2025_FY.xbrl",
+    "sha256": "876515f5d4b7a76bb2ef79fa892bb653b9ed48d0933f08c2c0c46596e3961b22",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:48Z"
+  },
+  "WIKA_2024_FY": {
+    "ticker": "WIKA",
+    "year": 2024,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\WIKA\\2024\\instance_WIKA_2024_FY.xbrl",
+    "sha256": "a8229d37219fd1aac40379faed36157c318583d53a09f07c11a362222fab0149",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:49Z"
+  },
+  "ADHI_2025_FY": {
+    "ticker": "ADHI",
+    "year": 2025,
+    "period": "FY",
+    "xbrl_path": "data\\raw_xbrl\\ADHI\\2025\\instance_ADHI_2025_FY.xbrl",
+    "sha256": "1a4d183dddf0660ae650d048bfb04cbc2d08c8021d32846146e25ad12037549a",
+    "status": "COMPLETED",
+    "source": "local_import",
+    "updated_at": "2026-11-11T07:58:49Z"
+  }
+}

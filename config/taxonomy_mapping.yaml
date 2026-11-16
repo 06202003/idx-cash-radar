@@ -1,0 +1,182 @@
+# IDX XBRL Taxonomy Mapping Dictionary (Result of Gate 0 Taxonomy Spike)
+# Project: IDX Cash & Accrual Radar (MVP v1.2)
+# Verified on empirical filings from IDX Construction Sector (WIKA, ADHI, PTPP)
+
+version: "1.0.0"
+namespace_cor: "http://www.idx.co.id/xbrl/taxonomy/2020-01-01/cor"
+
+# Zero-dimension context rules
+zero_dimension_rules:
+  forbidden_descendant_tags:
+    - "segment"
+    - "scenario"
+    - "explicitMember"
+    - "typedMember"
+  instant_target_roles:
+    - "BalanceSheet"
+    - "StatementOfFinancialPosition"
+  duration_target_roles:
+    - "IncomeStatement"
+    - "ProfitLoss"
+    - "CashFlows"
+
+# Canonical mappings for the 8 key items
+canonical_tags:
+  cash_and_equivalents:
+    description: "Kas dan Setara Kas (Aset Lancar)"
+    period_type: "instant"
+    primary_tags:
+      - "CashAndCashEquivalents"
+      - "CashAndCashEquivalentsCashFlows"
+    cash_flow_ending_tags:
+      - "CashAndCashEquivalentsCashFlows"
+      - "CashAndCashEquivalentsCashFlowStatement"
+
+  trade_receivables:
+    third_parties:
+      description: "Piutang Usaha Pihak Ketiga Neto"
+      period_type: "instant"
+      primary_tags:
+        - "TradeReceivablesThirdParties"
+    related_parties:
+      description: "Piutang Usaha Pihak Berelasi Neto"
+      period_type: "instant"
+      primary_tags:
+        - "TradeReceivablesRelatedParties"
+
+  contract_assets:
+    current:
+      description: "Aset Kontrak Lancar / Tagihan Bruto kepada Pemberi Kerja"
+      period_type: "instant"
+      primary_tags:
+        - "UnbilledReceivablesThirdParties"
+        - "UnbilledReceivablesRelatedParties"
+        - "RetentionReceivablesThirdParties"
+        - "RetentionReceivablesRelatedParties"
+        - "CurrentContractAssets"
+        - "ContractAssetsCurrent"
+        - "ContractAssets"
+        - "GrossAmountDueFromCustomersCurrent"
+        - "GrossAmountDueFromCustomers"
+    non_current:
+      description: "Aset Kontrak Tidak Lancar"
+      period_type: "instant"
+      primary_tags:
+        - "Non-CurrentContractAssets"
+        - "NonCurrentContractAssets"
+        - "ContractAssetsNonCurrent"
+        - "GrossAmountDueFromCustomersNonCurrent"
+
+  contract_liabilities:
+    current:
+      description: "Liabilitas Kontrak Lancar / Uang Muka Proyek"
+      period_type: "instant"
+      primary_tags:
+        - "CurrentAdvancesFromCustomersThirdParties"
+        - "CurrentAdvancesFromCustomersRelatedParties"
+        - "CurrentContractLiabilities"
+        - "CurrentUnearnedRevenue"
+        - "AdvancesFromCustomersThirdParties"
+        - "AdvancesFromCustomersRelatedParties"
+        - "AdvancesFromCustomersCurrent"
+        - "ContractLiabilitiesCurrent"
+        - "GrossAmountDueToCustomersCurrent"
+    non_current:
+      description: "Liabilitas Kontrak Jangka Panjang"
+      period_type: "instant"
+      primary_tags:
+        - "Non-CurrentContractLiabilities"
+        - "NonCurrentContractLiabilities"
+        - "NonCurrentAdvancesFromCustomersThirdParties"
+        - "NonCurrentAdvancesFromCustomersRelatedParties"
+        - "AdvancesFromCustomersNonCurrent"
+        - "GrossAmountDueToCustomersNonCurrent"
+
+  short_term_interest_bearing_debt:
+    bank_loans:
+      description: "Pinjaman Bank Jangka Pendek"
+      period_type: "instant"
+      primary_tags:
+        - "ShortTermBankLoans"
+        - "ShortTermNonBankLoans"
+        - "ShortTermLoans"
+    current_maturities_bank_loans:
+      description: "Bagian Lancar Pinjaman Bank Jangka Panjang"
+      period_type: "instant"
+      primary_tags:
+        - "CurrentMaturitiesOfBankLoans"
+        - "CurrentMaturitiesOfLongTermBankLoans"
+        - "CurrentMaturitiesOfLongTermLoans"
+        - "CurrentPortionOfLongTermBankLoans"
+    current_maturities_bonds_sukuk_mtn:
+      description: "Bagian Lancar Obligasi, Sukuk, dan MTN"
+      period_type: "instant"
+      primary_tags:
+        - "CurrentMaturitiesOfBondsPayable"
+        - "CurrentMaturitiesOfSukuk"
+        - "CurrentMaturitiesOfSukukPayable"
+        - "CurrentMaturitiesOfMediumTermNotes"
+        - "CurrentMaturitiesOfBonds"
+    current_portion_lease_liabilities:
+      description: "Liabilitas Sewa Pembiayaan Jangka Pendek"
+      period_type: "instant"
+      primary_tags:
+        - "CurrentMaturitiesOfFinanceLeaseLiabilities"
+        - "CurrentPortionOfLeaseLiabilities"
+        - "CurrentMaturitiesOfLeaseLiabilities"
+
+  revenue:
+    description: "Pendapatan Usaha (Laba Rugi)"
+    period_type: "duration"
+    primary_tags:
+      - "SalesAndRevenue"
+      - "SalesAndRevenues"
+      - "Revenues"
+      - "RevenueFromContractsWithCustomers"
+
+  net_income:
+    description: "Laba Bersih Tahun Berjalan"
+    period_type: "duration"
+    primary_tags:
+      - "ProfitLoss"
+      - "NetIncome"
+      - "ProfitLossAttributableToOwnersOfParent"
+
+  cfo:
+    description: "Arus Kas Bersih yang Diperoleh dari (Digunakan untuk) Aktivitas Operasi"
+    period_type: "duration"
+    primary_tags:
+      - "NetCashFlowsReceivedFromUsedInOperatingActivities"
+      - "NetCashFlowsFromUsedInOperatingActivities"
+      - "NetCashFlowsFromOperatingActivities"
+
+# 4-Way Sanity Check Target Tags
+sanity_check_tags:
+  total_assets:
+    - "Assets"
+    - "TotalAssets"
+  total_liabilities:
+    - "Liabilities"
+    - "TotalLiabilities"
+  total_equity:
+    - "Equity"
+    - "TotalEquity"
+  equity_parent_components:
+    parent:
+      - "EquityAttributableToEquityOwnersOfParentEntity"
+      - "EquityAttributableToOwnersOfParent"
+    non_controlling_interests:
+      - "NonControllingInterests"
+  current_assets:
+    - "CurrentAssets"
+    - "TotalCurrentAssets"
+  non_current_assets:
+    - "NonCurrentAssets"
+    - "TotalNonCurrentAssets"
+  current_liabilities:
+    - "CurrentLiabilities"
+    - "TotalCurrentLiabilities"
+  non_current_liabilities:
+    - "NonCurrentLiabilities"
+    - "TotalNonCurrentLiabilities"
+

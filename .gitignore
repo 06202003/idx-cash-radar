@@ -1,0 +1,25 @@
+# Python & Virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+env/
+venv/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# Local data & outputs
+spike_samples/
+spike_results.json
+*.db
+*.sqlite3
+
+# Environment variables
+.env
+
+

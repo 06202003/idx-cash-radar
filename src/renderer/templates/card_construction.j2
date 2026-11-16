@@ -1,0 +1,55 @@
+🏗️ DIAGNOSTIK KAS & AKRUAL EMITEN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 Emiten       : {{ company_name }} ({{ ticker }})
+🏷️ Sub-Industri : Konstruksi Bangunan & Rekayasa Sipil
+📅 Periode      : {{ period_code }} {{ fiscal_year }} ({{ 'AUDITED' if is_audited else 'UNAUDITED' }})
+🚦 Status Kas   : {{ '🔴 ' if ('PERHATIAN' in status_safeguard or 'TEKANAN' in status_safeguard) else ('🟡 ' if 'DIVERGENSI' in status_safeguard else '🟢 ') }}{{ status_safeguard }}
+
+💡 KESIMPULAN CEPAT UNTUK INVESTOR:
+{% if 'TEKANAN' in status_safeguard or 'PERHATIAN' in status_safeguard %}
+⚠️ KONDISI KAS KETAT: Cadangan kas bebas tipis untuk melunasi utang bank segera. Sebagian besar modal masih tertahan di tagihan proyek.
+{% elif 'DIVERGENSI' in status_safeguard %}
+⚠️ LABA DI ATAS KERTAS: Perusahaan mencatat laba pembukuan, tetapi uang kas belum masuk ke rekening karena masih berupa tagihan proyek.
+{% else %}
+🟢 KONDISI AMAN: Kas operasional positif menghasilkan uang nyata dan bantalan kas memadai untuk menutup kewajiban jangka pendek.
+{% endif %}
+
+📊 PILAR METRIK KUANTITATIF (vs. {{ peer_count }} Peer Aktif)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1️⃣ Intensitas Eksposur Kontrak (PSAK 72):
+   (Modal kerja yang tertahan di tagihan proyek klien)
+   {{ gross_bar }} {{ gross_ratio }} Pendapatan
+   • Neto  : {{ net_ratio }} (setelah Liabilitas Kontrak){% if divergence_bps %} ({{ divergence_bps }} YoY){% endif %}
+   • Posisi: {{ cohort_rank_contract }}
+
+2️⃣ Kualitas Laba Kas (Sloan Accrual TTM):
+   (Uang Kas Riil vs Laba di Kertas)
+   • Rasio : {{ sloan_ratio }} ({{ cohort_rank_sloan }})
+   • Kas vs Laba: CFO Rp {{ cfo_ttm }} vs Laba Bersih Rp {{ net_income }}
+   • Makna : {% if is_cfo_negative %}Kas operasional defisit (uang tunai tergerus){% else %}Arus kas operasi surplus (menghasilkan uang riil){% endif %}
+
+3️⃣ Solvabilitas Utang Jangka Pendek:
+   (Kekuatan kas melunasi utang bank jatuh tempo <= 1 tahun)
+   {{ cov_bar }} {{ cash_coverage if cash_coverage != 'N/A' else 'N/A' }}{{ 'x' if cash_coverage != 'N/A' else '' }}
+   • Kas Bebas : Rp {{ cash }}
+   • Utang Bank: Rp {{ st_debt }} ({{ cohort_rank_coverage }})
+   • Makna : {% if is_debt_free %}Sangat aman (bebas beban utang bank jangka pendek 🟢){% elif is_coverage_low %}Bantalan kas sempit (tersedia kas Rp {{ cash_coverage }} per Rp 1 utang bank ⚠️){% else %}Bantalan kas memadai dalam batas wajar 🟢{% endif %}
+{% if ai_narrative %}
+
+💡 RINGKASAN EKSEKUTIF (AI Interpretasi & Korelasi Berita):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{ ai_narrative }}
+{% endif %}
+{% if news_items %}
+
+📰 SENTIMEN BERITA & KETERBUKAAN BEI:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% for item in news_items %}
+• {{ item.date }} [{{ item.sentiment }}]: {{ item.headline }}
+{% endfor %}
+{% endif %}
+
+🔗 AUDIT TRAIL DATA BEI (instance.xbrl):
+• Piutang & Aset Kontrak: [{{ tag_receivable }}], [{{ tag_contract }}]
+• Arus Kas Operasi (CFO) : [{{ tag_cfo }}]
+• Utang Berbunga JP      : [{{ tag_debt }}]

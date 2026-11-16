@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  idx-radar-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: idx_cash_radar_bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./idx_cash_radar.db:/app/idx_cash_radar.db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+

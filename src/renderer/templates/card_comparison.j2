@@ -1,0 +1,39 @@
+⚖️ KOMPARASI HEAD-TO-HEAD KETAHANAN KAS
+{{ '━' * 42 }}
+Emiten A: {{ m1.ticker }} ({{ name1 }})
+Emiten B: {{ m2.ticker }} ({{ name2 }})
+Periode : FY {{ fiscal_year }}
+
+📊 METRIK KAS & LIKUIDITAS:
+{{ '─' * 42 }}
+1. Kas & Setara Kas (Uang riil siap pakai di rekening):
+   • {{ m1.ticker }}: Rp {{ cash1_str }}
+   • {{ m2.ticker }}: Rp {{ cash2_str }}
+
+2. Utang Berbunga Jangka Pendek (Utang bank jatuh tempo <= 1 tahun):
+   • {{ m1.ticker }}: Rp {{ debt1_str }}
+   • {{ m2.ticker }}: Rp {{ debt2_str }}
+
+3. Solvabilitas Kas (Cash Coverage - Daya tahan bayar utang):
+   • {{ m1.ticker }}: {{ cov1_str }}
+   • {{ m2.ticker }}: {{ cov2_str }}
+
+4. Arus Kas Operasional (CFO TTM - Uang masuk dari proyek):
+   • {{ m1.ticker }}: Rp {{ cfo1_str }}
+   • {{ m2.ticker }}: Rp {{ cfo2_str }}
+
+5. Sloan Accrual Ratio (Kualitas laba - makin rendah makin nyata kasnya):
+   • {{ m1.ticker }}: {{ sloan1_str }}
+   • {{ m2.ticker }}: {{ sloan2_str }}
+
+6. Status Evaluasi Kas (Lampu indikator risiko):
+   • {{ m1.ticker }}: {{ status1_badge }}
+   • {{ m2.ticker }}: {{ status2_badge }}
+{{ '━' * 42 }}
+🤖 SINTESIS PERBANDINGAN (AI RADAR):
+{{ ai_narrative }}
+{{ '━' * 42 }}
+💡 Tips Investor Awam:
+• Emiten dengan cadangan kas bebas utang memiliki ketahanan likuiditas paling aman.
+• Jangan hanya terpaku pada laba pembukuan, pastikan Arus Kas Operasi (CFO) bernilai positif.
+ℹ️ Data deterministik dari dokumen resmi XBRL BEI tanpa opini spekulatif.

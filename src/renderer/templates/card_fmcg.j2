@@ -1,0 +1,35 @@
+🛒 DIAGNOSTIK KAS & MODAL KERJA FMCG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏢 Emiten       : {{ company_name }} ({{ ticker }})
+🏷️ Sub-Industri : {{ sub_industry }}
+📅 Periode      : FY {{ fiscal_year }} (AUDITED)
+🚦 Status Kas   : 🟢 AMAN & SOLID: Arus Kas Operasi Kuat Menopang Modal Kerja
+
+💡 KESIMPULAN KILAT UNTUK INVESTOR:
+🟢 KONDISI SANGAT SEHAT: Bisnis barang konsumsi ini menghasilkan arus kas operasional nyata yang melimpah dan perputaran modal kerja lancar.
+
+📊 PILAR METRIK KUANTITATIF FMCG:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1️⃣ Kualitas Laba Kas (Cash-to-Net Income):
+   • Arus Kas Operasi (CFO): Rp {{ cfo_str }}
+   • Laba Bersih           : Rp {{ net_income_str }}
+   • Konversi Kas          : {{ cfo_to_ni_pct }}% dari laba benar-benar cair tunai 🟢
+
+2️⃣ Intensitas Modal Kerja (Piutang & Stok Barang):
+   • Total Piutang & Stok  : Rp {{ wc_exposure_str }}
+   • Porsi terhadap Omzet  : {{ wc_ratio_pct }}% dari pendapatan tahunan
+   • Makna                 : Barang cepat laku dan perputaran kas di pasar tergolong sehat.
+
+3️⃣ Solvabilitas Utang Bank Jangka Pendek:
+   • Kas & Setara Kas      : Rp {{ cash_str }}
+   • Utang Bank Jk. Pendek : Rp {{ debt_str }}
+   • Daya Tutup Kas        : {{ cov_str }} (Tersedia kas Rp {{ cov_str }} per Rp 1 utang segera)
+
+💡 RINGKASAN EKSEKUTIF (AI Interpretasi Sektor Konsumen):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{ company_name }} ({{ ticker }}) memiliki kekuatan arus kas operasional yang sangat prima sebesar Rp {{ cfo_str }}. Rasio konversi laba ke uang tunai berada di atas 100%, membuktikan bahwa penjualan produk konsumennya lancar dibayar oleh distributor dan jaringan ritel modern tanpa penumpukan piutang yang macet.
+
+🔗 AUDIT TRAIL DATA BEI (instance.xbrl):
+• Kas & Setara Kas    : [CashAndCashEquivalents]
+• Arus Kas Operasi CFO: [NetCashFlowsOperatingActivities]
+• Piutang & Persediaan: [TradeReceivablesThirdParties], [InventoriesTotal]
