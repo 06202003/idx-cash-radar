@@ -1,33 +1,161 @@
 """
-Deterministic SQLite3 repository for IDX Cash & Accrual Radar.
-Strict adherence to standard library sqlite3 and Decimal string conversions.
+Deterministic repository for IDX Cash & Accrual Radar.
+Supports local SQLite3 (default/offline) and Supabase PostgreSQL via DATABASE_URL.
 """
 
 from __future__ import annotations
 
+import os
+import re
 import sqlite3
+import ssl
+import sys
+import urllib.parse
 from collections.abc import Iterator
 from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
+from typing import Any
 
 from src.models.canonical import CanonicalFactModel, FilingModel, IssuerModel
 from src.models.metrics import ComputedFilingMetrics
 
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
+POSTGRES_SCHEMA_PATH = Path(__file__).parent / "schema_postgres.sql"
+_DEFAULT_DB_PATH = "./idx_cash_radar.db"
+
+
+class _PgRow(dict):
+    """Row wrapper supporting both dict['col'] and tuple-style row[0] indexing."""
+
+    def __init__(self, columns: list[str], values: tuple[Any, ...]) -> None:
+        super().__init__(zip(columns, values, strict=False))
+        self._values = values
+
+    def __getitem__(self, key: str | int) -> Any:
+        if isinstance(key, int):
+            return self._values[key]
+        return super().__getitem__(key)
+
+
+def _adapt_sql_for_postgres(sql: str, params: Any = None) -> tuple[str, Any]:
+    """Converts SQLite '?' and ':name' placeholders to PostgreSQL '%s' and ordered tuple."""
+    parts = re.split(r"('(?:''|[^'])*')", sql)
+    out: list[str] = []
+    ordered_values: list[Any] = []
+    use_dict = isinstance(params, dict)
+
+    for idx, part in enumerate(parts):
+        if idx % 2 == 1:
+            out.append(part)
+            continue
+        if use_dict:
+            def _sub_named(m: re.Match[str]) -> str:
+                ordered_values.append(params[m.group(1)])
+                return "%s"
+
+            part = re.sub(r"(?<!:):([a-zA-Z_][a-zA-Z0-9_]*)", _sub_named, part)
+        else:
+            part = part.replace("?", "%s")
+        out.append(part)
+
+    adapted_sql = "".join(out)
+    if use_dict:
+        return adapted_sql, tuple(ordered_values)
+    return adapted_sql, params
+
+
+class _PgCursorWrapper:
+    """Thin cursor wrapper returning _PgRow objects."""
+
+    def __init__(self, raw_cursor: Any) -> None:
+        self._cur = raw_cursor
+
+    @property
+    def rowcount(self) -> int:
+        return int(self._cur.rowcount)
+
+    def fetchone(self) -> _PgRow | None:
+        row = self._cur.fetchone()
+        if row is None:
+            return None
+        cols = [d[0] for d in (self._cur.description or [])]
+        return _PgRow(cols, tuple(row))
+
+    def fetchall(self) -> list[_PgRow]:
+        rows = self._cur.fetchall()
+        cols = [d[0] for d in (self._cur.description or [])]
+        return [_PgRow(cols, tuple(r)) for r in rows]
+
+
+class _PgConnectionWrapper:
+    """Thin connection wrapper mimicking sqlite3.Connection.execute()."""
+
+    def __init__(self, raw_conn: Any) -> None:
+        self._conn = raw_conn
+
+    def execute(self, sql: str, params: Any = None) -> _PgCursorWrapper:
+        cur = self._conn.cursor()
+        pg_sql, pg_params = _adapt_sql_for_postgres(sql, params)
+        if pg_params is None:
+            cur.execute(pg_sql)
+        else:
+            cur.execute(pg_sql, pg_params)
+        return _PgCursorWrapper(cur)
+
+    def commit(self) -> None:
+        self._conn.commit()
+
+    def rollback(self) -> None:
+        self._conn.rollback()
+
+    def close(self) -> None:
+        self._conn.close()
+
+
+def _connect_postgres(database_url: str) -> _PgConnectionWrapper:
+    import pg8000.dbapi
+
+    parsed = urllib.parse.urlparse(database_url)
+    ssl_ctx: ssl.SSLContext | None = ssl.create_default_context()
+    if "localhost" in (parsed.hostname or "") or "127.0.0.1" in (parsed.hostname or ""):
+        ssl_ctx = None
+    elif ssl_ctx is not None:
+        # Supabase pooler uses a custom/self-signed cert chain
+        ssl_ctx.check_hostname = False
+        ssl_ctx.verify_mode = ssl.CERT_NONE
+
+    raw_conn = pg8000.dbapi.connect(
+        user=urllib.parse.unquote(parsed.username or "postgres"),
+        password=urllib.parse.unquote(parsed.password or ""),
+        host=parsed.hostname or "localhost",
+        port=parsed.port or 5432,
+        database=(parsed.path or "/postgres").lstrip("/"),
+        ssl_context=ssl_ctx,
+        timeout=15,
+    )
+    return _PgConnectionWrapper(raw_conn)
 
 
 class FinancialRepository:
-    def __init__(self, db_path: Path | str = "./idx_cash_radar.db") -> None:
+    def __init__(self, db_path: Path | str = _DEFAULT_DB_PATH) -> None:
+        env_db_url = os.getenv("DATABASE_URL", "").strip()
+        is_default_path = str(db_path) == _DEFAULT_DB_PATH
+        in_pytest = bool(os.getenv("PYTEST_CURRENT_TEST")) or ("pytest" in sys.modules)
+        self.database_url = env_db_url if (env_db_url and is_default_path and not in_pytest) else ""
+        self.is_postgres = bool(self.database_url)
         self.db_path = Path(db_path)
         self.init_db()
 
     @contextmanager
-    def get_connection(self) -> Iterator[sqlite3.Connection]:
-        """Context manager that guarantees transaction commit and connection close on Windows."""
-        conn = sqlite3.connect(str(self.db_path))
-        conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA foreign_keys = ON;")
+    def get_connection(self) -> Iterator[Any]:
+        """Context manager guaranteeing transaction commit and connection close."""
+        if self.is_postgres:
+            conn = _connect_postgres(self.database_url)
+        else:
+            conn = sqlite3.connect(str(self.db_path))
+            conn.row_factory = sqlite3.Row
+            conn.execute("PRAGMA foreign_keys = ON;")
         try:
             yield conn
             conn.commit()
@@ -39,10 +167,18 @@ class FinancialRepository:
 
     def init_db(self) -> None:
         """Initialize database with the relational DDL schema."""
-        with open(SCHEMA_PATH, encoding="utf-8") as f:
-            ddl_script = f.read()
-        with self.get_connection() as conn:
-            conn.executescript(ddl_script)
+        if self.is_postgres:
+            with open(POSTGRES_SCHEMA_PATH, encoding="utf-8") as f:
+                ddl_script = f.read()
+            statements = [s.strip() for s in ddl_script.split(";") if s.strip()]
+            with self.get_connection() as conn:
+                for stmt in statements:
+                    conn.execute(stmt)
+        else:
+            with open(SCHEMA_PATH, encoding="utf-8") as f:
+                ddl_script = f.read()
+            with self.get_connection() as conn:
+                conn.executescript(ddl_script)
 
     def save_issuer(self, issuer: IssuerModel) -> None:
         """Insert or replace issuer metadata."""
@@ -252,8 +388,9 @@ class FinancialRepository:
         """Adds ticker to user's personalized alert watchlist."""
         ticker = ticker.strip().upper()
         query = """
-        INSERT OR IGNORE INTO user_watchlist (user_id, ticker)
-        VALUES (?, ?);
+        INSERT INTO user_watchlist (user_id, ticker)
+        VALUES (?, ?)
+        ON CONFLICT(user_id, ticker) DO NOTHING;
         """
         with self.get_connection() as conn:
             cur = conn.execute(query, (str(user_id), ticker))

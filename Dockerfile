@@ -36,6 +36,9 @@ RUN touch idx_cash_radar.db && chown -R appuser:appuser /app
 # Switch to non-root user for production execution
 USER appuser
 
-# Default command launches the Telegram Bot daemon
-CMD ["python", "src/bot/main.py"]
+# Expose FastAPI Web Dashboard port
+EXPOSE 8000
+
+# Default command launches both FastAPI Web Dashboard (CRUD + AI) and Telegram Bot daemon
+CMD ["python", "scripts/start_all.py"]
 
