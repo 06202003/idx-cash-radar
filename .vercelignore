@@ -1,0 +1,18 @@
+# Exclude large raw XBRL files & non-runtime folders from Vercel serverless bundle
+data/raw_xbrl/
+data/bbri/
+data/downloads/
+spike_samples/
+spikes/
+fcmg_bank_spikes/
+docs/
+tests/
+deploy_web/
+scripts/
+*.db
+*.sqlite3
+*.zip
+.pytest_cache/
+.ruff_cache/
+.venv/
+__pycache__/
