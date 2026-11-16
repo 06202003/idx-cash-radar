@@ -168,6 +168,13 @@ class FinancialRepository:
     def init_db(self) -> None:
         """Initialize database with the relational DDL schema."""
         if self.is_postgres:
+            # Fast-path: avoid 10 sequential DDL round-trips on every serverless cold start
+            try:
+                with self.get_connection() as conn:
+                    conn.execute("SELECT 1 FROM issuers LIMIT 1")
+                return
+            except Exception:
+                pass
             with open(POSTGRES_SCHEMA_PATH, encoding="utf-8") as f:
                 ddl_script = f.read()
             statements = [s.strip() for s in ddl_script.split(";") if s.strip()]

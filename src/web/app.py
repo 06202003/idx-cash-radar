@@ -244,7 +244,7 @@ def get_screener_data(
                'st_debt_bank_loans',
                'st_debt_current_maturities_bank_loans',
                'st_debt_current_maturities_bonds_sukuk_mtn'
-           ) THEN cf.value_idr ELSE 0 END) as st_debt_idr,
+           ) THEN CAST(cf.value_idr AS NUMERIC) ELSE 0 END) as st_debt_idr,
            MAX(CASE WHEN cf.canonical_key = 'total_assets'
                THEN cf.value_idr END) as total_assets_idr,
            MAX(CASE WHEN cf.canonical_key = 'total_liabilities'
@@ -254,7 +254,7 @@ def get_screener_data(
                'trade_receivables_related_parties',
                'contract_assets_current',
                'contract_assets_non_current'
-           ) THEN cf.value_idr ELSE 0 END) as receivables_idr,
+           ) THEN CAST(cf.value_idr AS NUMERIC) ELSE 0 END) as receivables_idr,
            MAX(CASE WHEN cf.canonical_key = 'st_debt_bank_loans'
                THEN cf.value_idr END) as bank_loans_idr,
            MAX(CASE WHEN cf.canonical_key = 'st_debt_current_maturities_bonds_sukuk_mtn'
@@ -264,7 +264,9 @@ def get_screener_data(
     JOIN issuers i ON cm.ticker = i.ticker
     LEFT JOIN canonical_facts cf ON f.filing_id = cf.filing_id
     {where_clause}
-    GROUP BY cm.ticker
+    GROUP BY cm.ticker, i.company_name, i.idx_sub_industry, cm.cash_coverage_ratio,
+             cm.debt_free_short_term, cm.sloan_ratio_ttm, cm.cfo_ttm_idr, cm.net_income_ttm_idr,
+             cm.revenue_ttm_idr, cm.flag_acute_liquidity, cm.flag_accrual_divergence
     ORDER BY cm.ticker ASC;
     """
     with repo.get_connection() as conn:
