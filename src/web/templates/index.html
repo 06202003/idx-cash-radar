@@ -4819,12 +4819,16 @@
     });
 
     setTimeout(() => {
+      if (!getByokKey() && !window.location.search.includes('notour=1')) {
+        openByokModal(true);
+        return;
+      }
       if (window.location.search.includes('tour=1')) {
         startLiveTour(true);
       } else if (getTourCookie(TOUR_COOKIE_NAME) !== '1') {
         startLiveTour(false);
       }
-    }, 1100);
+    }, 600);
 
     // --- BYOK (Bring Your Own Gemini Key) ---
     const BYOK_STORAGE_KEY = 'idx_radar_gemini_key';
@@ -4844,32 +4848,63 @@
       const btn = document.getElementById('btnByokKey');
       if (!btn) return;
       const hasKey = Boolean(getByokKey());
-      btn.textContent = hasKey ? 'BYOK: Active' : 'BYOK: Off';
-      btn.style.borderColor = hasKey ? '#059669' : '#334155';
-      btn.style.color = hasKey ? '#34d399' : '#94a3b8';
+      btn.textContent = hasKey ? 'BYOK: Active' : 'BYOK: Required';
+      btn.style.borderColor = hasKey ? '#059669' : '#e11d48';
+      btn.style.color = hasKey ? '#34d399' : '#fb7185';
     }
 
-    function openByokModal() {
+    function openByokModal(requiredGate = false) {
       const modal = document.getElementById('byokModal');
       const input = document.getElementById('txtByokInput');
+      const errEl = document.getElementById('byokErrorMsg');
+      const closeBtn = document.getElementById('btnByokClose');
+      const cancelBtn = document.getElementById('btnByokCancel');
+      const removeBtn = document.getElementById('btnByokRemove');
       if (input) input.value = getByokKey();
+      if (errEl) errEl.style.display = 'none';
+      const isMandatory = requiredGate || !getByokKey();
+      if (modal) modal.dataset.mandatory = isMandatory ? '1' : '0';
+      if (closeBtn) closeBtn.style.display = isMandatory ? 'none' : 'inline-block';
+      if (cancelBtn) cancelBtn.style.display = isMandatory ? 'none' : 'inline-block';
+      if (removeBtn) removeBtn.style.display = getByokKey() ? 'inline-block' : 'none';
       if (modal) modal.style.display = 'flex';
     }
 
     function closeByokModal() {
       const modal = document.getElementById('byokModal');
+      if (modal && modal.dataset.mandatory === '1' && !getByokKey()) {
+        const errEl = document.getElementById('byokErrorMsg');
+        if (errEl) {
+          errEl.textContent = 'Please enter your Gemini API Key to unlock the platform.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
       if (modal) modal.style.display = 'none';
     }
 
     function saveByokKey() {
       const input = document.getElementById('txtByokInput');
+      const errEl = document.getElementById('byokErrorMsg');
       const val = (input ? input.value : '').trim();
-      try {
-        if (val) localStorage.setItem(BYOK_STORAGE_KEY, val);
-        else localStorage.removeItem(BYOK_STORAGE_KEY);
-      } catch (e) {}
+      if (!val || val.length < 10) {
+        if (errEl) {
+          errEl.textContent = 'Please enter a valid Google AI Studio Gemini API Key (starts with AIza...).';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+      try { localStorage.setItem(BYOK_STORAGE_KEY, val); } catch (e) {}
+      if (errEl) errEl.style.display = 'none';
       refreshByokBadge();
-      closeByokModal();
+      const modal = document.getElementById('byokModal');
+      if (modal) {
+        modal.dataset.mandatory = '0';
+        modal.style.display = 'none';
+      }
+      if (getTourCookie(TOUR_COOKIE_NAME) !== '1') {
+        setTimeout(() => startLiveTour(false), 350);
+      }
     }
 
     function clearByokKey() {
@@ -4877,33 +4912,34 @@
       const input = document.getElementById('txtByokInput');
       if (input) input.value = '';
       refreshByokBadge();
-      closeByokModal();
+      openByokModal(true);
     }
 
     refreshByokBadge();
   </script>
 
   <!-- BYOK Modal -->
-  <div id="byokModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.78); z-index: 9998; align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target===this) closeByokModal()">
-    <div style="width: 440px; max-width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 18px 20px; color: #f8fafc; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75);">
+  <div id="byokModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); z-index: 9998; align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target===this) closeByokModal()">
+    <div style="width: 450px; max-width: 100%; background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 20px 22px; color: #f8fafc; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.8);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <strong style="font-size: 14px; color: #38bdf8;">Bring Your Own Key (BYOK): Gemini API</strong>
-        <button onclick="closeByokModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">×</button>
+        <strong style="font-size: 14.5px; color: #38bdf8;">Gemini API Key Required (BYOK)</strong>
+        <button id="btnByokClose" onclick="closeByokModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">×</button>
       </div>
-      <p style="font-size: 12px; line-height: 1.5; color: #cbd5e1; margin-bottom: 12px;">
-        Enter your own free Google AI Studio Gemini API Key so <strong>AI Analyst</strong> and <strong>News Synthesis</strong> run on your own quota. Your key stays strictly in your browser <code>localStorage</code> and is never stored on our server. Without a key, all diagnostics run in 100% deterministic mode at zero cost.
+      <p style="font-size: 12px; line-height: 1.55; color: #cbd5e1; margin-bottom: 12px;">
+        This platform uses a <strong>Bring Your Own Key (BYOK)</strong> model so every user runs AI Financial Analyst and News Synthesis on their own quota. Your key is saved strictly in your browser <code>localStorage</code> and never stored on our server.
       </p>
-      <div style="margin-bottom: 10px;">
-        <input id="txtByokInput" type="password" class="form-input" placeholder="AIza..." style="width: 100%; font-size: 12.5px; padding: 8px 10px;">
+      <div style="margin-bottom: 8px;">
+        <input id="txtByokInput" type="password" class="form-input" placeholder="Paste your Gemini API Key (AIza...)" style="width: 100%; font-size: 12.5px; padding: 9px 11px;">
       </div>
+      <div id="byokErrorMsg" style="display: none; font-size: 11px; color: #fb7185; margin-bottom: 8px; font-weight: 600;"></div>
       <div style="font-size: 11px; color: #94a3b8; margin-bottom: 14px;">
-        Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #38bdf8; text-decoration: underline;">aistudio.google.com/apikey</a>
+        Get your free Gemini API Key in 10 seconds at <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #38bdf8; text-decoration: underline;">aistudio.google.com/apikey</a>
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center;">
-        <button onclick="clearByokKey()" class="tour-btn" style="color: #fb7185; border-color: #881337;">Remove Key</button>
-        <div style="display: flex; gap: 8px;">
-          <button onclick="closeByokModal()" class="tour-btn">Cancel</button>
-          <button onclick="saveByokKey()" class="tour-btn tour-btn-primary">Save Key</button>
+        <button id="btnByokRemove" onclick="clearByokKey()" class="tour-btn" style="color: #fb7185; border-color: #881337;">Remove Key</button>
+        <div style="display: flex; gap: 8px; margin-left: auto;">
+          <button id="btnByokCancel" onclick="closeByokModal()" class="tour-btn">Cancel</button>
+          <button onclick="saveByokKey()" class="tour-btn tour-btn-primary">Save &amp; Unlock App</button>
         </div>
       </div>
     </div>

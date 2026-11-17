@@ -873,7 +873,7 @@ def post_chat(
     if not query:
         raise HTTPException(status_code=400, detail="Query message cannot be empty")
     user_byok = (x_gemini_api_key or "").strip() or None
-    byok_only = os.getenv("BYOK_ONLY", "").lower() in ("1", "true", "yes")
+    byok_only = os.getenv("BYOK_ONLY", "true" if os.getenv("VERCEL") else "false").lower() in ("1", "true", "yes")
     answer = rag_chatbot.answer_query(
         query,
         api_key_override=user_byok,
