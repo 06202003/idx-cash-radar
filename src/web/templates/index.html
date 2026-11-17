@@ -755,8 +755,8 @@
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
           AI Analyst
         </button>
-        <button onclick="startLiveTour(true)" id="btnReplayTour" class="nav-tab-btn" title="Open Quick Guide (Live Tutorial)" style="border-color: #1e3a8a; color: #38bdf8;">
-          ? Guide
+        <button onclick="startActiveTabTour()" id="btnReplayTour" class="nav-tab-btn" title="Start Interactive Guide for Current Tab" style="border-color: #1e3a8a; color: #38bdf8;">
+          Guide
         </button>
         <button onclick="openByokModal()" id="btnByokKey" class="nav-tab-btn" title="Bring Your Own Gemini API Key (stored locally in your browser)" style="border-color: #334155; color: #94a3b8;">
           BYOK: Off
@@ -790,10 +790,6 @@
 
     <!-- TAB 1: SCREENER FUNDAMENTAL ARUS KAS (IDXRADAR + FORENSIC CASH & ACCRUAL) -->
     <main id="viewScreener" style="display: flex; flex-direction: column; gap: 10px;">
-      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Read Stock Screener:</strong> Learn the 4-Quadrant Map, Sector Heatmap, Cash Signals &amp; Table in 4 guided steps.</span>
-        <button onclick="startTabTour('screener')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
-      </div>
       <!-- 4-Quadrant Cartesian Radar + Sector Heatmap & Signal Feed -->
       <section style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: stretch;" class="radar-pulse-grid">
         <!-- Left: 4-Quadrant Cartesian Scatter Plot -->
@@ -1063,10 +1059,6 @@
 
     <!-- TAB 3: DIAGNOSTIK MENDALAM & CATATAN LAPORAN (CALK) (col-12 Full Width) -->
     <section id="viewCalk" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
-      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Read Stock Detail:</strong> Walk through the Candlestick Chart, Triangulation Card, and Annual XBRL Footnotes.</span>
-        <button onclick="startTabTour('calk')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
-      </div>
       <!-- Selector Bar -->
       <div class="card-panel" style="padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
@@ -1151,10 +1143,6 @@
 
     <!-- TAB 5: REAL-TIME NEWS LINK ANALYZER VS ACCRUAL RADAR -->
     <section id="viewNews" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
-      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Read News Analyzer:</strong> Learn how URL cross-checking &amp; Daily News Cron protect against FOMO traps.</span>
-        <button onclick="startTabTour('news')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
-      </div>
       <div class="card-panel" style="padding: 18px; display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
           <div>
@@ -1222,10 +1210,6 @@
 
     <!-- TAB 4: UNIFIED GEMINI-STYLE CHATBOT (SIDEBAR + MAIN CANVAS) -->
     <section id="viewChat" class="hidden">
-      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Use AI Analyst:</strong> Tour the Quick Audit Sidebar, Grounded Chat Canvas, and BYOK Gemini Key setup.</span>
-        <button onclick="startTabTour('chat')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
-      </div>
       <div class="gemini-shell">
         <!-- Left Sidebar: New Chat + History + Quick Audits -->
         <aside id="chatSidebar" class="gemini-sidebar">
@@ -4794,6 +4778,14 @@
       ACTIVE_TOUR_COOKIE = tabKey === 'screener' ? TOUR_COOKIE_NAME : `idx_radar_tour_${tabKey}`;
       currentTourIdx = 0;
       renderTourStep();
+    }
+
+    function startActiveTabTour() {
+      const active = ['screener', 'calk', 'news', 'chat'].find(t => {
+        const el = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+        return el && !el.classList.contains('hidden');
+      }) || 'screener';
+      startTabTour(active);
     }
 
     function nextTourStep() {
