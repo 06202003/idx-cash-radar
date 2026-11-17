@@ -104,10 +104,10 @@ def capture_live_screenshots(base_url: str = "http://127.0.0.1:8000/") -> dict[s
         page.wait_for_timeout(1000)
         page.screenshot(path=str(paths["detail"]), full_page=False)
 
-        # 5. Zoomed Annual Financials & CALK Footnote section
+        # 5. Annual Financials & CALK Footnote section (crisp 16:9 viewport)
         page.locator("#calkContainer").scroll_into_view_if_needed()
         page.wait_for_timeout(500)
-        page.locator("#tabCalkDiagnostic").screenshot(path=str(paths["calk"]))
+        page.screenshot(path=str(paths["calk"]), full_page=False)
 
         # 6. News & URL Analyzer tab
         page.evaluate("() => window.scrollTo(0, 0)")
@@ -248,11 +248,26 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
       overflow: hidden;
       background: #0b0f19;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }}
     .shot-frame img {{
       width: 100%;
       height: auto;
+      max-height: 4.85in;
+      object-fit: contain;
       display: block;
+    }}
+    .shot-stack {{
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }}
+    .shot-stack .shot-frame img {{
+      max-height: 2.32in;
+      width: auto;
+      max-width: 100%;
     }}
     .tag {{
       display: inline-block;
@@ -504,7 +519,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     </div>
 
     <div class="grid-2" style="align-items: center;">
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="shot-stack">
         <div class="shot-frame">
           <img src="{shots['screener']}" alt="Stock Screener Overview">
         </div>
@@ -649,7 +664,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     </div>
 
     <div class="grid-2" style="align-items: center;">
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="shot-stack">
         <div class="shot-frame">
           <img src="{shots['news']}" alt="Daily News Cron and URL Analyzer">
         </div>

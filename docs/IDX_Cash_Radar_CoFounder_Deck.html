@@ -108,11 +108,26 @@
       overflow: hidden;
       background: #0b0f19;
       box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .shot-frame img {
       width: 100%;
       height: auto;
+      max-height: 4.85in;
+      object-fit: contain;
       display: block;
+    }
+    .shot-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .shot-stack .shot-frame img {
+      max-height: 2.32in;
+      width: auto;
+      max-width: 100%;
     }
     .tag {
       display: inline-block;
@@ -364,7 +379,7 @@
     </div>
 
     <div class="grid-2" style="align-items: center;">
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="shot-stack">
         <div class="shot-frame">
           <img src="file:///C:/Users/Royal%20Medicalink/OneDrive%20-%20PT.%20Royal%20Medicalink%20Pharmalab/Desktop/idx-cash-radar/docs/deck_shots/01_screener.png" alt="Stock Screener Overview">
         </div>
@@ -509,7 +524,7 @@
     </div>
 
     <div class="grid-2" style="align-items: center;">
-      <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div class="shot-stack">
         <div class="shot-frame">
           <img src="file:///C:/Users/Royal%20Medicalink/OneDrive%20-%20PT.%20Royal%20Medicalink%20Pharmalab/Desktop/idx-cash-radar/docs/deck_shots/06_news_radar.png" alt="Daily News Cron and URL Analyzer">
         </div>
