@@ -824,14 +824,25 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     </div>
   </section>
 
-  <!-- SLIDE 12: CALL TO ACTION -->
-  <section class="slide slide-dark" style="justify-content: center; gap: 32px;">
+  <!-- SLIDE 12: CALL TO ACTION & FOUNDER CREDIT -->
+  <section class="slide slide-dark" style="justify-content: space-between;">
     <div>
-      <div class="eyebrow">11 / LET'S BUILD THIS TOGETHER</div>
-      <h1 style="font-size: 46px;">Try the Live App Today.<br>Let's Ship v3 Together.</h1>
-      <p class="lead" style="margin-top: 14px;">
-        Test the live screener, hover the 4-quadrant tooltips, inspect <code>BBRI.JK</code> candlesticks, cross-check a news link, and let's talk about building the next phase together.
+      <div class="eyebrow">11 / FOUNDER CREDIT &amp; NEXT STEP</div>
+      <h1 style="font-size: 42px;">Try the Live App Today. Let's Ship v3 Together.</h1>
+      <p class="lead" style="margin-top: 10px;">
+        Test the live screener, hover the 4-quadrant tooltips, inspect <code>BBRI.JK</code> candlesticks, and let's talk about building the next phase together.
       </p>
+    </div>
+
+    <div class="card" style="padding: 16px 20px; border-left: 4px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+      <div>
+        <div class="kpi-label" style="color: #38bdf8; margin-bottom: 3px;">FOUNDER &amp; LEAD ARCHITECT</div>
+        <div style="font-size: 18px; font-weight: 800; color: #ffffff; margin-bottom: 4px;">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
+        <div class="muted" style="font-size: 12.5px; color: #cbd5e1; max-width: 780px;">
+          AI Engineer, LLM Researcher &amp; Lead Engineer / System Analyst at PT. Royal Medicalink Pharmalab (Maranatha Christian University alumnus). Specializing in Retrieval-Augmented Generation (RAG), Sustainable AI architectures, semantic caching, and enterprise systems.
+        </div>
+      </div>
+      <a href="https://yehezkiel.netlify.app/" target="_blank" style="white-space: nowrap; font-size: 12px; font-weight: 700; color: #38bdf8; border: 1px solid #0284c7; background: rgba(2, 132, 199, 0.15); padding: 8px 14px; border-radius: 8px;">yehezkiel.netlify.app &#8599;</a>
     </div>
 
     <div class="grid-3">
@@ -855,8 +866,8 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     </div>
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
-    <div class="footer" style="position: absolute; bottom: 0.55in; left: 0.72in; right: 0.72in;">
-      <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom</span>
+    <div class="footer">
+      <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom &bull; yehezkiel.netlify.app</span>
       <span>Slide 12 / 12</span>
     </div>
   </section>
