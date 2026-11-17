@@ -921,6 +921,67 @@ def get_market_history(ticker: str, range: str = "3mo") -> dict[str, Any]:
     return hist
 
 
+class NeuralStressRequest(BaseModel):
+    ticker: str
+    capital_idr: float = 10_000_000.0
+    cash_shock_pct: float = 0.0
+    debt_shock_pct: float = 0.0
+
+
+@app.post("/api/ml/neural-stress")
+def post_neural_stress_simulation(req: NeuralStressRequest) -> dict[str, Any]:
+    """
+    Runs the self-trained 3-layer Deep Learning MLP (5 -> 16 -> 8 -> 1) on an issuer's
+    audited XBRL metrics under user-defined money & stress scenarios.
+    """
+    t = req.ticker.strip().upper()
+    rows = get_screener_data()
+    target = next((r for r in rows if r["ticker"] == t), None)
+    if not target:
+        raise HTTPException(status_code=404, detail=f"Issuer {t} not found")
+
+    res = ml_suite.run_neural_capital_stress(
+        target,
+        capital_idr=req.capital_idr,
+        cash_shock_pct=req.cash_shock_pct,
+        debt_shock_pct=req.debt_shock_pct,
+    )
+
+    # Find healthiest peer in the same sub-industry for side-by-side IDR comparison
+    same_sec = [
+        r for r in rows
+        if r.get("idx_sub_industry") == target.get("idx_sub_industry") and r["ticker"] != t
+    ]
+    pool = same_sec if same_sec else [r for r in rows if r["ticker"] != t]
+    peer_best = None
+    best_prob = 999.0
+    for cand in pool:
+        p_res = ml_suite.run_neural_capital_stress(
+            cand,
+            capital_idr=req.capital_idr,
+            cash_shock_pct=req.cash_shock_pct,
+            debt_shock_pct=req.debt_shock_pct,
+        )
+        if p_res["stressed_risk_pct"] < best_prob:
+            best_prob = p_res["stressed_risk_pct"]
+            peer_best = {
+                "ticker": cand["ticker"],
+                "company_name": cand.get("company_name"),
+                "stressed_risk_pct": p_res["stressed_risk_pct"],
+                "stressed_capital_at_risk_idr": p_res["stressed_capital_at_risk_idr"],
+                "debt_free_short_term": bool(cand.get("debt_free_short_term")),
+            }
+
+    return {
+        "status": "ok",
+        "ticker": t,
+        "company_name": target.get("company_name"),
+        "sub_industry": target.get("idx_sub_industry"),
+        "simulation": res,
+        "safest_peer": peer_best,
+    }
+
+
 @app.get("/", response_class=HTMLResponse)
 def get_dashboard() -> str:
     """Renders interactive HTML Dashboard."""

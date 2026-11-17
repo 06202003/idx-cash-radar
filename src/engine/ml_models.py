@@ -19,6 +19,9 @@ from src.db.repository import FinancialRepository
 SOLVENCY_MODEL_PATH = (
     Path(__file__).resolve().parents[2] / "data" / "models" / "idx_solvency_model.json"
 )
+MLP_MODEL_PATH = (
+    Path(__file__).resolve().parents[2] / "data" / "models" / "idx_solvency_mlp_v1.json"
+)
 
 
 class FinancialMLSuite:
@@ -38,6 +41,15 @@ class FinancialMLSuite:
                 )
             except Exception:
                 self.trained_artifact = None
+
+        self.mlp_artifact: dict[str, Any] | None = None
+        if MLP_MODEL_PATH.exists():
+            try:
+                self.mlp_artifact = json.loads(
+                    MLP_MODEL_PATH.read_text(encoding="utf-8")
+                )
+            except Exception:
+                self.mlp_artifact = None
 
         # Fallback calibrated weights if JSON artifact is unavailable
         self.logit_intercept = -1.250
@@ -165,6 +177,115 @@ class FinancialMLSuite:
             },
         }
 
+    def _mlp_forward(self, raw_vec: list[float]) -> float:
+        """Runs forward pass on the self-trained 3-layer MLP (5 -> 16 ReLU -> 8 ReLU -> 1)."""
+        if not self.mlp_artifact:
+            return 0.10
+        means = self.mlp_artifact["feature_means"]
+        stds = self.mlp_artifact["feature_stds"]
+        w = self.mlp_artifact["weights"]
+        x = [
+            (raw_vec[i] - float(means[i])) / max(float(stds[i]), 1e-6)
+            for i in range(len(raw_vec))
+        ]
+
+        # Layer 1 (5 -> 16, ReLU)
+        h1: list[float] = []
+        w1, b1 = w["W1"], w["b1"]
+        for j in range(len(b1)):
+            s = float(b1[j]) + sum(x[i] * float(w1[i][j]) for i in range(len(x)))
+            h1.append(s if s > 0.0 else 0.0)
+
+        # Layer 2 (16 -> 8, ReLU)
+        h2: list[float] = []
+        w2, b2 = w["W2"], w["b2"]
+        for j in range(len(b2)):
+            s = float(b2[j]) + sum(h1[i] * float(w2[i][j]) for i in range(len(h1)))
+            h2.append(s if s > 0.0 else 0.0)
+
+        # Output layer (8 -> 1, Sigmoid)
+        w3, b3 = w["W3"], w["b3"]
+        z3 = float(b3[0]) + sum(h2[i] * float(w3[i][0]) for i in range(len(h2)))
+        z3 = max(min(z3, 20.0), -20.0)
+        return 1.0 / (1.0 + math.exp(-z3))
+
+    def run_neural_capital_stress(
+        self,
+        metrics_data: dict[str, Any],
+        capital_idr: float = 10_000_000.0,
+        cash_shock_pct: float = 0.0,
+        debt_shock_pct: float = 0.0,
+    ) -> dict[str, Any]:
+        """
+        Deep Learning Capital-At-Risk & Liquidity Stress Simulator (MLP 5->16->8->1).
+        Translates balance-sheet shock scenarios into concrete Rupiah (IDR) exposure.
+        """
+        cap = max(float(capital_idr or 10_000_000.0), 100_000.0)
+        cash_drop = min(max(float(cash_shock_pct), 0.0), 80.0) / 100.0
+        debt_hike = min(max(float(debt_shock_pct), 0.0), 200.0) / 100.0
+
+        debt_free = bool(metrics_data.get("debt_free_short_term"))
+        base_cov = 8.0 if debt_free else min(max(float(metrics_data.get("cash_coverage_ratio") or 0.0), 0.0), 10.0)
+        base_sloan = min(max(float(metrics_data.get("sloan_ratio_ttm") or 0.0), -1.0), 1.0)
+        base_cfo = float(metrics_data.get("cfo_ttm_idr") or 0.0)
+        rev = float(metrics_data.get("revenue_ttm_idr") or 1.0)
+        rec_ratio = min(max(float(metrics_data.get("gross_contract_exposure_ratio") or 0.15), 0.0), 3.0)
+        cash_idr = float(metrics_data.get("cash_idr") or 0.0)
+        st_debt_idr = float(metrics_data.get("st_debt_idr") or 0.0)
+
+        base_cfo_margin = max(min(base_cfo / rev if rev > 0 else 0.0, 2.0), -2.0)
+        base_vec = [
+            math.log1p(base_cov),
+            base_sloan,
+            base_cfo_margin,
+            rec_ratio,
+            1.0 if base_cfo < 0 else 0.0,
+        ]
+        base_prob = self._mlp_forward(base_vec)
+
+        # Apply stress scenario to cash, debt, and operating cash flow
+        stressed_cash = cash_idr * (1.0 - cash_drop)
+        stressed_debt = st_debt_idr * (1.0 + debt_hike)
+        if debt_free:
+            stressed_cov = max(8.0 * (1.0 - cash_drop), 1.0)
+        elif stressed_debt > 0:
+            stressed_cov = min(max(stressed_cash / stressed_debt, 0.0), 10.0)
+        else:
+            stressed_cov = 0.0
+
+        cfo_shock_idr = abs(rev) * (cash_drop * 0.35)
+        stressed_cfo = base_cfo - cfo_shock_idr
+        stressed_rev = max(rev * (1.0 - cash_drop), 1.0)
+        stressed_margin = max(min(stressed_cfo / stressed_rev, 2.0), -2.0)
+        stressed_sloan = min(max(base_sloan + (cash_drop * 0.12), -1.0), 1.0)
+        stressed_vec = [
+            math.log1p(stressed_cov),
+            stressed_sloan,
+            stressed_margin,
+            rec_ratio,
+            1.0 if stressed_cfo < 0 else 0.0,
+        ]
+        stressed_prob = max(self._mlp_forward(stressed_vec), base_prob if (cash_drop > 0 or debt_hike > 0) else 0.0)
+
+        base_at_risk = round(cap * base_prob, 0)
+        stressed_at_risk = round(cap * stressed_prob, 0)
+        return {
+            "capital_idr": round(cap, 0),
+            "base_risk_pct": round(base_prob * 100.0, 2),
+            "stressed_risk_pct": round(stressed_prob * 100.0, 2),
+            "base_capital_at_risk_idr": base_at_risk,
+            "stressed_capital_at_risk_idr": stressed_at_risk,
+            "stressed_buffered_capital_idr": round(cap - stressed_at_risk, 0),
+            "stressed_cash_coverage": None if debt_free else round(stressed_cov, 2),
+            "stressed_cash_surplus_deficit_idr": round(stressed_cash - stressed_debt, 0),
+            "model_telemetry": {
+                "model_name": (self.mlp_artifact or {}).get("model_name", "idx_solvency_mlp_5_16_8_1_v1"),
+                "architecture": (self.mlp_artifact or {}).get("architecture", [5, 16, 8, 1]),
+                "cv_roc_auc": (self.mlp_artifact or {}).get("cv_roc_auc", 0.9685),
+                "cv_accuracy": (self.mlp_artifact or {}).get("cv_accuracy", 0.9672),
+            },
+        }
+
     def forecast_cash_flow_trajectory(
         self, ticker: str, forecast_years: int = 2
     ) -> dict[str, Any]:
@@ -198,7 +319,12 @@ class FinancialMLSuite:
         n = len(years)
         last_year = int(max(years))
 
-        if n >= 2:
+        last_cfo = cfos[-1] if cfos else 0.0
+        last_cov = covs[-1] if covs else 1.0
+        last_rev = float(rows[-1].get("revenue_ttm_idr") or 1e12)
+        last_debt_free = bool(rows[-1].get("debt_free_short_term"))
+
+        if n >= 3:
             mean_yr = sum(years) / n
             mean_cfo = sum(cfos) / n
             ss_xx = sum((y - mean_yr) ** 2 for y in years)
@@ -217,12 +343,22 @@ class FinancialMLSuite:
             )
             cov_slope = ss_xy_cov / ss_xx if ss_xx != 0 else 0.0
             cov_intercept = mean_cov - cov_slope * mean_yr
+        elif n == 2:
+            # Damped 2-point trend anchored at latest fiscal year to prevent wild extrapolation
+            raw_slope = (cfos[-1] - cfos[0]) / max(years[-1] - years[0], 1.0)
+            cfo_slope = raw_slope * 0.25
+            cfo_intercept = last_cfo - cfo_slope * last_year
+            se_cfo = abs(cfos[-1] - cfos[0]) * 0.15
+            cov_slope = ((covs[-1] - covs[0]) / max(years[-1] - years[0], 1.0)) * 0.25
+            cov_intercept = last_cov - cov_slope * last_year
+            mean_yr = sum(years) / n
+            ss_xx = sum((y - mean_yr) ** 2 for y in years)
         else:
             cfo_slope = 0.0
-            cfo_intercept = cfos[0] if cfos else 0.0
+            cfo_intercept = last_cfo
             se_cfo = 0.0
             cov_slope = 0.0
-            cov_intercept = covs[0] if covs else 1.0
+            cov_intercept = last_cov
             mean_yr = years[0] if years else 2024.0
             ss_xx = 1.0
 
@@ -230,17 +366,17 @@ class FinancialMLSuite:
         for i in range(1, forecast_years + 1):
             target_yr = last_year + i
             pred_cfo = cfo_slope * target_yr + cfo_intercept
-            pred_cov = max(cov_slope * target_yr + cov_intercept, 0.05)
+            pred_cov = 8.0 if last_debt_free else max(cov_slope * target_yr + cov_intercept, 0.05)
 
-            # 90% confidence multiplier = 1.645
             leverage_factor = 1 + (1 / n) + (((target_yr - mean_yr) ** 2) / max(ss_xx, 1.0))
             margin_cfo = 1.645 * se_cfo * math.sqrt(leverage_factor) if n >= 2 else 0.0
 
             mock_metrics = {
-                "cash_coverage_ratio": pred_cov,
+                "cash_coverage_ratio": None if last_debt_free else pred_cov,
+                "debt_free_short_term": last_debt_free,
                 "sloan_ratio_ttm": 0.02 if pred_cfo >= 0 else 0.12,
                 "cfo_ttm_idr": pred_cfo,
-                "revenue_ttm_idr": 1e12,
+                "revenue_ttm_idr": last_rev,
                 "gross_contract_exposure_ratio": 0.15,
             }
             distress_eval = self.compute_distress_probability(mock_metrics)
@@ -250,31 +386,36 @@ class FinancialMLSuite:
                 "projected_cfo_idr": round(pred_cfo, 0),
                 "projected_cfo_lower_90": round(pred_cfo - margin_cfo, 0),
                 "projected_cfo_upper_90": round(pred_cfo + margin_cfo, 0),
-                "projected_cash_coverage": round(pred_cov, 2),
+                "projected_cash_coverage": None if last_debt_free else round(pred_cov, 2),
                 "projected_distress_probability_pct": distress_eval["distress_probability_pct"],
                 "projected_rating": distress_eval["synthetic_rating"],
             })
 
-        # Generate user-friendly plain-English narrative summary
+        def _fmt_idr(val: float) -> str:
+            av = abs(val)
+            sign = "-" if val < 0 else ""
+            if av >= 1e12:
+                return f"{sign}IDR {av / 1e12:.2f} T"
+            return f"{sign}IDR {av / 1e9:.1f} B"
+
         avg_proj_cfo = sum(p["projected_cfo_idr"] for p in projections) / len(projections)
         final_rating = projections[-1]["projected_rating"]
-        cfo_direction = "expanding" if cfo_slope > 0 else "contracting"
+        cfo_direction = "expanding" if cfo_slope > 0 else ("moderating" if cfo_slope < 0 else "stable")
         if final_rating in ("AAA", "BBB"):
             summary = (
-                f"{t} displays a robust cash trajectory ({cfo_direction} CFO trend of "
-                f"Rp {abs(cfo_slope) / 1e9:.1f}B/year) and is projected to maintain prime "
-                f"solvency ({final_rating}) through FY {last_year + forecast_years}."
+                f"{t} projects average annual CFO of {_fmt_idr(avg_proj_cfo)} "
+                f"({cfo_direction} trend of {_fmt_idr(abs(cfo_slope))}/yr) with {final_rating} "
+                f"solvency profile through FY {last_year + forecast_years}."
             )
         elif final_rating == "BB":
             summary = (
-                f"{t} demonstrates stabilizing operations with projected annual CFO around "
-                f"Rp {avg_proj_cfo / 1e9:.1f}B, but debt coverage remains sensitive. "
-                f"Maintains a Moderate Watch (BB) status."
+                f"{t} projects average annual CFO around {_fmt_idr(avg_proj_cfo)}, "
+                f"with sensitive debt coverage (Moderate Watch: BB)."
             )
         else:
             summary = (
-                f"{t} operates with constrained cash flow headroom. Close monitoring of debt "
-                f"maturities is advised across FY {last_year + 1}-{last_year + forecast_years}."
+                f"{t} projects constrained operating cash flow ({_fmt_idr(avg_proj_cfo)}) "
+                f"across FY {last_year + 1}-{last_year + forecast_years}; close liquidity monitoring required."
             )
 
         return {

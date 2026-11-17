@@ -67,3 +67,28 @@ def test_indonesian_news_nb_classifier_outputs_bounded_probabilities() -> None:
     )
     assert pos["label"] == "POSITIF"
     assert pos["confidence_pct"] > 50.0
+
+
+def test_neural_mlp_capital_stress_simulator() -> None:
+    suite = FinancialMLSuite()
+    assert suite.mlp_artifact is not None
+    assert suite.mlp_artifact["architecture"] == [5, 16, 8, 1]
+
+    res = suite.run_neural_capital_stress(
+        {
+            "cash_coverage_ratio": 0.23,
+            "debt_free_short_term": False,
+            "sloan_ratio_ttm": -0.055,
+            "cfo_ttm_idr": -559_700_000_000,
+            "revenue_ttm_idr": 10_000_000_000_000,
+            "cash_idr": 1_000_000_000_000,
+            "st_debt_idr": 4_347_000_000_000,
+        },
+        capital_idr=10_000_000,
+        cash_shock_pct=20.0,
+        debt_shock_pct=30.0,
+    )
+    assert res["capital_idr"] == 10_000_000
+    assert res["stressed_risk_pct"] >= res["base_risk_pct"]
+    assert res["stressed_capital_at_risk_idr"] + res["stressed_buffered_capital_idr"] == 10_000_000
+    assert res["model_telemetry"]["model_name"] == "idx_solvency_mlp_5_16_8_1_v1"
