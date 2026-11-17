@@ -438,16 +438,30 @@ class RAGFinancialChatbot:
             "• 'Penjelasan metodologi Sloan Accrual dan PSAK 72'"
         )
 
-    def answer_query(self, user_query: str) -> str:
+    def answer_query(
+        self,
+        user_query: str,
+        api_key_override: str | None = None,
+        allow_server_key: bool = True,
+    ) -> str:
         """Answers free-form conversational questions using grounded RAG."""
         context = self.retrieve_context_for_query(user_query)
 
+        override = (api_key_override or "").strip()
+        active_client = None
+        is_byok = bool(override)
+        if override:
+            try:
+                from google import genai
+
+                active_client = genai.Client(api_key=override)
+            except Exception:
+                active_client = None
+        elif allow_server_key and time.time() >= RAGFinancialChatbot._quota_exhausted_until:
+            active_client = self._client
+
         # Fallback if no client configured or currently in quota exhaustion backoff
-        if (
-            not self._client
-            or not self.api_key
-            or time.time() < RAGFinancialChatbot._quota_exhausted_until
-        ):
+        if not active_client:
             return self.generate_deterministic_fallback_answer(user_query, context)
 
         facts_block = (
@@ -489,7 +503,7 @@ BASIS PENGETAHUAN METODOLOGI FINANSIAL (KNOWLEDGE RETRIEVAL):
 
         def worker() -> None:
             try:
-                resp = self._client.models.generate_content(
+                resp = active_client.models.generate_content(
                     model=self.model_name,
                     contents=f"{system_instruction}\n\nDATA RETRIEVAL:\n{prompt_data}",
                 )
@@ -500,14 +514,14 @@ BASIS PENGETAHUAN METODOLOGI FINANSIAL (KNOWLEDGE RETRIEVAL):
 
         th = threading.Thread(target=worker, daemon=True)
         th.start()
-        th.join(timeout=1.5)
+        th.join(timeout=8.0 if is_byok else 1.5)
 
         if res_holder and isinstance(res_holder[0], str) and res_holder[0]:
             if check_language_compliance(res_holder[0]):
                 return res_holder[0]
 
-        # If timed out or network blocked, set backoff so subsequent requests answer in <10ms
-        if not res_holder or isinstance(res_holder[0], Exception):
+        # If server key timed out or network blocked, set backoff so subsequent requests answer in <10ms
+        if not is_byok and (not res_holder or isinstance(res_holder[0], Exception)):
             RAGFinancialChatbot._quota_exhausted_until = time.time() + 600
 
         return self.generate_deterministic_fallback_answer(user_query, context)

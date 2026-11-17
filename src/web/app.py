@@ -8,12 +8,13 @@ from __future__ import annotations
 
 import base64
 import math
+import os
 import sys
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -747,7 +748,10 @@ def get_issuer_news_sentiment(ticker: str) -> list[dict[str, Any]]:
 
 
 @app.post("/api/news/analyze-url")
-def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
+def analyze_realtime_news_link(
+    req: NewsAnalyzeRequest,
+    x_gemini_api_key: str | None = Header(default=None, alias="X-Gemini-Api-Key"),
+) -> dict[str, Any]:
     """
     Real-Time News Link Sentiment + Accrual Radar Cross-Check Endpoint.
     Fetches a public news URL (or raw article text), detects the BEI ticker,
@@ -818,6 +822,7 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
             fc = ml_suite.forecast_cash_flow_trajectory(detected_ticker, forecast_years=2)
             if fc.get("status") == "success":
                 ml_forecast = fc
+            user_byok = (x_gemini_api_key or "").strip() or None
             synthesis = synthesize_news_vs_accrual(
                 ticker=detected_ticker,
                 company_name=company_name,
@@ -825,6 +830,7 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
                 sentiment_res=sentiment_res,
                 headline=headline,
                 highlights=highlights,
+                api_key=user_byok,
                 ml_forecast=ml_forecast,
             )
 
@@ -858,16 +864,26 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
 
 
 @app.post("/api/chat")
-def post_chat(req: ChatRequest) -> dict[str, Any]:
+def post_chat(
+    req: ChatRequest,
+    x_gemini_api_key: str | None = Header(default=None, alias="X-Gemini-Api-Key"),
+) -> dict[str, Any]:
     """Answers conversational financial intelligence questions using grounded RAG."""
     query = req.message.strip()
     if not query:
         raise HTTPException(status_code=400, detail="Query message cannot be empty")
-    answer = rag_chatbot.answer_query(query)
+    user_byok = (x_gemini_api_key or "").strip() or None
+    byok_only = os.getenv("BYOK_ONLY", "").lower() in ("1", "true", "yes")
+    answer = rag_chatbot.answer_query(
+        query,
+        api_key_override=user_byok,
+        allow_server_key=not byok_only,
+    )
     return {
         "status": "success",
         "query": query,
         "response": answer,
+        "byok_used": bool(user_byok),
     }
 
 

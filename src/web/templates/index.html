@@ -679,7 +679,7 @@
       box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.72), 0 0 0 2px #38bdf8, 0 0 24px rgba(56, 189, 248, 0.45);
       z-index: 9995;
       pointer-events: none;
-      transition: all 0.25s ease;
+      transition: all 0.32s cubic-bezier(0.22, 1, 0.36, 1);
       display: none;
     }
     .tour-card {
@@ -693,6 +693,7 @@
       box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75);
       z-index: 9999;
       color: #f8fafc;
+      transition: top 0.32s cubic-bezier(0.22, 1, 0.36, 1), left 0.32s cubic-bezier(0.22, 1, 0.36, 1);
       display: none;
     }
     .tour-btn {
@@ -754,8 +755,11 @@
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
           AI Analyst
         </button>
-        <button onclick="startLiveTour(true)" id="btnReplayTour" class="nav-tab-btn" title="Buka Panduan Singkat (Live Tutorial)" style="border-color: #1e3a8a; color: #38bdf8;">
+        <button onclick="startLiveTour(true)" id="btnReplayTour" class="nav-tab-btn" title="Open Quick Guide (Live Tutorial)" style="border-color: #1e3a8a; color: #38bdf8;">
           ? Guide
+        </button>
+        <button onclick="openByokModal()" id="btnByokKey" class="nav-tab-btn" title="Bring Your Own Gemini API Key (stored locally in your browser)" style="border-color: #334155; color: #94a3b8;">
+          BYOK: Off
         </button>
       </nav>
     </header>
@@ -786,17 +790,10 @@
 
     <!-- TAB 1: SCREENER FUNDAMENTAL ARUS KAS (IDXRADAR + FORENSIC CASH & ACCRUAL) -->
     <main id="viewScreener" style="display: flex; flex-direction: column; gap: 10px;">
-      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8;">
-        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-          <span>How to Read Stock Screener (Quick Guide)</span>
-          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
-        </summary>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
-          <div><strong style="color: #34d399;">1. 4-Quadrant Map:</strong> Dots on the <strong>bottom-right (Q4)</strong> have strong cash (&ge;1.0x) &amp; real cash-backed earnings. Dots on the <strong>top-left (Q2)</strong> face thin cash &amp; high paper accruals.</div>
-          <div><strong style="color: #38bdf8;">2. Sector &amp; Table:</strong> Filter by sector in the heatmap, then check <strong>Cash Coverage</strong> (&ge;1.0x or Debt-Free = safe) and <strong>CFO TTM</strong> (positive = real cash coming in).</div>
-          <div><strong style="color: #fbbf24;">3. Inspect Any Ticker:</strong> Click any dot on the map or <strong>Inspect</strong> in the table to open live candlesticks, daily news, and audited XBRL statements.</div>
-        </div>
-      </details>
+      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Read Stock Screener:</strong> Learn the 4-Quadrant Map, Sector Heatmap, Cash Signals &amp; Table in 4 guided steps.</span>
+        <button onclick="startTabTour('screener')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
+      </div>
       <!-- 4-Quadrant Cartesian Radar + Sector Heatmap & Signal Feed -->
       <section style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: stretch;" class="radar-pulse-grid">
         <!-- Left: 4-Quadrant Cartesian Scatter Plot -->
@@ -1066,17 +1063,10 @@
 
     <!-- TAB 3: DIAGNOSTIK MENDALAM & CATATAN LAPORAN (CALK) (col-12 Full Width) -->
     <section id="viewCalk" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
-      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8;">
-        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-          <span>How to Read Stock Detail (Chart + Triangulation + Annuals)</span>
-          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
-        </summary>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
-          <div><strong style="color: #34d399;">1. Candlestick Chart (Left):</strong> Switch timeframes (<strong>1D–1Y</strong>) and hover bars to read Open, High, Low, Close &amp; Volume. Green = price closed higher; Red = closed lower.</div>
-          <div><strong style="color: #38bdf8;">2. Triangulation Card (Right):</strong> Compares live stock price, latest daily RSS headline, and FY 2025 Cash Coverage/CFO to show if market hype matches balance-sheet reality.</div>
-          <div><strong style="color: #fbbf24;">3. Annuals &amp; CALK (Below):</strong> Scroll down to inspect 4-year cash trends (FY 2022–2025), related-party receivables footnotes, and exact BEI XBRL source tags.</div>
-        </div>
-      </details>
+      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Read Stock Detail:</strong> Walk through the Candlestick Chart, Triangulation Card, and Annual XBRL Footnotes.</span>
+        <button onclick="startTabTour('calk')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
+      </div>
       <!-- Selector Bar -->
       <div class="card-panel" style="padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
@@ -1161,17 +1151,10 @@
 
     <!-- TAB 5: REAL-TIME NEWS LINK ANALYZER VS ACCRUAL RADAR -->
     <section id="viewNews" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
-      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8;">
-        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-          <span>How to Read News &amp; URL Analyzer (Anti-FOMO Guide)</span>
-          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
-        </summary>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
-          <div><strong style="color: #34d399;">1. Paste Any News URL:</strong> Copy a viral Indonesian stock article link and paste it below. The system detects all mentioned tickers and scores headline sentiment.</div>
-          <div><strong style="color: #38bdf8;">2. Daily News Cron Feed:</strong> Browse auto-collected daily headlines scored into <strong>POSITIVE</strong>, <strong>NEUTRAL</strong>, or <strong>CAUTION</strong> across 39+ tickers.</div>
-          <div><strong style="color: #fb7185;">3. Contextual Isolation Rule:</strong> Even a bullish contract headline will <strong>never</strong> erase a red cash-stress flag, protecting you from buying into hype when cash is tight.</div>
-        </div>
-      </details>
+      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Read News Analyzer:</strong> Learn how URL cross-checking &amp; Daily News Cron protect against FOMO traps.</span>
+        <button onclick="startTabTour('news')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
+      </div>
       <div class="card-panel" style="padding: 18px; display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
           <div>
@@ -1239,17 +1222,10 @@
 
     <!-- TAB 4: UNIFIED GEMINI-STYLE CHATBOT (SIDEBAR + MAIN CANVAS) -->
     <section id="viewChat" class="hidden">
-      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; margin-bottom: 10px;">
-        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
-          <span>How to Use AI Financial Analyst (0% Math Hallucination)</span>
-          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
-        </summary>
-        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
-          <div><strong style="color: #34d399;">1. Ask About Any Ticker:</strong> Type a question like <em>"Is BBRI cash safe?"</em> or <em>"Compare WIKA vs TOTL cash coverage"</em> or click a quick-audit prompt on the left.</div>
-          <div><strong style="color: #38bdf8;">2. Deterministic Grounding:</strong> All numbers are pre-computed in Python <code>Decimal</code> from audited BEI XBRL filings, AI only translates them into plain language.</div>
-          <div><strong style="color: #fbbf24;">3. Compliance Safe:</strong> Responses explain financial health and cash-flow risks descriptively without buy/sell recommendations or price targets.</div>
-        </div>
-      </details>
+      <div class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <span style="font-size: 11.5px; color: #cbd5e1;"><strong style="color: #38bdf8;">How to Use AI Analyst:</strong> Tour the Quick Audit Sidebar, Grounded Chat Canvas, and BYOK Gemini Key setup.</span>
+        <button onclick="startTabTour('chat')" class="btn-detail" style="border-color: #0284c7; color: #38bdf8; font-weight: 700; white-space: nowrap;">Start Interactive Tour</button>
+      </div>
       <div class="gemini-shell">
         <!-- Left Sidebar: New Chat + History + Quick Audits -->
         <aside id="chatSidebar" class="gemini-sidebar">
@@ -3592,7 +3568,7 @@
       try {
         const resp = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getByokHeaders(),
           body: JSON.stringify({ message: text })
         });
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -3699,7 +3675,7 @@
       try {
         const resp = await fetch('/api/news/analyze-url', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getByokHeaders(),
           body: JSON.stringify({ url: url || null, raw_text: rawText || null, ticker: ticker || null })
         });
         const data = await resp.json();
@@ -4652,35 +4628,101 @@
       renderChatHistorySidebar();
     }
 
-    // --- Cookie-Based First-Visit Live Tutorial ---
+    // --- Cookie-Based First-Visit + Per-Tab Flying Spotlight Tours ---
     const TOUR_COOKIE_NAME = 'idx_radar_tour_done';
-    const TOUR_STEPS = [
-      {
-        selector: () => document.getElementById('btnModeAwam')?.parentElement,
-        title: '1. Choose Reading Mode (Simple vs. Expert)',
-        body: 'Keep <strong>Simple Mode (Retail)</strong> active for clear safety verdicts. Switch to <strong>Expert Mode</strong> anytime for full XBRL accounting ratios.'
-      },
-      {
-        selector: () => document.getElementById('quadrantCardPanel'),
-        title: '2. 4-Quadrant Map: Cash vs. Paper Profits',
-        body: 'Check any stock in 3 seconds: the green <strong>Q4 Cash Fortress</strong> zone means strong cash &amp; real CFO-backed profit. Hover the <strong>Q1–Q4 (i)</strong> pills for definitions or click any dot to audit.'
-      },
-      {
-        selector: () => document.getElementById('tabBtnCalk'),
-        title: '3. Stock Detail (Live Chart + Annual XBRL)',
-        body: 'Open this tab (or click any stock) to view <strong>live OHLCV candlesticks</strong>, daily news, and 4-year audited BEI XBRL statements side-by-side.'
-      },
-      {
-        selector: () => document.getElementById('tabBtnNews'),
-        title: '4. News & URL Analyzer (Anti-FOMO Check)',
-        body: 'Browse daily RSS sentiment or paste any viral stock news URL to verify whether bullish headlines match real cash in the company’s bank account.'
-      },
-      {
-        selector: () => document.getElementById('tabBtnChat'),
-        title: '5. AI Financial Analyst (0% Math Hallucination)',
-        body: 'Ask questions in plain language. The AI only translates pre-computed Python <code>Decimal</code> XBRL facts, never inventing or altering financial numbers.'
-      }
-    ];
+    const TOUR_SETS = {
+      overview: [
+        {
+          selector: () => document.getElementById('btnModeAwam')?.parentElement,
+          title: '1. Choose Reading Mode (Simple vs. Expert)',
+          body: 'Keep <strong>Simple Mode (Retail)</strong> active for clear safety verdicts. Switch to <strong>Expert Mode</strong> anytime for full XBRL accounting ratios.'
+        },
+        {
+          selector: () => document.getElementById('quadrantCardPanel'),
+          title: '2. 4-Quadrant Map: Cash vs. Paper Profits',
+          body: 'Check any stock in 3 seconds: the green <strong>Q4 Cash Fortress</strong> zone means strong cash &amp; real CFO-backed profit. Hover the <strong>Q1-Q4 (i)</strong> pills for definitions or click any dot to audit.'
+        },
+        {
+          selector: () => document.getElementById('tabBtnCalk'),
+          title: '3. Stock Detail (Live Chart + Annual XBRL)',
+          body: 'Open this tab (or click any stock) to view <strong>live OHLCV candlesticks</strong>, daily news, and 4-year audited BEI XBRL statements side-by-side.'
+        },
+        {
+          selector: () => document.getElementById('tabBtnNews'),
+          title: '4. News & URL Analyzer (Anti-FOMO Check)',
+          body: 'Browse daily RSS sentiment or paste any viral stock news URL to verify whether bullish headlines match real cash in the company bank account.'
+        },
+        {
+          selector: () => document.getElementById('btnByokKey'),
+          title: '5. Bring Your Own Gemini Key (BYOK)',
+          body: 'Add your own free Google AI Studio Gemini API Key here if you want AI-written commentary on your own quota. Without a key, all diagnostics run deterministically at zero cost.'
+        }
+      ],
+      screener: [
+        {
+          selector: () => document.getElementById('quadrantCardPanel'),
+          title: '1. 4-Quadrant Cartesian Map',
+          body: 'Dots in <strong>Q4 (Bottom-Right)</strong> have strong cash (&ge;1.0x debt) and real cash-backed earnings. Dots in <strong>Q2 (Top-Left)</strong> face thin cash &amp; high accruals. Hover Q1-Q4 (i) pills anytime.'
+        },
+        {
+          selector: () => document.getElementById('sectorHeatmapGrid')?.closest('.card-panel'),
+          title: '2. 5-Sector Heatmap Filter',
+          body: 'Click any IDX sector card (Construction, Banking, FMCG, Energy, Telecom) to filter the quadrant map and table down to that industry.'
+        },
+        {
+          selector: () => document.getElementById('signalFeedPanel')?.closest('.card-panel'),
+          title: '3. Cash Radar Signals & News Contrast',
+          body: 'Highlights stocks with acute liquidity stress, accrual divergence, or bullish news headlines that diverge from tight balance-sheet cash.'
+        },
+        {
+          selector: () => document.getElementById('thColTicker')?.closest('.card-panel'),
+          title: '4. Live Screener Table & Inspect',
+          body: 'Sort by <strong>Cash Buffer</strong>, <strong>CFO TTM</strong>, or <strong>Sloan Accrual</strong>, then click <strong>Inspect</strong> on any row to open its candlestick chart &amp; XBRL audit.'
+        }
+      ],
+      calk: [
+        {
+          selector: () => document.getElementById('stockPriceChartBox')?.closest('.card-panel'),
+          title: '1. Live OHLCV Candlestick Chart',
+          body: 'Switch timeframes (<strong>1D, 1W, 1M, 3M, 1Y</strong>) and hover bars to inspect Open, High, Low, Close &amp; Volume.'
+        },
+        {
+          selector: () => document.getElementById('stockTriangulationCard'),
+          title: '2. Real-Time Diagnostic Triangulation',
+          body: 'Combines live price, Cash Coverage, CFO vs. Net Income, deterministic Liquidity/Quality analysis, and the latest daily headline in one view.'
+        },
+        {
+          selector: () => document.getElementById('calkContainer')?.closest('.card-panel'),
+          title: '3. Financial Statement Notes & Forecast',
+          body: 'Audited BEI XBRL breakdown (including related-party receivables &amp; exact XBRL tag provenance) plus multi-year cash flow projections.'
+        }
+      ],
+      news: [
+        {
+          selector: () => document.getElementById('txtNewsUrl')?.closest('.card-panel'),
+          title: '1. Paste Any News URL (or Try Sample)',
+          body: 'Paste a viral Indonesian stock article URL (or click <strong>Sample: WSKT</strong>) to auto-detect mentioned tickers and contrast PR hype against audited bank cash.'
+        },
+        {
+          selector: () => document.getElementById('dailyNewsFeedGrid')?.closest('.card-panel'),
+          title: '2. Daily IDX News Sentiment Feed',
+          body: 'Auto-collected daily RSS headlines scored into <strong>POSITIVE</strong>, <strong>NEUTRAL</strong>, and <strong>CAUTION</strong>. Positive news never overrides red cash safeguards.'
+        }
+      ],
+      chat: [
+        {
+          selector: () => document.getElementById('chatSidebar'),
+          title: '1. Quick Audit Prompts & History',
+          body: 'Pick a pre-built audit question or revisit previous threads. Every query retrieves audited FY 2022-2025 XBRL facts first.'
+        },
+        {
+          selector: () => document.getElementById('btnByokKey'),
+          title: '2. Grounded AI + Optional BYOK Key',
+          body: 'Add your own free Gemini API Key via <strong>BYOK</strong> for AI-phrased explanations, or run without a key using our 100% deterministic Python fallback.'
+        }
+      ]
+    };
+    let ACTIVE_TOUR_STEPS = TOUR_SETS.overview;
     let currentTourIdx = 0;
 
     function getTourCookie(name) {
@@ -4698,11 +4740,11 @@
       const card = document.getElementById('liveTourCard');
       if (!backdrop || !spotlight || !card) return;
 
-      const step = TOUR_STEPS[currentTourIdx];
+      const step = ACTIVE_TOUR_STEPS[currentTourIdx];
       const target = step && step.selector ? step.selector() : null;
       if (!target) { endLiveTour(); return; }
 
-      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.scrollIntoView({ behavior: 'instant', block: 'center' });
       const rect = target.getBoundingClientRect();
       const pad = 6;
 
@@ -4713,14 +4755,14 @@
       spotlight.style.width = `${rect.width + pad * 2}px`;
       spotlight.style.height = `${rect.height + pad * 2}px`;
 
-      document.getElementById('tourStepCounter').textContent = `STEP ${currentTourIdx + 1} OF ${TOUR_STEPS.length}`;
+      document.getElementById('tourStepCounter').textContent = `STEP ${currentTourIdx + 1} OF ${ACTIVE_TOUR_STEPS.length}`;
       document.getElementById('tourStepTitle').textContent = step.title;
       document.getElementById('tourStepBody').innerHTML = step.body;
 
       const prevBtn = document.getElementById('tourPrevBtn');
       const nextBtn = document.getElementById('tourNextBtn');
       if (prevBtn) prevBtn.style.display = currentTourIdx === 0 ? 'none' : 'inline-block';
-      if (nextBtn) nextBtn.textContent = currentTourIdx === TOUR_STEPS.length - 1 ? 'Got It, Start Exploring!' : 'Next →';
+      if (nextBtn) nextBtn.textContent = currentTourIdx === ACTIVE_TOUR_STEPS.length - 1 ? 'Got It, Start Exploring!' : 'Next →';
 
       card.style.display = 'block';
       const cardW = 340;
@@ -4734,12 +4776,19 @@
     function startLiveTour(force = false) {
       if (!force && getTourCookie(TOUR_COOKIE_NAME) === '1') return;
       if (window.location.search.includes('notour=1')) return;
+      ACTIVE_TOUR_STEPS = TOUR_SETS.overview;
+      currentTourIdx = 0;
+      renderTourStep();
+    }
+
+    function startTabTour(tabKey) {
+      ACTIVE_TOUR_STEPS = TOUR_SETS[tabKey] || TOUR_SETS.overview;
       currentTourIdx = 0;
       renderTourStep();
     }
 
     function nextTourStep() {
-      if (currentTourIdx < TOUR_STEPS.length - 1) {
+      if (currentTourIdx < ACTIVE_TOUR_STEPS.length - 1) {
         currentTourIdx++;
         renderTourStep();
       } else {
@@ -4776,7 +4825,89 @@
         startLiveTour(false);
       }
     }, 1100);
+
+    // --- BYOK (Bring Your Own Gemini Key) ---
+    const BYOK_STORAGE_KEY = 'idx_radar_gemini_key';
+
+    function getByokKey() {
+      try { return (localStorage.getItem(BYOK_STORAGE_KEY) || '').trim(); } catch (e) { return ''; }
+    }
+
+    function getByokHeaders() {
+      const headers = { 'Content-Type': 'application/json' };
+      const k = getByokKey();
+      if (k) headers['X-Gemini-Api-Key'] = k;
+      return headers;
+    }
+
+    function refreshByokBadge() {
+      const btn = document.getElementById('btnByokKey');
+      if (!btn) return;
+      const hasKey = Boolean(getByokKey());
+      btn.textContent = hasKey ? 'BYOK: Active' : 'BYOK: Off';
+      btn.style.borderColor = hasKey ? '#059669' : '#334155';
+      btn.style.color = hasKey ? '#34d399' : '#94a3b8';
+    }
+
+    function openByokModal() {
+      const modal = document.getElementById('byokModal');
+      const input = document.getElementById('txtByokInput');
+      if (input) input.value = getByokKey();
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeByokModal() {
+      const modal = document.getElementById('byokModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function saveByokKey() {
+      const input = document.getElementById('txtByokInput');
+      const val = (input ? input.value : '').trim();
+      try {
+        if (val) localStorage.setItem(BYOK_STORAGE_KEY, val);
+        else localStorage.removeItem(BYOK_STORAGE_KEY);
+      } catch (e) {}
+      refreshByokBadge();
+      closeByokModal();
+    }
+
+    function clearByokKey() {
+      try { localStorage.removeItem(BYOK_STORAGE_KEY); } catch (e) {}
+      const input = document.getElementById('txtByokInput');
+      if (input) input.value = '';
+      refreshByokBadge();
+      closeByokModal();
+    }
+
+    refreshByokBadge();
   </script>
+
+  <!-- BYOK Modal -->
+  <div id="byokModal" style="display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.78); z-index: 9998; align-items: center; justify-content: center; padding: 16px;" onclick="if(event.target===this) closeByokModal()">
+    <div style="width: 440px; max-width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 18px 20px; color: #f8fafc; box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <strong style="font-size: 14px; color: #38bdf8;">Bring Your Own Key (BYOK): Gemini API</strong>
+        <button onclick="closeByokModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">×</button>
+      </div>
+      <p style="font-size: 12px; line-height: 1.5; color: #cbd5e1; margin-bottom: 12px;">
+        Enter your own free Google AI Studio Gemini API Key so <strong>AI Analyst</strong> and <strong>News Synthesis</strong> run on your own quota. Your key stays strictly in your browser <code>localStorage</code> and is never stored on our server. Without a key, all diagnostics run in 100% deterministic mode at zero cost.
+      </p>
+      <div style="margin-bottom: 10px;">
+        <input id="txtByokInput" type="password" class="form-input" placeholder="AIza..." style="width: 100%; font-size: 12.5px; padding: 8px 10px;">
+      </div>
+      <div style="font-size: 11px; color: #94a3b8; margin-bottom: 14px;">
+        Get a free key at <a href="https://aistudio.google.com/apikey" target="_blank" style="color: #38bdf8; text-decoration: underline;">aistudio.google.com/apikey</a>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <button onclick="clearByokKey()" class="tour-btn" style="color: #fb7185; border-color: #881337;">Remove Key</button>
+        <div style="display: flex; gap: 8px;">
+          <button onclick="closeByokModal()" class="tour-btn">Cancel</button>
+          <button onclick="saveByokKey()" class="tour-btn tour-btn-primary">Save Key</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Live First-Visit Tour Overlay -->
   <div id="liveTourBackdrop" class="tour-backdrop" onclick="endLiveTour()"></div>

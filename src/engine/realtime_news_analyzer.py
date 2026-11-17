@@ -850,8 +850,10 @@ def synthesize_news_vs_accrual(
     )
 
     global _GEMINI_BACKOFF_UNTIL
-    key = api_key or os.getenv("GEMINI_API_KEY")
-    if not key or os.getenv("PYTEST_CURRENT_TEST") or time.time() < _GEMINI_BACKOFF_UNTIL:
+    byok_key = (api_key or "").strip()
+    byok_only = os.getenv("BYOK_ONLY", "").lower() in ("1", "true", "yes")
+    key = byok_key or (None if byok_only else os.getenv("GEMINI_API_KEY"))
+    if not key or os.getenv("PYTEST_CURRENT_TEST") or (not byok_key and time.time() < _GEMINI_BACKOFF_UNTIL):
         return det
 
     try:
