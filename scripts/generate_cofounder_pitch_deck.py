@@ -382,7 +382,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom</span>
-      <span>Slide 1 / 12</span>
+      <span>Slide 1 / 13</span>
     </div>
   </section>
 
@@ -422,7 +422,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Executive Summary</span>
-      <span>Slide 2 / 12</span>
+      <span>Slide 2 / 13</span>
     </div>
   </section>
 
@@ -463,7 +463,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Problem Statement</span>
-      <span>Slide 3 / 12</span>
+      <span>Slide 3 / 13</span>
     </div>
   </section>
 
@@ -513,7 +513,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; User Workflow</span>
-      <span>Slide 4 / 12</span>
+      <span>Slide 4 / 13</span>
     </div>
   </section>
 
@@ -552,7 +552,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: Screener &amp; Onboarding</span>
-      <span>Slide 5 / 12</span>
+      <span>Slide 5 / 13</span>
     </div>
   </section>
 
@@ -590,7 +590,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: 4-Quadrant Map</span>
-      <span>Slide 6 / 12</span>
+      <span>Slide 6 / 13</span>
     </div>
   </section>
 
@@ -624,7 +624,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: Live Stock Detail (BBRI.JK)</span>
-      <span>Slide 7 / 12</span>
+      <span>Slide 7 / 13</span>
     </div>
   </section>
 
@@ -658,7 +658,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: Annual XBRL &amp; CALK</span>
-      <span>Slide 8 / 12</span>
+      <span>Slide 8 / 13</span>
     </div>
   </section>
 
@@ -697,14 +697,71 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: News &amp; AI Analyst</span>
-      <span>Slide 9 / 12</span>
+      <span>Slide 9 / 13</span>
     </div>
   </section>
 
-  <!-- SLIDE 10: EMPIRICAL PROOF & ARCHITECTURE -->
+  <!-- SLIDE 10: REAL-WORLD BACKTEST PROOF (2022-2025) -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">09 / EMPIRICAL DATA &amp; ARCHITECTURE</div>
+      <div class="eyebrow">09 / REAL-WORLD BACKTEST PROOF (2022-2025)</div>
+      <h2>How Our 2022-2023 Cash Flags Predicted Real-World 2025 Debt Distress.</h2>
+      <p class="lead">Audited XBRL numbers from our database vs. actual IDX suspension, coupon deferral, and restructuring outcomes.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card card-red" style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+        <div>
+          <span class="tag tag-red" style="margin-bottom: 6px;">CASE 1: WIKA (BOND DEFERRAL &amp; SUSPENSION)</span>
+          <div style="font-weight: 800; font-size: 14px; margin-bottom: 6px;">Early Warning in FY 2022-2023</div>
+          <ul style="font-size: 12px; color: #334155;">
+            <li><strong>FY 2022:</strong> Reported <strong>+IDR 13 B</strong> net profit, while Operating Cash (CFO) was already <strong>-IDR 2.88 T</strong> and Cash Coverage fell to <strong>0.38x</strong>.</li>
+            <li><strong>FY 2023:</strong> Engine triggered <strong style="color:#be123c;">ACUTE LIQUIDITY FLAG</strong>: Cash Coverage crashed to <strong>0.15x</strong>, CFO <strong>-IDR 2.93 T</strong>, Net Loss <strong>-IDR 7.83 T</strong>.</li>
+            <li><strong>2025 Real Outcome:</strong> Sukuk/bond coupon deferrals, debt restructuring (RUPO), IDX trading suspension, and FY 2025 net loss widened to <strong>-IDR 10.14 T</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card card-amber" style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+        <div>
+          <span class="tag tag-amber" style="margin-bottom: 6px;">CASE 2: WSKT (CONTRACT HYPE VS CASH)</span>
+          <div style="font-weight: 800; font-size: 14px; margin-bottom: 6px;">2023 Collapse &amp; Multi-Year Burn</div>
+          <ul style="font-size: 12px; color: #334155;">
+            <li><strong>FY 2022 -> FY 2023:</strong> Cash Coverage plunged from <strong>1.37x</strong> to <strong>0.20x</strong> as net loss hit <strong>-IDR 4.02 T</strong>.</li>
+            <li><strong>FY 2024 -> FY 2025:</strong> Coverage stayed critical at <strong>0.26x</strong> (2024) and <strong>0.23x</strong> (2025) with CFO <strong>-IDR 2.38 T</strong> -> <strong>-IDR 560 B</strong> and Net Loss <strong>-IDR 4.48 T</strong>.</li>
+            <li><strong>2025 Real Outcome:</strong> Even while headlines touted <em>"IDR 5.6T New Contracts"</em>, WSKT remained under IDX suspension &amp; debt restructuring.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card card-green" style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+        <div>
+          <span class="tag tag-green" style="margin-bottom: 6px;">CONTROL: TOTL (SAME SECTOR, SAFE)</span>
+          <div style="font-weight: 800; font-size: 14px; margin-bottom: 6px;">Why Cash Discipline Protects Investors</div>
+          <ul style="font-size: 12px; color: #334155;">
+            <li><strong>FY 2022-2025:</strong> Maintained <strong>Zero Short-Term Interest Debt (Debt-Free)</strong> across all 4 audited years.</li>
+            <li><strong>Real Cash Inflow:</strong> Positive CFO every single year: <strong>+0.28 T</strong> (2022) -> <strong>+0.65 T</strong> (2024) -> <strong>+0.44 T</strong> (2025).</li>
+            <li><strong>2025 Real Outcome:</strong> Net profit grew <strong>4.5x</strong> (from +92 B in 2022 to <strong>+415 B</strong> in 2025) with zero liquidity distress and regular dividends.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="background: #0f172a; color: #f8fafc; padding: 12px 18px; font-size: 12.5px;">
+      <strong style="color: #38bdf8;">Takeaway:</strong> Retail investors who checked <strong>Cash Coverage (&lt;0.20x)</strong> and <strong>Negative CFO</strong> in 2023 XBRL filings avoided multi-year capital lockups in 2025.
+    </div>
+
+    <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
+    <div class="footer">
+      <span>IDX Cash &amp; Accrual Radar &bull; Real-World Backtest Proof (2022-2025)</span>
+      <span>Slide 10 / 13</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: EMPIRICAL PROOF & ARCHITECTURE -->
+  <section class="slide slide-light">
+    <div>
+      <div class="eyebrow">10 / EMPIRICAL DATA &amp; ARCHITECTURE</div>
       <h2>Verified FY 2025 Numbers Running on a Lean Serverless Stack.</h2>
     </div>
 
@@ -773,14 +830,14 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Empirical Proof &amp; Stack</span>
-      <span>Slide 10 / 12</span>
+      <span>Slide 11 / 13</span>
     </div>
   </section>
 
-  <!-- SLIDE 11: 90-DAY ROADMAP & CO-BUILDER ROLES -->
+  <!-- SLIDE 12: 90-DAY ROADMAP & CO-BUILDER ROLES -->
   <section class="slide slide-dark">
     <div>
-      <div class="eyebrow">10 / 90-DAY ROADMAP &amp; WHY JOIN NOW</div>
+      <div class="eyebrow">11 / 90-DAY ROADMAP &amp; WHY JOIN NOW</div>
       <h2>What We Will Build Together in the Next 90 Days.</h2>
       <p class="lead">The core engine is live. Join as a co-builder to help scale data coverage, user retention, and community launch.</p>
     </div>
@@ -820,14 +877,14 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Roadmap &amp; Co-Builder Fit</span>
-      <span>Slide 11 / 12</span>
+      <span>Slide 12 / 13</span>
     </div>
   </section>
 
-  <!-- SLIDE 12: CALL TO ACTION & FOUNDER CREDIT -->
+  <!-- SLIDE 13: CALL TO ACTION & FOUNDER CREDIT -->
   <section class="slide slide-dark" style="justify-content: space-between;">
     <div>
-      <div class="eyebrow">11 / FOUNDER CREDIT &amp; NEXT STEP</div>
+      <div class="eyebrow">12 / FOUNDER CREDIT &amp; NEXT STEP</div>
       <h1 style="font-size: 42px;">Try the Live App Today. Let's Ship v3 Together.</h1>
       <p class="lead" style="margin-top: 10px;">
         Test the live screener, hover the 4-quadrant tooltips, inspect <code>BBRI.JK</code> candlesticks, and let's talk about building the next phase together.
@@ -868,7 +925,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom &bull; yehezkiel.netlify.app</span>
-      <span>Slide 12 / 12</span>
+      <span>Slide 13 / 13</span>
     </div>
   </section>
 
