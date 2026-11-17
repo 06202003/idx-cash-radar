@@ -786,6 +786,17 @@
 
     <!-- TAB 1: SCREENER FUNDAMENTAL ARUS KAS (IDXRADAR + FORENSIC CASH & ACCRUAL) -->
     <main id="viewScreener" style="display: flex; flex-direction: column; gap: 10px;">
+      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8;">
+        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+          <span>How to Read Stock Screener (Quick Guide)</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
+        </summary>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
+          <div><strong style="color: #34d399;">1. 4-Quadrant Map:</strong> Dots on the <strong>bottom-right (Q4)</strong> have strong cash (&ge;1.0x) &amp; real cash-backed earnings. Dots on the <strong>top-left (Q2)</strong> face thin cash &amp; high paper accruals.</div>
+          <div><strong style="color: #38bdf8;">2. Sector &amp; Table:</strong> Filter by sector in the heatmap, then check <strong>Cash Coverage</strong> (&ge;1.0x or Debt-Free = safe) and <strong>CFO TTM</strong> (positive = real cash coming in).</div>
+          <div><strong style="color: #fbbf24;">3. Inspect Any Ticker:</strong> Click any dot on the map or <strong>Inspect</strong> in the table to open live candlesticks, daily news, and audited XBRL statements.</div>
+        </div>
+      </details>
       <!-- 4-Quadrant Cartesian Radar + Sector Heatmap & Signal Feed -->
       <section style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: stretch;" class="radar-pulse-grid">
         <!-- Left: 4-Quadrant Cartesian Scatter Plot -->
@@ -794,20 +805,20 @@
             <strong style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">4-QUADRANT CARTESIAN MAP: CASH COVERAGE VS ACCRUALS</strong>
             <div class="quad-guide-bar">
               <span class="quad-pill" tabindex="0">
-                <span class="status-dot dot-green"></span>Q4: Cash Fortress <span style="color:#38bdf8;">ⓘ</span>
-                <span class="quad-tip"><strong style="color:#34d399;">Q4: Cash Fortress (Kanan Bawah)</strong><br>Kas &ge; 1.0x utang jangka pendek &amp; Akrual &le; 0%. Laba benar-benar masuk menjadi uang tunai riil dan utang aman tertutup kas.</span>
+                <span class="status-dot dot-green"></span>Q4: Cash Fortress <span style="color:#38bdf8;">(i)</span>
+                <span class="quad-tip"><strong style="color:#34d399;">Q4: Cash Fortress (Bottom-Right)</strong><br>Cash &ge; 1.0x short-term debt &amp; Accrual &le; 0%. Reported profits are backed by real operating cash inflows and debt is well covered.</span>
               </span>
               <span class="quad-pill" tabindex="0">
-                <span class="status-dot dot-amber"></span>Q1: High Accrual <span style="color:#38bdf8;">ⓘ</span>
-                <span class="quad-tip"><strong style="color:#fbbf24;">Q1: High Accrual (Kanan Atas)</strong><br>Kas cukup (&ge; 1.0x), tapi Akrual &gt; 0%. Laba akuntansi lebih tinggi dari arus kas masuk — sebagian laba masih tertahan di piutang/proyek.</span>
+                <span class="status-dot dot-amber"></span>Q1: High Accrual <span style="color:#38bdf8;">(i)</span>
+                <span class="quad-tip"><strong style="color:#fbbf24;">Q1: High Accrual (Top-Right)</strong><br>Cash buffer is adequate (&ge; 1.0x), but Accrual &gt; 0%. Accounting profit exceeds cash inflows: part of earnings is tied up in receivables.</span>
               </span>
               <span class="quad-pill" tabindex="0">
-                <span class="status-dot" style="background:#f97316;"></span>Q3: Cash Stress <span style="color:#38bdf8;">ⓘ</span>
-                <span class="quad-tip"><strong style="color:#fb923c;">Q3: Cash Stress (Kiri Bawah)</strong><br>Kas &lt; 1.0x utang jangka pendek, meski akrual rendah. Cadangan uang tunai perusahaan tipis untuk menutup utang jatuh tempo.</span>
+                <span class="status-dot" style="background:#f97316;"></span>Q3: Cash Stress <span style="color:#38bdf8;">(i)</span>
+                <span class="quad-tip"><strong style="color:#fb923c;">Q3: Cash Stress (Bottom-Left)</strong><br>Cash &lt; 1.0x short-term debt, even with low accruals. The company holds a thin cash buffer against upcoming short-term obligations.</span>
               </span>
               <span class="quad-pill" tabindex="0">
-                <span class="status-dot dot-red"></span>Q2: Double Stress <span style="color:#38bdf8;">ⓘ</span>
-                <span class="quad-tip"><strong style="color:#fb7185;">Q2: Double Stress (Kiri Atas)</strong><br>Zona paling rawan: Kas &lt; 1.0x utang jangka pendek DAN Akrual &gt; 0%. Kas tipis sekaligus laba tidak didukung arus kas tunai.</span>
+                <span class="status-dot dot-red"></span>Q2: Double Stress <span style="color:#38bdf8;">(i)</span>
+                <span class="quad-tip"><strong style="color:#fb7185;">Q2: Double Stress (Top-Left)</strong><br>Highest-risk zone: Cash &lt; 1.0x short-term debt AND Accrual &gt; 0%. Thin cash reserves combined with paper profits.</span>
               </span>
             </div>
           </div>
@@ -815,8 +826,8 @@
             <canvas id="screenerQuadrantChart"></canvas>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
-            <span>Hover label Q1–Q4 di atas untuk arti kuadran | X: Cash Coverage (1.0x) | Y: Sloan Accrual (0%)</span>
-            <span>Klik titik saham untuk audit</span>
+            <span>Hover Q1–Q4 pills above for quadrant meanings | X: Cash Coverage (1.0x) | Y: Sloan Accrual (0%)</span>
+            <span>Click any dot to audit balance sheet</span>
           </div>
         </div>
 
@@ -1055,10 +1066,21 @@
 
     <!-- TAB 3: DIAGNOSTIK MENDALAM & CATATAN LAPORAN (CALK) (col-12 Full Width) -->
     <section id="viewCalk" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8;">
+        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+          <span>How to Read Stock Detail (Chart + Triangulation + Annuals)</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
+        </summary>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
+          <div><strong style="color: #34d399;">1. Candlestick Chart (Left):</strong> Switch timeframes (<strong>1D–1Y</strong>) and hover bars to read Open, High, Low, Close &amp; Volume. Green = price closed higher; Red = closed lower.</div>
+          <div><strong style="color: #38bdf8;">2. Triangulation Card (Right):</strong> Compares live stock price, latest daily RSS headline, and FY 2025 Cash Coverage/CFO to show if market hype matches balance-sheet reality.</div>
+          <div><strong style="color: #fbbf24;">3. Annuals &amp; CALK (Below):</strong> Scroll down to inspect 4-year cash trends (FY 2022–2025), related-party receivables footnotes, and exact BEI XBRL source tags.</div>
+        </div>
+      </details>
       <!-- Selector Bar -->
       <div class="card-panel" style="padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
-          <strong style="color: #ffffff; font-size: 14px;">Stockbit-Style Live Price, Daily News &amp; Annual Financials Workspace</strong>
+          <strong style="color: #ffffff; font-size: 14px;">Live Price, Daily News &amp; Annual Financials Workspace</strong>
           <div style="color: #94a3b8; font-size: 11.5px;">Real-time IDX stock chart (.JK), daily news sentiment cron feed, and audited annual XBRL financials (FY 2022&ndash;2025).</div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -1139,6 +1161,17 @@
 
     <!-- TAB 5: REAL-TIME NEWS LINK ANALYZER VS ACCRUAL RADAR -->
     <section id="viewNews" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8;">
+        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+          <span>How to Read News &amp; URL Analyzer (Anti-FOMO Guide)</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
+        </summary>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
+          <div><strong style="color: #34d399;">1. Paste Any News URL:</strong> Copy a viral Indonesian stock article link and paste it below. The system detects all mentioned tickers and scores headline sentiment.</div>
+          <div><strong style="color: #38bdf8;">2. Daily News Cron Feed:</strong> Browse auto-collected daily headlines scored into <strong>POSITIVE</strong>, <strong>NEUTRAL</strong>, or <strong>CAUTION</strong> across 39+ tickers.</div>
+          <div><strong style="color: #fb7185;">3. Contextual Isolation Rule:</strong> Even a bullish contract headline will <strong>never</strong> erase a red cash-stress flag, protecting you from buying into hype when cash is tight.</div>
+        </div>
+      </details>
       <div class="card-panel" style="padding: 18px; display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
           <div>
@@ -1206,6 +1239,17 @@
 
     <!-- TAB 4: UNIFIED GEMINI-STYLE CHATBOT (SIDEBAR + MAIN CANVAS) -->
     <section id="viewChat" class="hidden">
+      <details class="card-panel" style="padding: 8px 14px; border-left: 3px solid #38bdf8; margin-bottom: 10px;">
+        <summary style="cursor: pointer; font-size: 11.5px; font-weight: 700; color: #38bdf8; list-style: none; display: flex; justify-content: space-between; align-items: center;">
+          <span>How to Use AI Financial Analyst (0% Math Hallucination)</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">Click to expand ▾</span>
+        </summary>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #1e293b; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 11px; color: #cbd5e1; line-height: 1.45;">
+          <div><strong style="color: #34d399;">1. Ask About Any Ticker:</strong> Type a question like <em>"Is BBRI cash safe?"</em> or <em>"Compare WIKA vs TOTL cash coverage"</em> or click a quick-audit prompt on the left.</div>
+          <div><strong style="color: #38bdf8;">2. Deterministic Grounding:</strong> All numbers are pre-computed in Python <code>Decimal</code> from audited BEI XBRL filings, AI only translates them into plain language.</div>
+          <div><strong style="color: #fbbf24;">3. Compliance Safe:</strong> Responses explain financial health and cash-flow risks descriptively without buy/sell recommendations or price targets.</div>
+        </div>
+      </details>
       <div class="gemini-shell">
         <!-- Left Sidebar: New Chat + History + Quick Audits -->
         <aside id="chatSidebar" class="gemini-sidebar">
@@ -1277,7 +1321,7 @@
                 What would you like to audit today?
               </div>
               <div style="font-size: 12.5px; color: #94a3b8; max-width: 520px; line-height: 1.5;">
-                Ask about cash position, short-term debt, Sloan accrual ratio, or financial statement diagnostics for any IDX issuer—including stocks you newly added.
+                Ask about cash position, short-term debt, Sloan accrual ratio, or financial statement diagnostics for any IDX issuer, including stocks you newly added.
               </div>
               <div class="gemini-prompt-grid">
                 <button onclick="askPrompt('Evaluate WIKA cash profile and solvency')" class="gemini-prompt-card">
@@ -2022,10 +2066,10 @@
                 },
                 afterLabel: ctx => {
                   const r = ctx.raw;
-                  if (r.x >= 1.0 && r.y <= 0) return 'Q4 Cash Fortress: Kas kuat >=1x & laba didukung uang tunai riil.';
-                  if (r.x >= 1.0 && r.y > 0) return 'Q1 High Accrual: Kas >=1x cukup, tapi laba masih tertahan di piutang/akrual.';
-                  if (r.x < 1.0 && r.y <= 0) return 'Q3 Cash Stress: Cadangan kas <1x utang jangka pendek.';
-                  return 'Q2 Double Stress: Kas tipis <1x DAN laba akrual >0% (perlu perhatian ekstra).';
+                  if (r.x >= 1.0 && r.y <= 0) return 'Q4 Cash Fortress: Strong cash >=1x & real CFO-backed earnings.';
+                  if (r.x >= 1.0 && r.y > 0) return 'Q1 High Accrual: Cash >=1x is adequate, but profit is tied up in receivables.';
+                  if (r.x < 1.0 && r.y <= 0) return 'Q3 Cash Stress: Thin cash buffer (<1x short-term debt).';
+                  return 'Q2 Double Stress: Thin cash <1x AND high accruals >0% (elevated risk).';
                 }
               }
             }
@@ -2700,8 +2744,7 @@
           <!-- 4. Plain-English Diagnostic Summary -->
           <div style="background: #0b1329; border: 1px solid #1e3a8a; border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
-              <span style="font-size: 14px;"></span>
-              <strong style="color: #38bdf8; font-size: 13px; text-transform: uppercase;">Plain-English Financial Health Summary</strong>
+              <strong style="color: #38bdf8; font-size: 13px; text-transform: uppercase;">Financial Health Summary</strong>
             </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; font-size: 12.5px; line-height: 1.5; color: #e2e8f0;">
               <div style="background: #111827; padding: 12px; border-radius: 6px; border: 1px solid #1f2937;">
@@ -3466,7 +3509,7 @@
             What would you like to audit today?
           </div>
           <div style="font-size: 12.5px; color: #94a3b8; max-width: 520px; line-height: 1.5;">
-            Ask about cash position, short-term debt, Sloan accrual ratio, or financial statement diagnostics for any IDX issuer—including stocks you newly added.
+            Ask about cash position, short-term debt, Sloan accrual ratio, or financial statement diagnostics for any IDX issuer, including stocks you newly added.
           </div>
           <div class="gemini-prompt-grid">
             <button onclick="askPrompt('Evaluate WIKA cash profile and solvency')" class="gemini-prompt-card">
@@ -4040,22 +4083,81 @@
           source: 'IDX Disclosure'
         };
         const chgText = tri.chgPct !== null ? `${tri.chgPct > 0 ? '+' : ''}${tri.chgPct.toFixed(2)}% (1D)` : 'N/A';
+        const sloanVal = Number(row.sloan_ratio_pct || 0);
+        const cfoVal = Number(row.cfo_ttm_idr || 0);
+        const niVal = Number(row.net_income_ttm_idr || 0);
+        const cashVal = Number(row.cash_idr || 0);
+        const debtVal = Number(row.st_debt_idr || 0);
+        const covNum = tri.isFree ? 99 : tri.covVal;
+
+        const quadLabel = (covNum >= 1.0 && sloanVal <= 0)
+          ? { name: 'Q4: Cash Fortress', color: '#34d399' }
+          : (covNum >= 1.0 && sloanVal > 0)
+            ? { name: 'Q1: High Accrual', color: '#fbbf24' }
+            : (covNum < 1.0 && sloanVal <= 0)
+              ? { name: 'Q3: Cash Stress', color: '#fb923c' }
+              : { name: 'Q2: Double Stress', color: '#fb7185' };
+
+        const liquidityAnalysis = tri.isFree
+          ? `Zero short-term interest-bearing debt reported alongside ${fmtRupiah(cashVal)} in cash reserves.`
+          : covNum >= 1.0
+            ? `Cash reserves (${fmtRupiah(cashVal)}) cover ${tri.covVal.toFixed(2)}x of short-term debt (${fmtRupiah(debtVal)}), sitting above the 1.0x safety threshold.`
+            : `Cash reserves (${fmtRupiah(cashVal)}) cover only ${tri.covVal.toFixed(2)}x of short-term debt (${fmtRupiah(debtVal)}), below the 1.0x safety threshold.`;
+
+        const conversionAnalysis = cfoVal >= 0 && cfoVal >= niVal
+          ? `Operating cash (${fmtRupiah(cfoVal)}) exceeds net income (${fmtRupiah(niVal)}) with Sloan Accrual at ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%, showing profits convert into real cash.`
+          : cfoVal >= 0
+            ? `Operating cash is positive (${fmtRupiah(cfoVal)}) vs. net income (${fmtRupiah(niVal)}), with Sloan Accrual at ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%.`
+            : `Operating cash is negative (${fmtRupiah(cfoVal)}) vs. net income (${fmtRupiah(niVal)}), signaling operating cash burn or uncollected receivables.`;
+
+        const sentLabel = tri.sent === 'POSITIF' ? 'POSITIVE' : (tri.sent === 'PERHATIAN' ? 'CAUTION' : 'NEUTRAL');
+        const sentColor = tri.sent === 'POSITIF' ? '#34d399' : (tri.sent === 'PERHATIAN' ? '#fb7185' : '#fbbf24');
+        const newsContrastAnalysis = (tri.sent === 'POSITIF' && (row.flag_acute_liquidity || covNum < 0.50))
+          ? `Headline tone is POSITIVE, but balance-sheet safeguards remain flagged due to thin cash coverage and operating cash pressure.`
+          : `Latest news tone is ${sentLabel}. Audited XBRL metrics place this issuer in ${quadLabel.name}.`;
+
         triCard.innerHTML = `
-          <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 10px;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
               <strong style="color: #38bdf8; font-size: 13px;">REAL-TIME STOCK + DAILY NEWS + ANNUALS</strong>
               ${tri.signalBadge}
             </div>
-            <div style="font-size: 12px; line-height: 1.6; color: #e2e8f0;" class="font-num">
-              <div>&bull; Live Quote: <strong>${tri.q ? 'IDR ' + Number(tri.q.price_idr).toLocaleString('en-US') : 'Unavailable'}</strong> (${chgText})</div>
-              <div>&bull; Cash Coverage (FY25): <strong>${tri.isFree ? 'Debt-Free' : tri.covVal.toFixed(2) + 'x'}</strong></div>
-              <div>&bull; CFO TTM: <strong style="color: ${row.cfo_ttm_idr >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(row.cfo_ttm_idr)}</strong> | Sloan: <strong>${row.sloan_ratio_pct > 0 ? '+' : ''}${Number(row.sloan_ratio_pct || 0).toFixed(1)}%</strong></div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" class="font-num">
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 10px; color: #94a3b8;">LIVE QUOTE (1D)</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: #f8fafc;">${tri.q ? 'IDR ' + Number(tri.q.price_idr).toLocaleString('en-US') : 'Unavailable'} <span style="font-size: 11px; color: ${tri.chgPct > 0 ? '#34d399' : (tri.chgPct < 0 ? '#fb7185' : '#94a3b8')};">(${chgText})</span></div>
+              </div>
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 10px; color: #94a3b8;">CASH COVERAGE (FY25)</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: ${covNum >= 1.0 ? '#34d399' : '#fb7185'};">${tri.isFree ? 'Debt-Free' : tri.covVal.toFixed(2) + 'x'} <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">(${fmtRupiah(cashVal)})</span></div>
+              </div>
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 10px; color: #94a3b8;">CFO TTM VS NET INCOME</div>
+                <div style="font-size: 12px; font-weight: 700; color: ${cfoVal >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(cfoVal)} <span style="font-size: 10.5px; color: #cbd5e1; font-weight: 500;">/ ${fmtRupiah(niVal)}</span></div>
+              </div>
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 10px; color: #94a3b8;">QUADRANT &amp; SLOAN</div>
+                <div style="font-size: 12px; font-weight: 700; color: ${quadLabel.color};">${quadLabel.name} <span style="font-size: 10.5px; color: #cbd5e1; font-weight: 500;">(${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%)</span></div>
+              </div>
+            </div>
+
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 9px 11px; font-size: 11.5px; line-height: 1.5; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px;">
+              <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8;">DETERMINISTIC DIAGNOSTIC ANALYSIS</div>
+              <div>&bull; <strong style="color: #e2e8f0;">Liquidity:</strong> ${liquidityAnalysis}</div>
+              <div>&bull; <strong style="color: #e2e8f0;">Cash Quality:</strong> ${conversionAnalysis}</div>
+              <div>&bull; <strong style="color: #e2e8f0;">News vs Cash:</strong> ${newsContrastAnalysis}</div>
             </div>
           </div>
-          <div style="background: #111827; padding: 10px 12px; border-radius: 6px; border-left: 3px solid #38bdf8;">
-            <div style="font-size: 10.5px; color: #38bdf8; font-weight: 700; margin-bottom: 3px;">LATEST DAILY NEWS (${latestNews.source || 'RSS'} &bull; ${latestNews.date})</div>
+
+          <div style="background: #111827; padding: 9px 12px; border-radius: 6px; border-left: 3px solid ${sentColor};">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+              <span style="font-size: 10.5px; color: #38bdf8; font-weight: 700;">LATEST DAILY NEWS (${latestNews.source || 'RSS'} &bull; ${latestNews.date})</span>
+              <span style="font-size: 10px; font-weight: 700; color: ${sentColor};">${sentLabel}</span>
+            </div>
             <div style="font-size: 12px; color: #f8fafc; line-height: 1.4;">${latestNews.headline}</div>
           </div>
+
           <div style="font-size: 10.5px; color: #94a3b8;">
             <em>Descriptive synthesis only: daily news and price action do not alter deterministic XBRL cash safeguards.</em>
           </div>
@@ -4516,28 +4618,28 @@
     const TOUR_STEPS = [
       {
         selector: () => document.getElementById('btnModeAwam')?.parentElement,
-        title: '1. Pilih Gaya Bahasa (Simple vs Expert)',
-        body: 'Baru belajar saham? Gunakan <strong>Simple Mode (Retail)</strong> agar semua istilah akuntansi diterjemahkan ke bahasa sehari-hari. Pindah ke <strong>Expert Mode</strong> kapan saja untuk metrik XBRL lengkap.'
+        title: '1. Choose Reading Mode (Simple vs. Expert)',
+        body: 'Keep <strong>Simple Mode (Retail)</strong> active for clear safety verdicts. Switch to <strong>Expert Mode</strong> anytime for full XBRL accounting ratios.'
       },
       {
         selector: () => document.getElementById('quadrantCardPanel'),
-        title: '2. Peta 4-Kuadran: Kas vs Laba Kertas',
-        body: 'Cek posisi saham dalam 3 detik: zona hijau <strong>Q4 Cash Fortress</strong> berarti kas aman &amp; laba benar-benar cair. Arahkan kursor ke label <strong>Q1–Q4 ⓘ</strong> atau klik titik saham untuk audit instan.'
+        title: '2. 4-Quadrant Map: Cash vs. Paper Profits',
+        body: 'Check any stock in 3 seconds: the green <strong>Q4 Cash Fortress</strong> zone means strong cash &amp; real CFO-backed profit. Hover the <strong>Q1–Q4 (i)</strong> pills for definitions or click any dot to audit.'
       },
       {
         selector: () => document.getElementById('tabBtnCalk'),
-        title: '3. Stock Detail (Live Chart + XBRL)',
-        body: 'Klik tab ini (atau klik saham mana pun) untuk melihat <strong>grafik candlestick ala TradingView</strong>, berita harian emiten, dan laporan keuangan tahunan resmi BEI dalam satu layar.'
+        title: '3. Stock Detail (Live Chart + Annual XBRL)',
+        body: 'Open this tab (or click any stock) to view <strong>live OHLCV candlesticks</strong>, daily news, and 4-year audited BEI XBRL statements side-by-side.'
       },
       {
         selector: () => document.getElementById('tabBtnNews'),
-        title: '4. News & URL Analyzer (Anti-FOMO)',
-        body: 'Pantau sentimen berita harian otomatis atau tempel link berita saham incaran Anda untuk melihat apakah berita positif bertabrakan dengan kondisi kas riil perusahaan.'
+        title: '4. News & URL Analyzer (Anti-FOMO Check)',
+        body: 'Browse daily RSS sentiment or paste any viral stock news URL to verify whether bullish headlines match real cash in the company’s bank account.'
       },
       {
         selector: () => document.getElementById('tabBtnChat'),
-        title: '5. AI Financial Analyst (0% Halusinasi)',
-        body: 'Bingung baca neraca? Tanya AI di sini. AI hanya membaca angka XBRL yang sudah dihitung Python secara deterministik—tanpa mengarang angka.'
+        title: '5. AI Financial Analyst (0% Math Hallucination)',
+        body: 'Ask questions in plain language. The AI only translates pre-computed Python <code>Decimal</code> XBRL facts, never inventing or altering financial numbers.'
       }
     ];
     let currentTourIdx = 0;
@@ -4572,14 +4674,14 @@
       spotlight.style.width = `${rect.width + pad * 2}px`;
       spotlight.style.height = `${rect.height + pad * 2}px`;
 
-      document.getElementById('tourStepCounter').textContent = `LANGKAH ${currentTourIdx + 1} DARI ${TOUR_STEPS.length}`;
+      document.getElementById('tourStepCounter').textContent = `STEP ${currentTourIdx + 1} OF ${TOUR_STEPS.length}`;
       document.getElementById('tourStepTitle').textContent = step.title;
       document.getElementById('tourStepBody').innerHTML = step.body;
 
       const prevBtn = document.getElementById('tourPrevBtn');
       const nextBtn = document.getElementById('tourNextBtn');
       if (prevBtn) prevBtn.style.display = currentTourIdx === 0 ? 'none' : 'inline-block';
-      if (nextBtn) nextBtn.textContent = currentTourIdx === TOUR_STEPS.length - 1 ? 'Selesai & Mulai!' : 'Lanjut →';
+      if (nextBtn) nextBtn.textContent = currentTourIdx === TOUR_STEPS.length - 1 ? 'Got It, Start Exploring!' : 'Next →';
 
       card.style.display = 'block';
       const cardW = 340;
@@ -4642,16 +4744,16 @@
   <div id="liveTourSpotlight" class="tour-spotlight"></div>
   <div id="liveTourCard" class="tour-card" role="dialog" aria-modal="true">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-      <span id="tourStepCounter" style="font-size: 10px; font-weight: 800; letter-spacing: 0.8px; color: #38bdf8;">LANGKAH 1 DARI 5</span>
-      <button onclick="endLiveTour()" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer; line-height: 1;" title="Tutup">×</button>
+      <span id="tourStepCounter" style="font-size: 10px; font-weight: 800; letter-spacing: 0.8px; color: #38bdf8;">STEP 1 OF 5</span>
+      <button onclick="endLiveTour()" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer; line-height: 1;" title="Close">×</button>
     </div>
     <div id="tourStepTitle" style="font-size: 14px; font-weight: 800; margin-bottom: 6px; color: #ffffff;"></div>
     <div id="tourStepBody" style="font-size: 12px; line-height: 1.5; color: #cbd5e1; margin-bottom: 14px;"></div>
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <button onclick="endLiveTour()" style="background: none; border: none; color: #94a3b8; font-size: 11px; cursor: pointer; text-decoration: underline;">Lewati Tur</button>
+      <button onclick="endLiveTour()" style="background: none; border: none; color: #94a3b8; font-size: 11px; cursor: pointer; text-decoration: underline;">Skip Tour</button>
       <div style="display: flex; gap: 8px;">
-        <button id="tourPrevBtn" onclick="prevTourStep()" class="tour-btn" style="display: none;">← Kembali</button>
-        <button id="tourNextBtn" onclick="nextTourStep()" class="tour-btn tour-btn-primary">Lanjut →</button>
+        <button id="tourPrevBtn" onclick="prevTourStep()" class="tour-btn" style="display: none;">← Back</button>
+        <button id="tourNextBtn" onclick="nextTourStep()" class="tour-btn tour-btn-primary">Next →</button>
       </div>
     </div>
   </div>

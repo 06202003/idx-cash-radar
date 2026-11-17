@@ -56,31 +56,41 @@ def launch_browser(p: object) -> Browser:
 
 
 def capture_live_screenshots(base_url: str = "http://127.0.0.1:8000/") -> dict[str, str]:
-    """Captures 3 crisp 1280x720 screenshots of the running web dashboard."""
+    """Captures 7 crisp overview & zoomed-feature screenshots of the running web dashboard."""
     SHOTS_DIR.mkdir(parents=True, exist_ok=True)
     paths = {
         "screener": SHOTS_DIR / "01_screener.png",
-        "detail": SHOTS_DIR / "02_stock_detail.png",
-        "news": SHOTS_DIR / "03_news_radar.png",
+        "quadrant": SHOTS_DIR / "02_quadrant_map.png",
+        "tour": SHOTS_DIR / "03_live_tour.png",
+        "detail": SHOTS_DIR / "04_stock_detail.png",
+        "calk": SHOTS_DIR / "05_annual_calk.png",
+        "news": SHOTS_DIR / "06_news_radar.png",
+        "chat": SHOTS_DIR / "07_ai_analyst.png",
     }
 
     with sync_playwright() as p:
         browser = launch_browser(p)
+
+        # Session A: Clean cookie-set context for Screener, Quadrant zoom, Stock Detail, CALK zoom, News, AI Chat
         context = browser.new_context(viewport={"width": 1366, "height": 768})
         context.add_cookies([{"name": "idx_radar_tour_done", "value": "1", "url": base_url}])
         page = context.new_page()
         page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
-        # Wait until background hydration finishes (dailyNews cards & live quotes rendered)
         page.wait_for_function(
             "() => document.querySelectorAll('#dailyNewsFeedGrid button').length > 0",
             timeout=35000,
         )
         page.wait_for_timeout(800)
 
-        # 1. Screener tab
+        # 1. Screener overview
         page.screenshot(path=str(paths["screener"]), full_page=False)
 
-        # 2. Stock Detail (Live) tab for BBRI — wait for OHLCV + LightweightCharts canvas
+        # 2. Zoomed 4-Quadrant Cartesian Map with Q4 tooltip hovered
+        page.locator(".quad-pill").first.hover()
+        page.wait_for_timeout(300)
+        page.locator("#quadrantCardPanel").screenshot(path=str(paths["quadrant"]))
+
+        # 4. Stock Detail (Live) tab for BBRI: wait for OHLCV + LightweightCharts canvas
         page.click("#tabBtnCalk")
         page.evaluate("() => { if (typeof inspectFiling === 'function') inspectFiling('BBRI'); }")
         page.wait_for_function(
@@ -94,10 +104,32 @@ def capture_live_screenshots(base_url: str = "http://127.0.0.1:8000/") -> dict[s
         page.wait_for_timeout(1000)
         page.screenshot(path=str(paths["detail"]), full_page=False)
 
-        # 3. News & URL Analyzer tab
+        # 5. Zoomed Annual Financials & CALK Footnote section
+        page.locator("#calkContainer").scroll_into_view_if_needed()
+        page.wait_for_timeout(500)
+        page.locator("#tabCalkDiagnostic").screenshot(path=str(paths["calk"]))
+
+        # 6. News & URL Analyzer tab
+        page.evaluate("() => window.scrollTo(0, 0)")
         page.click("#tabBtnNews")
         page.wait_for_timeout(800)
         page.screenshot(path=str(paths["news"]), full_page=False)
+
+        # 7. AI Financial Analyst tab
+        page.click("#tabBtnChat")
+        page.wait_for_timeout(600)
+        page.screenshot(path=str(paths["chat"]), full_page=False)
+        context.close()
+
+        # Session B: Fresh first-visit context (no cookie) to capture Live Onboarding Tour
+        fresh_ctx = browser.new_context(viewport={"width": 1366, "height": 768})
+        fresh_page = fresh_ctx.new_page()
+        fresh_page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
+        fresh_page.wait_for_selector("#liveTourCard", state="visible", timeout=15000)
+        fresh_page.click("#tourNextBtn")  # Show Step 2 spotlighting the 4-Quadrant Map
+        fresh_page.wait_for_timeout(450)
+        fresh_page.screenshot(path=str(paths["tour"]), full_page=False)
+        fresh_ctx.close()
 
         browser.close()
 
@@ -110,7 +142,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>IDX Cash &amp; Accrual Radar — Co-Founder Pitch Deck</title>
+  <title>IDX Cash &amp; Accrual Radar: Co-Founder Pitch Deck</title>
   <style>
     @page {{
       size: 13.333in 7.5in;
@@ -298,7 +330,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
       <h1>Helping Everyday Investors Spot Real Cash vs. Paper Profits.</h1>
       <p class="lead" style="margin-top: 16px;">
         We already built and shipped a live platform combining <strong>Official IDX XBRL Financials</strong>,
-        <strong>Live TradingView-style Stock Charts</strong>, and <strong>Daily News Sentiment</strong> across
+        <strong>Live OHLCV Stock Charts</strong>, and <strong>Daily News Sentiment</strong> across
         <strong>{s['issuers']} IDX issuers</strong>. Looking for a co-builder to scale it together.
       </p>
     </div>
@@ -329,7 +361,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom</span>
-      <span>Slide 1 / 10</span>
+      <span>Slide 1 / 12</span>
     </div>
   </section>
 
@@ -345,8 +377,8 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
       <div class="card card-accent">
         <div style="font-weight: 800; font-size: 14px; color: #0369a1; margin-bottom: 10px;">WHAT WE BUILT</div>
         <ul>
-          <li><strong>Primary XBRL Engine:</strong> Reads raw IDX <code>instance.xbrl</code> filings directly—separating real cash inflows (CFO) from paper accounting profits (Sloan Accruals).</li>
-          <li><strong>Live Market + Candlestick UI:</strong> Stockbit-style TradingView Lightweight Charts (1D–1Y OHLCV + Volume) paired with annual financials.</li>
+          <li><strong>Primary XBRL Engine:</strong> Reads raw IDX <code>instance.xbrl</code> filings directly, separating real cash inflows (CFO) from paper accounting profits (Sloan Accruals).</li>
+          <li><strong>Live Market + Candlestick UI:</strong> Interactive OHLCV Candlesticks (1D–1Y + Volume) paired with annual financials.</li>
           <li><strong>Daily News Sentiment Cron:</strong> Automatically pulls &amp; scores daily IDX headlines while keeping cash safeguard flags strictly isolated from PR hype.</li>
         </ul>
       </div>
@@ -369,7 +401,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Executive Summary</span>
-      <span>Slide 2 / 10</span>
+      <span>Slide 2 / 12</span>
     </div>
   </section>
 
@@ -385,7 +417,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
       <div class="card card-red">
         <div style="font-weight: 800; font-size: 14px; color: #be123c; margin-bottom: 8px;">1. "PAPER PROFIT" TRAP</div>
         <div class="muted" style="font-size: 13px;">
-          A company reports positive Net Income, so beginners think it's healthy—unaware that Operating Cash Flow (CFO) is negative and cash is stuck in uncollected receivables.
+          A company reports positive Net Income, so beginners think it's healthy, unaware that Operating Cash Flow (CFO) is negative and cash is stuck in uncollected receivables.
         </div>
       </div>
       <div class="card card-amber">
@@ -410,7 +442,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Problem Statement</span>
-      <span>Slide 3 / 10</span>
+      <span>Slide 3 / 12</span>
     </div>
   </section>
 
@@ -434,7 +466,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
         <span class="tag tag-blue" style="margin-bottom: 8px;">STEP 2: CHART + ANNUAL CASH</span>
         <div style="font-weight: 800; font-size: 15px; margin-bottom: 6px;">Inspect Price &amp; Financials</div>
         <div class="muted" style="font-size: 13px;">
-          Click <strong>Inspect</strong> to view the Stockbit-style Candlestick chart (1D–1Y), see whether Net Profit is backed by real Operating Cash (FY 2022–2025), and read a 3-sentence plain summary.
+          Click <strong>Inspect</strong> to view the live Candlestick chart (1D–1Y), see whether Net Profit is backed by real Operating Cash (FY 2022–2025), and read a Financial Health Summary.
         </div>
       </div>
       <div class="card card-amber">
@@ -460,116 +492,198 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; User Workflow</span>
-      <span>Slide 4 / 10</span>
+      <span>Slide 4 / 12</span>
     </div>
   </section>
 
-  <!-- SLIDE 5: LIVE SCREENSHOT 1 — SCREENER -->
+  <!-- SLIDE 5: FEATURE DEEP-DIVE 1: STOCK SCREENER & COOKIE-BASED ONBOARDING -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">04 / LIVE APP DEMO — STOCK SCREENER</div>
-      <h2>Screen 49 IDX Stocks by Live Price, News Sentiment, &amp; Cash Health.</h2>
+      <div class="eyebrow">04 / FEATURE DEEP-DIVE 1: SCREENER &amp; FIRST-VISIT GUIDED TOUR</div>
+      <h2>Why We Built a Dual-Mode Screener + Cookie-Based Live Onboarding.</h2>
     </div>
 
-    <div class="grid-demo">
-      <div class="shot-frame">
-        <img src="{shots['screener']}" alt="Stock Screener Screenshot">
+    <div class="grid-2" style="align-items: center;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="shot-frame">
+          <img src="{shots['screener']}" alt="Stock Screener Overview">
+        </div>
+        <div class="shot-frame">
+          <img src="{shots['tour']}" alt="Cookie-Based First-Visit Live Tutorial">
+        </div>
       </div>
       <div style="display: flex; flex-direction: column; gap: 12px;">
-        <div class="card card-accent" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">4-Quadrant Cartesian Radar</div>
-          <div class="muted">Visually separates <strong>Cash Fortress</strong> stocks (bottom-right) from <strong>Double Stress</strong> stocks (top-left).</div>
+        <div class="card card-accent" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Why We Designed It This Way</div>
+          <div class="muted">First-time users leave financial tools within 10 seconds when greeted by raw accounting tables, while returning users hate repetitive onboarding popups.</div>
         </div>
-        <div class="card card-green" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">5-Sector Heatmap + Live Quotes</div>
-          <div class="muted">One-click filter across Construction, Banking, FMCG, Energy, &amp; Telecom with live <code>.JK</code> price &amp; 1D % change.</div>
+        <div class="card card-green" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Cookie-Tracked Live Tutorial (No Login Needed)</div>
+          <div class="muted">On first visit, a 5-step spotlight tour walks users through Mode Switcher, Quadrant Map, Live Charts, News, and AI Analyst, then sets <code>idx_radar_tour_done=1</code> so repeat visits stay clean.</div>
         </div>
-        <div class="card card-amber" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Simple Mode vs. Expert Mode</div>
-          <div class="muted">Switch between beginner-friendly labels and institutional accounting metrics instantly.</div>
+        <div class="card card-amber" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Function for Users: Simple Mode vs. Expert Mode</div>
+          <div class="muted">Everyday investors see clear safety verdicts (<em>"Cash Safe"</em> vs <em>"Critical Cash"</em>) + 5-sector heatmap + live <code>.JK</code> quotes, while analysts toggle exact Sloan &amp; XBRL ratios.</div>
         </div>
       </div>
     </div>
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Live Screenshot: Stock Screener</span>
-      <span>Slide 5 / 10</span>
+      <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: Screener &amp; Onboarding</span>
+      <span>Slide 5 / 12</span>
     </div>
   </section>
 
-  <!-- SLIDE 6: LIVE SCREENSHOT 2 — STOCK DETAIL (STOCKBIT-STYLE) -->
+  <!-- SLIDE 6: FEATURE DEEP-DIVE 2: 4-QUADRANT CARTESIAN MAP & TOOLTIPS -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">05 / LIVE APP DEMO — STOCK DETAIL (STOCKBIT-STYLE)</div>
-      <h2>Exchange Candlestick Chart + Triangulation + Annual XBRL Financials.</h2>
+      <div class="eyebrow">05 / FEATURE DEEP-DIVE 2: 4-QUADRANT CARTESIAN MAP</div>
+      <h2>Turning Balance-Sheet Ratios Into an Instant Visual Safety Map.</h2>
+    </div>
+
+    <div class="grid-demo">
+      <div class="shot-frame">
+        <img src="{shots['quadrant']}" alt="Zoomed 4-Quadrant Cartesian Map with Q4 Tooltip">
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="card card-accent" style="padding: 12px 15px;">
+          <div style="font-weight: 800; font-size: 13px; margin-bottom: 3px;">Why Spatial Mapping + Hover Tooltips?</div>
+          <div class="muted">Numbers like <code>0.23x</code> or <code>Sloan +14%</code> are abstract for beginners. Plotting <strong>Cash Coverage (X)</strong> vs <strong>Sloan Accruals (Y)</strong> with Q1–Q4 tooltips lets anyone read risk in 3 seconds.</div>
+        </div>
+        <div class="card card-green" style="padding: 11px 15px;">
+          <div style="font-weight: 800; font-size: 12.5px; color: #047857;">Q4: Cash Fortress (Bottom-Right)</div>
+          <div class="muted">Cash &ge; 1.0x short-term debt &amp; Accrual &le; 0%. Profits are backed by real cash inflows.</div>
+        </div>
+        <div class="card card-amber" style="padding: 11px 15px;">
+          <div style="font-weight: 800; font-size: 12.5px; color: #b45309;">Q1: High Accrual &amp; Q3: Cash Stress</div>
+          <div class="muted"><strong>Q1:</strong> Cash &ge; 1.0x but profit is stuck in receivables. <strong>Q3:</strong> Thin cash buffer (&lt; 1.0x debt).</div>
+        </div>
+        <div class="card card-red" style="padding: 11px 15px;">
+          <div style="font-weight: 800; font-size: 12.5px; color: #be123c;">Q2: Double Stress (Top-Left)</div>
+          <div class="muted">Highest-risk zone: Cash &lt; 1.0x short-term debt AND Accrual &gt; 0% (paper profit + tight cash).</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
+    <div class="footer">
+      <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: 4-Quadrant Map</span>
+      <span>Slide 6 / 12</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: FEATURE DEEP-DIVE 3: STOCK DETAIL (LIVE CANDLESTICK + TRIANGULATION) -->
+  <section class="slide slide-light">
+    <div>
+      <div class="eyebrow">06 / FEATURE DEEP-DIVE 3: LIVE STOCK DETAIL</div>
+      <h2>Why We Paired Exchange Candlesticks With Audited Cash Triangulation.</h2>
     </div>
 
     <div class="grid-demo">
       <div class="shot-frame">
         <img src="{shots['detail']}" alt="Stock Detail Candlestick Screenshot">
       </div>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <div class="card card-green" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">TradingView Lightweight Charts</div>
-          <div class="muted">Interactive OHLCV candlesticks + Volume bars across <strong>1D (15m), 1W (1h), 1M, 3M, &amp; 1Y</strong> with crosshair inspection.</div>
+      <div style="display: flex; flex-direction: column; gap: 11px;">
+        <div class="card card-accent" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Why Put Price &amp; Cash Side-by-Side?</div>
+          <div class="muted">Retail traders live inside charting apps. Fundamental tools fail when they force users to leave charts for static PDFs, so we embedded TradingView Lightweight Charts directly.</div>
         </div>
-        <div class="card card-accent" style="padding: 14px 16px;">
+        <div class="card card-green" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Exchange-Grade OHLCV + Volume</div>
+          <div class="muted">Interactive <strong>1D (15m), 1W (1h), 1M, 3M, &amp; 1Y</strong> candlesticks with live OHLCV crosshair legend and auto-adjusted <code>.JK</code> feeds.</div>
+        </div>
+        <div class="card card-amber" style="padding: 13px 16px;">
           <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">3-Way Triangulation Card</div>
-          <div class="muted">Combines Live Quote, Latest Daily RSS News, and FY 2025 Cash Coverage &amp; CFO in one glance.</div>
-        </div>
-        <div class="card card-amber" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Multi-Year Annuals &amp; CALK</div>
-          <div class="muted">Full FY 2022–2025 historical table, related-party receivables breakdown, &amp; deterministic cash forecast below.</div>
+          <div class="muted">Synthesizes <strong>Live Price</strong> + <strong>Latest Daily RSS News</strong> + <strong>FY 2025 CFO &amp; Cash Coverage</strong> so users spot divergence before entering a trade.</div>
         </div>
       </div>
     </div>
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Live Screenshot: Stock Detail (BBRI.JK)</span>
-      <span>Slide 6 / 10</span>
+      <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: Live Stock Detail (BBRI.JK)</span>
+      <span>Slide 7 / 12</span>
     </div>
   </section>
 
-  <!-- SLIDE 7: LIVE SCREENSHOT 3 — DAILY NEWS & URL ANALYZER -->
+  <!-- SLIDE 8: FEATURE DEEP-DIVE 4: ANNUAL XBRL, CALK FOOTNOTES & FORECAST -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">06 / LIVE APP DEMO — DAILY NEWS CRON &amp; URL ANALYZER</div>
-      <h2>Automated Daily News Sentiment Cron + Instant Link Cross-Check.</h2>
+      <div class="eyebrow">07 / FEATURE DEEP-DIVE 4: MULTI-YEAR XBRL &amp; CALK AUDIT TRAIL</div>
+      <h2>Exposing Related-Party Receivables &amp; Exact XBRL Source Tags.</h2>
     </div>
 
     <div class="grid-demo">
       <div class="shot-frame">
-        <img src="{shots['news']}" alt="News & URL Analyzer Screenshot">
+        <img src="{shots['calk']}" alt="Zoomed Multi-Year Annuals and CALK Footnotes">
       </div>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <div class="card card-accent" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Daily RSS Sentiment Cron</div>
-          <div class="muted">Automatically pulls &amp; scores {s['news_articles']} headlines across {s['news_tickers']} tickers daily (<code>08:00 WIB</code>) + one-click manual refresh.</div>
+      <div style="display: flex; flex-direction: column; gap: 11px;">
+        <div class="card card-accent" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Why Multi-Year + CALK Footnotes Matter</div>
+          <div class="muted">Single-year ratios miss multi-year cash burn. Moreover, "paper profits" often sit inside <em>Related-Party Receivables</em> (Piutang Pihak Berelasi) buried in footnotes.</div>
         </div>
-        <div class="card card-red" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Paste Any News Link</div>
-          <div class="muted">Auto-detects mentioned issuers (including multi-company articles like <em>PTPP &amp; ADHI</em>) and compares hype vs. real bank cash.</div>
+        <div class="card card-green" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Full XBRL Provenance Trail</div>
+          <div class="muted">Every figure displays its exact BEI XBRL tag (<code>localname</code>, <code>contextRef</code>, <code>decimals</code>) and filing SHA-256 hash, zero black-box estimates.</div>
         </div>
-        <div class="card card-green" style="padding: 14px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Contextual Isolation Rule</div>
-          <div class="muted">Positive news never overrides red cash-stress flags—protecting beginners from FOMO traps.</div>
+        <div class="card card-amber" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Deterministic Cash Runway</div>
+          <div class="muted">Projects short-term liquidity runway from historical FY 2022–2025 operating cash flow vs. maturing obligations.</div>
         </div>
       </div>
     </div>
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Live Screenshot: Daily News &amp; URL Radar</span>
-      <span>Slide 7 / 10</span>
+      <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: Annual XBRL &amp; CALK</span>
+      <span>Slide 8 / 12</span>
     </div>
   </section>
 
-  <!-- SLIDE 8: EMPIRICAL PROOF & ARCHITECTURE -->
+  <!-- SLIDE 9: FEATURE DEEP-DIVE 5: DAILY NEWS CRON, URL ANALYZER & AI ANALYST -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">07 / EMPIRICAL DATA &amp; ARCHITECTURE</div>
+      <div class="eyebrow">08 / FEATURE DEEP-DIVE 5: NEWS RADAR &amp; ZERO-HALLUCINATION AI</div>
+      <h2>Daily RSS Sentiment Cron + Paste-Any-URL + Deterministic AI Analyst.</h2>
+    </div>
+
+    <div class="grid-2" style="align-items: center;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="shot-frame">
+          <img src="{shots['news']}" alt="Daily News Cron and URL Analyzer">
+        </div>
+        <div class="shot-frame">
+          <img src="{shots['chat']}" alt="AI Financial Analyst">
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="card card-red" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Why Contextual Isolation?</div>
+          <div class="muted">Bullish contract headlines trigger FOMO buying. Our engine scores {s['news_articles']} daily headlines ({s['news_tickers']} tickers) via <code>08:00 WIB</code> cron, but <strong>news can never override red cash flags</strong>.</div>
+        </div>
+        <div class="card card-accent" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Paste-Any-URL Cross-Check</div>
+          <div class="muted">Users paste any viral stock article URL; the parser detects all mentioned IDX tickers (even multi-ticker news like <em>PTPP &amp; ADHI</em>) and contrasts PR hype against real bank cash.</div>
+        </div>
+        <div class="card card-green" style="padding: 13px 16px;">
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">AI Analyst = Translator Only (0% Math)</div>
+          <div class="muted">Users ask plain-Indonesian questions; Gemini reads pre-computed Python <code>Decimal</code> facts and explains them in 2–3 clear sentences without inventing numbers.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
+    <div class="footer">
+      <span>IDX Cash &amp; Accrual Radar &bull; Feature Deep-Dive: News &amp; AI Analyst</span>
+      <span>Slide 9 / 12</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 10: EMPIRICAL PROOF & ARCHITECTURE -->
+  <section class="slide slide-light">
+    <div>
+      <div class="eyebrow">09 / EMPIRICAL DATA &amp; ARCHITECTURE</div>
       <h2>Verified FY 2025 Numbers Running on a Lean Serverless Stack.</h2>
     </div>
 
@@ -638,14 +752,14 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Empirical Proof &amp; Stack</span>
-      <span>Slide 8 / 10</span>
+      <span>Slide 10 / 12</span>
     </div>
   </section>
 
-  <!-- SLIDE 9: 90-DAY ROADMAP & CO-BUILDER ROLES -->
+  <!-- SLIDE 11: 90-DAY ROADMAP & CO-BUILDER ROLES -->
   <section class="slide slide-dark">
     <div>
-      <div class="eyebrow">08 / 90-DAY ROADMAP &amp; WHY JOIN NOW</div>
+      <div class="eyebrow">10 / 90-DAY ROADMAP &amp; WHY JOIN NOW</div>
       <h2>What We Will Build Together in the Next 90 Days.</h2>
       <p class="lead">The core engine is live. Join as a co-builder to help scale data coverage, user retention, and community launch.</p>
     </div>
@@ -679,29 +793,29 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="card" style="padding: 14px 20px; border-left: 4px solid #38bdf8;">
       <strong style="color: #38bdf8; font-size: 13.5px;">Where You Fit In:</strong>
-      <span style="font-size: 13px; color: #cbd5e1; margin-left: 6px;">Full co-builder ownership across Frontend/UX, XBRL Data Scaling, or Growth &amp; Community—with fair equity/rev-share from day one.</span>
+      <span style="font-size: 13px; color: #cbd5e1; margin-left: 6px;">Full co-builder ownership across Frontend/UX, XBRL Data Scaling, or Growth &amp; Community, with fair equity/rev-share from day one.</span>
     </div>
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Roadmap &amp; Co-Builder Fit</span>
-      <span>Slide 9 / 10</span>
+      <span>Slide 11 / 12</span>
     </div>
   </section>
 
-  <!-- SLIDE 10: CALL TO ACTION -->
+  <!-- SLIDE 12: CALL TO ACTION -->
   <section class="slide slide-dark" style="justify-content: center; gap: 32px;">
     <div>
-      <div class="eyebrow">09 / LET'S BUILD THIS TOGETHER</div>
+      <div class="eyebrow">11 / LET'S BUILD THIS TOGETHER</div>
       <h1 style="font-size: 46px;">Try the Live App Today.<br>Let's Ship v3 Together.</h1>
       <p class="lead" style="margin-top: 14px;">
-        Test the live screener, inspect <code>BBRI.JK</code> candlesticks, cross-check a news link, and let's talk about building the next phase together.
+        Test the live screener, hover the 4-quadrant tooltips, inspect <code>BBRI.JK</code> candlesticks, cross-check a news link, and let's talk about building the next phase together.
       </p>
     </div>
 
     <div class="grid-3">
       <div class="card">
-        <div class="kpi-label" style="color: #38bdf8;">LIVE WEB APP (VERCEL)</div>
+        <div class="kpi-label" style="color: #38bdf8;">WEB APP (VERCEL)</div>
         <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">
           <a href="https://idx-cash-radar.vercel.app/" target="_blank" style="color: #38bdf8; text-decoration: underline;">https://idx-cash-radar.vercel.app/</a>
         </div>
@@ -710,7 +824,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
       <div class="card">
         <div class="kpi-label" style="color: #34d399;">GITHUB REPOSITORY</div>
         <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">github.com/06202003/idx-cash-radar</div>
-        <div class="muted" style="margin-top: 4px;">Commit <code>54e8768</code> &bull; FastAPI + Supabase + Daily News Cron</div>
+        <div class="muted" style="margin-top: 4px;">Commit <code>3de8038</code> &bull; FastAPI + Supabase + Daily News Cron</div>
       </div>
       <div class="card">
         <div class="kpi-label" style="color: #fbbf24;">NEXT STEP</div>
@@ -722,7 +836,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer" style="position: absolute; bottom: 0.55in; left: 0.72in; right: 0.72in;">
       <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom</span>
-      <span>Slide 10 / 10</span>
+      <span>Slide 12 / 12</span>
     </div>
   </section>
 
@@ -734,7 +848,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
 def main() -> int:
     stats = load_live_stats()
     shots = capture_live_screenshots()
-    print(f"Captured 3 live screenshots in {SHOTS_DIR}")
+    print(f"Captured {len(shots)} live screenshots in {SHOTS_DIR}")
 
     html = build_html(stats, shots)
     OUT_HTML.parent.mkdir(parents=True, exist_ok=True)
