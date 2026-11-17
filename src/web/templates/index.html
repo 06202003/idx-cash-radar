@@ -755,6 +755,9 @@
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
           AI Analyst
         </button>
+        <button onclick="switchTab('portfolio')" id="tabBtnPortfolio" class="nav-tab-btn">
+          Portfolio X-Ray
+        </button>
         <button onclick="startActiveTabTour()" id="btnReplayTour" class="nav-tab-btn" title="Start Interactive Guide for Current Tab" style="border-color: #1e3a8a; color: #38bdf8;">
           Guide
         </button>
@@ -1378,6 +1381,40 @@
       </div>
     </section>
 
+    <!-- TAB 7: PORTFOLIO CASH-SAFETY X-RAY (MULTI-STOCK) -->
+    <section id="viewPortfolio" class="hidden" style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="card-panel" style="padding: 16px 18px; border-left: 4px solid #38bdf8;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; margin-bottom: 12px;">
+          <div>
+            <strong style="color: #ffffff; font-size: 14.5px;">Portfolio Cash-Safety X-Ray (Multi-Stock Stress Test)</strong>
+            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 2px;">Brokerage apps show price P&amp;L, not balance-sheet fragility. Add 2-5 IDX stocks with your Rupiah allocation to see how much capital sits in cash-stressed issuers.</div>
+          </div>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" onclick="setPortfolioScenario(0, 0)" class="btn-detail" style="border-color: #059669; color: #34d399;">Normal (Audited)</button>
+            <button type="button" onclick="setPortfolioScenario(15, 20)" class="btn-detail" style="border-color: #d97706; color: #fbbf24;">Payment Delay</button>
+            <button type="button" onclick="setPortfolioScenario(30, 50)" class="btn-detail" style="border-color: #e11d48; color: #fb7185;">Macro Crisis</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px;" class="radar-pulse-grid">
+          <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">YOUR PORTFOLIO HOLDINGS (IDR)</span>
+              <button type="button" onclick="addPortfolioRow()" class="btn-detail" style="font-size: 10.5px; color: #38bdf8; border-color: #0284c7;">+ Add Stock</button>
+            </div>
+            <div id="portfolioRowsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <button type="button" onclick="runPortfolioXRay()" class="btn-detail" style="width: 100%; background: #0284c7; color: #ffffff; border-color: #0284c7; padding: 8px; font-weight: 700;">
+              Run Portfolio X-Ray
+            </button>
+          </div>
+
+          <div id="portfolioXRayOutput" style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="color: #64748b; font-size: 12px;">Loading Portfolio X-Ray...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- TAB 6: MARKET & NEWS MATRIX (LIVE STOCKS + NEWS SENTIMENT + FINANCIALS TRIANGULATION) -->
     <section id="viewMatrix" class="hidden" style="display: flex; flex-direction: column; gap: 12px;">
       <!-- Top KPI Ribbon for Triangulation -->
@@ -1793,7 +1830,7 @@
 
     // Fast Tab Switching (0 ms latency)
     function switchTab(tabId) {
-      ['screener', 'radar', 'calk', 'news', 'matrix', 'chat'].forEach(t => {
+      ['screener', 'radar', 'calk', 'news', 'matrix', 'chat', 'portfolio'].forEach(t => {
         const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
         const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
         if (t === tabId) {
@@ -1810,6 +1847,9 @@
       }
       if (tabId === 'matrix') {
         renderTriangulationMatrix();
+      }
+      if (tabId === 'portfolio') {
+        initPortfolioXRay();
       }
       if (tabId === 'chat') {
         const inp = document.getElementById('tabChatInput');
@@ -2355,9 +2395,11 @@
           if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
           const d = await resp.json();
           const sim = d.simulation || {};
+          const bk = d.cash_backing || {};
           const peer = d.safest_peer;
           const riskCol = sim.stressed_risk_pct >= 50 ? '#fb7185' : (sim.stressed_risk_pct >= 20 ? '#fbbf24' : '#34d399');
           const fmtIdrFull = v => 'IDR ' + Math.round(Number(v || 0)).toLocaleString('en-US');
+          const fmtSignedIdr = v => `${Number(v || 0) >= 0 ? '+' : '-'}IDR ${Math.abs(Math.round(Number(v || 0))).toLocaleString('en-US')}`;
 
           out.innerHTML = `
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" class="font-num">
@@ -2374,12 +2416,26 @@
                 <div style="font-size: 14px; font-weight: 800; color: #34d399;">${fmtIdrFull(sim.stressed_buffered_capital_idr)}</div>
               </div>
             </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" class="font-num">
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 9.5px; color: #94a3b8;">BOOK CASH BACKING / MODAL</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: #38bdf8;">${fmtIdrFull(bk.cash_per_modal_idr)}</div>
+              </div>
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 9.5px; color: #94a3b8;">ST DEBT LOAD / MODAL</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: #fbbf24;">${fmtIdrFull(bk.debt_per_modal_idr)}</div>
+              </div>
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
+                <div style="font-size: 9.5px; color: #94a3b8;">ANNUAL CFO / MODAL</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: ${Number(bk.cfo_per_modal_idr || 0) >= 0 ? '#34d399' : '#fb7185'};">${fmtSignedIdr(bk.cfo_per_modal_idr)}</div>
+              </div>
+            </div>
             <div style="font-size: 11.5px; color: #cbd5e1; line-height: 1.5; background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
-              <div>&bull; <strong>Stressed Balance Sheet (${d.ticker}):</strong> Coverage ${sim.stressed_cash_coverage === null ? 'Debt-Free' : sim.stressed_cash_coverage + 'x'} | Net Cash ${sim.stressed_cash_surplus_deficit_idr >= 0 ? '+' : ''}${fmtRupiah(sim.stressed_cash_surplus_deficit_idr)}</div>
+              <div>&bull; <strong>Stressed Balance Sheet (${d.ticker}):</strong> Coverage ${sim.stressed_cash_coverage === null ? 'N/A (Debt-Free / Bank)' : sim.stressed_cash_coverage + 'x'} | Net Cash ${sim.stressed_cash_surplus_deficit_idr >= 0 ? '+' : ''}${fmtRupiah(sim.stressed_cash_surplus_deficit_idr)} (${bk.basis || 'FY 2025'}: Cash ${bk.cash_pct_assets ?? '-'}% of Assets)</div>
               ${peer ? `<div>&bull; <strong>Peer Comparison (${d.sub_industry}):</strong> Modal yang sama (${fmtIdrFull(sim.capital_idr)}) di <strong style="color:#34d399;">${peer.ticker}</strong> (${peer.debt_free_short_term ? 'Debt-Free' : 'Lowest Risk'}) hanya terpapar risiko <strong style="color:#34d399;">${fmtIdrFull(peer.stressed_capital_at_risk_idr)}</strong> (${peer.stressed_risk_pct}%).</div>` : ''}
             </div>
             <div style="font-size: 10px; color: #64748b;">
-              Model: <code>${sim.model_telemetry.model_name}</code> | 5-Fold CV AUC: ${sim.model_telemetry.cv_roc_auc} | Simulasi risiko likuiditas neraca, bukan rekomendasi beli/jual.
+              Model: <code>${sim.model_telemetry.model_name}</code> | 5-Fold CV AUC: ${sim.model_telemetry.cv_roc_auc} | Simulasi risiko likuiditas &amp; backing kas neraca, bukan rekomendasi beli/jual.
             </div>
           `;
         } catch (err) {
@@ -5058,7 +5114,143 @@
       }
       try { localStorage.setItem(BYOK_STORAGE_KEY, val); } catch (e) {}
       if (errEl) errEl.style.display = 'none';
-      refreshByokBadge();
+      // --- Portfolio Cash-Safety X-Ray (Multi-Stock) ---
+    let PORTFOLIO_HOLDINGS = [
+      { ticker: 'WIKA', amount_idr: 5000000 },
+      { ticker: 'WSKT', amount_idr: 5000000 },
+      { ticker: 'TOTL', amount_idr: 10000000 }
+    ];
+    let PORTFOLIO_CASH_SHOCK = 15;
+    let PORTFOLIO_DEBT_SHOCK = 20;
+    let _portfolioInited = false;
+
+    function initPortfolioXRay() {
+      renderPortfolioInputs();
+      if (!_portfolioInited) {
+        _portfolioInited = true;
+        runPortfolioXRay();
+      }
+    }
+
+    function setPortfolioScenario(cashDrop, debtHike) {
+      PORTFOLIO_CASH_SHOCK = cashDrop;
+      PORTFOLIO_DEBT_SHOCK = debtHike;
+      runPortfolioXRay();
+    }
+
+    function addPortfolioRow() {
+      if (PORTFOLIO_HOLDINGS.length >= 6) return;
+      const tickers = (APP_CACHE.screener || []).map(r => r.ticker);
+      const nextT = tickers.find(t => !PORTFOLIO_HOLDINGS.some(h => h.ticker === t)) || 'BBRI';
+      PORTFOLIO_HOLDINGS.push({ ticker: nextT, amount_idr: 5000000 });
+      renderPortfolioInputs();
+    }
+
+    function removePortfolioRow(idx) {
+      if (PORTFOLIO_HOLDINGS.length <= 1) return;
+      PORTFOLIO_HOLDINGS.splice(idx, 1);
+      renderPortfolioInputs();
+      runPortfolioXRay();
+    }
+
+    function updatePortfolioRow(idx, field, val) {
+      if (!PORTFOLIO_HOLDINGS[idx]) return;
+      if (field === 'ticker') PORTFOLIO_HOLDINGS[idx].ticker = String(val).toUpperCase();
+      if (field === 'amount_idr') PORTFOLIO_HOLDINGS[idx].amount_idr = parseFloat(val) || 0;
+    }
+
+    function renderPortfolioInputs() {
+      const box = document.getElementById('portfolioRowsContainer');
+      if (!box) return;
+      const allTickers = (APP_CACHE.screener || []).map(r => r.ticker);
+      const fallbackTickers = allTickers.length ? allTickers : ['WIKA', 'WSKT', 'TOTL', 'BBRI', 'ADRO', 'TLKM'];
+      box.innerHTML = PORTFOLIO_HOLDINGS.map((h, idx) => `
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr auto; gap: 6px; align-items: center;">
+          <select onchange="updatePortfolioRow(${idx}, 'ticker', this.value)" class="form-select font-num" style="font-size: 12px; font-weight: 700; color: #38bdf8;">
+            ${fallbackTickers.map(t => `<option value="${t}" ${t === h.ticker ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          <input type="number" value="${h.amount_idr}" min="100000" step="1000000" oninput="updatePortfolioRow(${idx}, 'amount_idr', this.value)" class="form-input font-num" style="font-size: 12px;">
+          <button type="button" onclick="removePortfolioRow(${idx})" class="btn-detail" style="color: #fb7185; border-color: #881337; padding: 4px 8px;">×</button>
+        </div>
+      `).join('');
+    }
+
+    async function runPortfolioXRay() {
+      const out = document.getElementById('portfolioXRayOutput');
+      if (!out) return;
+      try {
+        const resp = await fetch('/api/ml/portfolio-xray', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            holdings: PORTFOLIO_HOLDINGS,
+            cash_shock_pct: PORTFOLIO_CASH_SHOCK,
+            debt_shock_pct: PORTFOLIO_DEBT_SHOCK
+          })
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const d = await resp.json();
+        const fmtIdr = v => 'IDR ' + Math.round(Number(v || 0)).toLocaleString('en-US');
+        const scenName = PORTFOLIO_CASH_SHOCK === 0 ? 'Normal (Audited)' : (PORTFOLIO_CASH_SHOCK === 15 ? 'Payment Delay (-15% Cash / +20% Debt)' : 'Macro Crisis (-30% Cash / +50% Debt)');
+        const riskCol = d.weighted_risk_pct >= 40 ? '#fb7185' : (d.weighted_risk_pct >= 15 ? '#fbbf24' : '#34d399');
+
+        const rowsHtml = (d.holdings || []).map(h => `
+          <tr style="border-bottom: 1px solid #1e293b;">
+            <td style="padding: 6px 8px;"><strong style="color: #38bdf8;">${h.ticker}</strong></td>
+            <td style="padding: 6px 8px; text-align: right;" class="font-num">${fmtIdr(h.amount_idr)} (${h.weight_pct}%)</td>
+            <td style="padding: 6px 8px; text-align: center;" class="font-num">${h.is_bank ? 'N/A (Bank)' : (h.debt_free ? 'Debt-Free' : (h.cash_coverage !== null ? h.cash_coverage.toFixed(2) + 'x' : '-'))}</td>
+            <td style="padding: 6px 8px; text-align: right; color: ${h.stressed_risk_pct >= 50 ? '#fb7185' : (h.stressed_risk_pct >= 20 ? '#fbbf24' : '#34d399')}; font-weight: 700;" class="font-num">${h.stressed_risk_pct}%</td>
+            <td style="padding: 6px 8px; text-align: right; color: ${h.is_flagged ? '#fb7185' : '#34d399'}; font-weight: 700;" class="font-num">${fmtIdr(h.capital_at_risk_idr)}</td>
+          </tr>
+        `).join('');
+
+        const pb = d.peer_benchmark;
+        const wk = d.weakest_link;
+
+        out.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 12px; color: #38bdf8;">SCENARIO: ${scenName}</strong>
+            <span class="font-num" style="font-size: 11px; color: #94a3b8;">Total: ${fmtIdr(d.total_capital_idr)}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" class="font-num">
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">SAFE / BUFFERED CAPITAL</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #34d399;">${fmtIdr(d.safe_capital_idr)} (${d.safe_pct}%)</div>
+            </div>
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">CASH-STRESS FLAGGED</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #fb7185;">${fmtIdr(d.flagged_capital_idr)} (${d.flagged_pct}%)</div>
+            </div>
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">WEIGHTED NEURAL RISK</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: ${riskCol};">${d.weighted_risk_pct}% (${fmtIdr(d.total_capital_at_risk_idr)})</div>
+            </div>
+          </div>
+          <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 11px; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">
+            ${wk ? `<div>&bull; <strong style="color: #fb7185;">Weakest Link:</strong> <strong>${wk.ticker}</strong> (${fmtIdr(wk.amount_idr)}) carries <strong>${wk.stressed_risk_pct}%</strong> stressed liquidity risk (${fmtIdr(wk.capital_at_risk_idr)} exposed).</div>` : ''}
+            ${pb ? `<div>&bull; <strong style="color: #34d399;">Peer Benchmark:</strong> Comparing ${pb.replace_ticker}'s allocation against Debt-Free/low-risk peer <strong style="color:#34d399;">${pb.peer_ticker}</strong> (${pb.peer_risk_pct}% risk) lowers portfolio weighted risk from <strong>${pb.portfolio_risk_before_pct}%</strong> to <strong style="color:#34d399;">${pb.portfolio_risk_after_pct}%</strong>.</div>` : ''}
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
+              <thead>
+                <tr style="border-bottom: 1px solid #334155; color: #94a3b8;">
+                  <th style="padding: 5px 8px; text-align: left;">Ticker</th>
+                  <th style="padding: 5px 8px; text-align: right;">Allocation</th>
+                  <th style="padding: 5px 8px; text-align: center;">Coverage</th>
+                  <th style="padding: 5px 8px; text-align: right;">Neural Risk</th>
+                  <th style="padding: 5px 8px; text-align: right;">Capital at Risk</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        `;
+      } catch (err) {
+        out.innerHTML = `<div style="color: #fb7185; font-size: 12px;">Unable to run Portfolio X-Ray: ${err}</div>`;
+      }
+    }
+
+    refreshByokBadge();
       const modal = document.getElementById('byokModal');
       if (modal) {
         modal.dataset.mandatory = '0';
@@ -5073,8 +5265,280 @@
       try { localStorage.removeItem(BYOK_STORAGE_KEY); } catch (e) {}
       const input = document.getElementById('txtByokInput');
       if (input) input.value = '';
-      refreshByokBadge();
+      // --- Portfolio Cash-Safety X-Ray (Multi-Stock) ---
+    let PORTFOLIO_HOLDINGS = [
+      { ticker: 'WIKA', amount_idr: 5000000 },
+      { ticker: 'WSKT', amount_idr: 5000000 },
+      { ticker: 'TOTL', amount_idr: 10000000 }
+    ];
+    let PORTFOLIO_CASH_SHOCK = 15;
+    let PORTFOLIO_DEBT_SHOCK = 20;
+    let _portfolioInited = false;
+
+    function initPortfolioXRay() {
+      renderPortfolioInputs();
+      if (!_portfolioInited) {
+        _portfolioInited = true;
+        runPortfolioXRay();
+      }
+    }
+
+    function setPortfolioScenario(cashDrop, debtHike) {
+      PORTFOLIO_CASH_SHOCK = cashDrop;
+      PORTFOLIO_DEBT_SHOCK = debtHike;
+      runPortfolioXRay();
+    }
+
+    function addPortfolioRow() {
+      if (PORTFOLIO_HOLDINGS.length >= 6) return;
+      const tickers = (APP_CACHE.screener || []).map(r => r.ticker);
+      const nextT = tickers.find(t => !PORTFOLIO_HOLDINGS.some(h => h.ticker === t)) || 'BBRI';
+      PORTFOLIO_HOLDINGS.push({ ticker: nextT, amount_idr: 5000000 });
+      renderPortfolioInputs();
+    }
+
+    function removePortfolioRow(idx) {
+      if (PORTFOLIO_HOLDINGS.length <= 1) return;
+      PORTFOLIO_HOLDINGS.splice(idx, 1);
+      renderPortfolioInputs();
+      runPortfolioXRay();
+    }
+
+    function updatePortfolioRow(idx, field, val) {
+      if (!PORTFOLIO_HOLDINGS[idx]) return;
+      if (field === 'ticker') PORTFOLIO_HOLDINGS[idx].ticker = String(val).toUpperCase();
+      if (field === 'amount_idr') PORTFOLIO_HOLDINGS[idx].amount_idr = parseFloat(val) || 0;
+    }
+
+    function renderPortfolioInputs() {
+      const box = document.getElementById('portfolioRowsContainer');
+      if (!box) return;
+      const allTickers = (APP_CACHE.screener || []).map(r => r.ticker);
+      const fallbackTickers = allTickers.length ? allTickers : ['WIKA', 'WSKT', 'TOTL', 'BBRI', 'ADRO', 'TLKM'];
+      box.innerHTML = PORTFOLIO_HOLDINGS.map((h, idx) => `
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr auto; gap: 6px; align-items: center;">
+          <select onchange="updatePortfolioRow(${idx}, 'ticker', this.value)" class="form-select font-num" style="font-size: 12px; font-weight: 700; color: #38bdf8;">
+            ${fallbackTickers.map(t => `<option value="${t}" ${t === h.ticker ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          <input type="number" value="${h.amount_idr}" min="100000" step="1000000" oninput="updatePortfolioRow(${idx}, 'amount_idr', this.value)" class="form-input font-num" style="font-size: 12px;">
+          <button type="button" onclick="removePortfolioRow(${idx})" class="btn-detail" style="color: #fb7185; border-color: #881337; padding: 4px 8px;">×</button>
+        </div>
+      `).join('');
+    }
+
+    async function runPortfolioXRay() {
+      const out = document.getElementById('portfolioXRayOutput');
+      if (!out) return;
+      try {
+        const resp = await fetch('/api/ml/portfolio-xray', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            holdings: PORTFOLIO_HOLDINGS,
+            cash_shock_pct: PORTFOLIO_CASH_SHOCK,
+            debt_shock_pct: PORTFOLIO_DEBT_SHOCK
+          })
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const d = await resp.json();
+        const fmtIdr = v => 'IDR ' + Math.round(Number(v || 0)).toLocaleString('en-US');
+        const scenName = PORTFOLIO_CASH_SHOCK === 0 ? 'Normal (Audited)' : (PORTFOLIO_CASH_SHOCK === 15 ? 'Payment Delay (-15% Cash / +20% Debt)' : 'Macro Crisis (-30% Cash / +50% Debt)');
+        const riskCol = d.weighted_risk_pct >= 40 ? '#fb7185' : (d.weighted_risk_pct >= 15 ? '#fbbf24' : '#34d399');
+
+        const rowsHtml = (d.holdings || []).map(h => `
+          <tr style="border-bottom: 1px solid #1e293b;">
+            <td style="padding: 6px 8px;"><strong style="color: #38bdf8;">${h.ticker}</strong></td>
+            <td style="padding: 6px 8px; text-align: right;" class="font-num">${fmtIdr(h.amount_idr)} (${h.weight_pct}%)</td>
+            <td style="padding: 6px 8px; text-align: center;" class="font-num">${h.is_bank ? 'N/A (Bank)' : (h.debt_free ? 'Debt-Free' : (h.cash_coverage !== null ? h.cash_coverage.toFixed(2) + 'x' : '-'))}</td>
+            <td style="padding: 6px 8px; text-align: right; color: ${h.stressed_risk_pct >= 50 ? '#fb7185' : (h.stressed_risk_pct >= 20 ? '#fbbf24' : '#34d399')}; font-weight: 700;" class="font-num">${h.stressed_risk_pct}%</td>
+            <td style="padding: 6px 8px; text-align: right; color: ${h.is_flagged ? '#fb7185' : '#34d399'}; font-weight: 700;" class="font-num">${fmtIdr(h.capital_at_risk_idr)}</td>
+          </tr>
+        `).join('');
+
+        const pb = d.peer_benchmark;
+        const wk = d.weakest_link;
+
+        out.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 12px; color: #38bdf8;">SCENARIO: ${scenName}</strong>
+            <span class="font-num" style="font-size: 11px; color: #94a3b8;">Total: ${fmtIdr(d.total_capital_idr)}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" class="font-num">
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">SAFE / BUFFERED CAPITAL</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #34d399;">${fmtIdr(d.safe_capital_idr)} (${d.safe_pct}%)</div>
+            </div>
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">CASH-STRESS FLAGGED</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #fb7185;">${fmtIdr(d.flagged_capital_idr)} (${d.flagged_pct}%)</div>
+            </div>
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">WEIGHTED NEURAL RISK</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: ${riskCol};">${d.weighted_risk_pct}% (${fmtIdr(d.total_capital_at_risk_idr)})</div>
+            </div>
+          </div>
+          <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 11px; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">
+            ${wk ? `<div>&bull; <strong style="color: #fb7185;">Weakest Link:</strong> <strong>${wk.ticker}</strong> (${fmtIdr(wk.amount_idr)}) carries <strong>${wk.stressed_risk_pct}%</strong> stressed liquidity risk (${fmtIdr(wk.capital_at_risk_idr)} exposed).</div>` : ''}
+            ${pb ? `<div>&bull; <strong style="color: #34d399;">Peer Benchmark:</strong> Comparing ${pb.replace_ticker}'s allocation against Debt-Free/low-risk peer <strong style="color:#34d399;">${pb.peer_ticker}</strong> (${pb.peer_risk_pct}% risk) lowers portfolio weighted risk from <strong>${pb.portfolio_risk_before_pct}%</strong> to <strong style="color:#34d399;">${pb.portfolio_risk_after_pct}%</strong>.</div>` : ''}
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
+              <thead>
+                <tr style="border-bottom: 1px solid #334155; color: #94a3b8;">
+                  <th style="padding: 5px 8px; text-align: left;">Ticker</th>
+                  <th style="padding: 5px 8px; text-align: right;">Allocation</th>
+                  <th style="padding: 5px 8px; text-align: center;">Coverage</th>
+                  <th style="padding: 5px 8px; text-align: right;">Neural Risk</th>
+                  <th style="padding: 5px 8px; text-align: right;">Capital at Risk</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        `;
+      } catch (err) {
+        out.innerHTML = `<div style="color: #fb7185; font-size: 12px;">Unable to run Portfolio X-Ray: ${err}</div>`;
+      }
+    }
+
+    refreshByokBadge();
       openByokModal(true);
+    }
+
+    // --- Portfolio Cash-Safety X-Ray (Multi-Stock) ---
+    let PORTFOLIO_HOLDINGS = [
+      { ticker: 'WIKA', amount_idr: 5000000 },
+      { ticker: 'WSKT', amount_idr: 5000000 },
+      { ticker: 'TOTL', amount_idr: 10000000 }
+    ];
+    let PORTFOLIO_CASH_SHOCK = 15;
+    let PORTFOLIO_DEBT_SHOCK = 20;
+    let _portfolioInited = false;
+
+    function initPortfolioXRay() {
+      renderPortfolioInputs();
+      if (!_portfolioInited) {
+        _portfolioInited = true;
+        runPortfolioXRay();
+      }
+    }
+
+    function setPortfolioScenario(cashDrop, debtHike) {
+      PORTFOLIO_CASH_SHOCK = cashDrop;
+      PORTFOLIO_DEBT_SHOCK = debtHike;
+      runPortfolioXRay();
+    }
+
+    function addPortfolioRow() {
+      if (PORTFOLIO_HOLDINGS.length >= 6) return;
+      const tickers = (APP_CACHE.screener || []).map(r => r.ticker);
+      const nextT = tickers.find(t => !PORTFOLIO_HOLDINGS.some(h => h.ticker === t)) || 'BBRI';
+      PORTFOLIO_HOLDINGS.push({ ticker: nextT, amount_idr: 5000000 });
+      renderPortfolioInputs();
+    }
+
+    function removePortfolioRow(idx) {
+      if (PORTFOLIO_HOLDINGS.length <= 1) return;
+      PORTFOLIO_HOLDINGS.splice(idx, 1);
+      renderPortfolioInputs();
+      runPortfolioXRay();
+    }
+
+    function updatePortfolioRow(idx, field, val) {
+      if (!PORTFOLIO_HOLDINGS[idx]) return;
+      if (field === 'ticker') PORTFOLIO_HOLDINGS[idx].ticker = String(val).toUpperCase();
+      if (field === 'amount_idr') PORTFOLIO_HOLDINGS[idx].amount_idr = parseFloat(val) || 0;
+    }
+
+    function renderPortfolioInputs() {
+      const box = document.getElementById('portfolioRowsContainer');
+      if (!box) return;
+      const allTickers = (APP_CACHE.screener || []).map(r => r.ticker);
+      const fallbackTickers = allTickers.length ? allTickers : ['WIKA', 'WSKT', 'TOTL', 'BBRI', 'ADRO', 'TLKM'];
+      box.innerHTML = PORTFOLIO_HOLDINGS.map((h, idx) => `
+        <div style="display: grid; grid-template-columns: 1fr 1.3fr auto; gap: 6px; align-items: center;">
+          <select onchange="updatePortfolioRow(${idx}, 'ticker', this.value)" class="form-select font-num" style="font-size: 12px; font-weight: 700; color: #38bdf8;">
+            ${fallbackTickers.map(t => `<option value="${t}" ${t === h.ticker ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+          <input type="number" value="${h.amount_idr}" min="100000" step="1000000" oninput="updatePortfolioRow(${idx}, 'amount_idr', this.value)" class="form-input font-num" style="font-size: 12px;">
+          <button type="button" onclick="removePortfolioRow(${idx})" class="btn-detail" style="color: #fb7185; border-color: #881337; padding: 4px 8px;">×</button>
+        </div>
+      `).join('');
+    }
+
+    async function runPortfolioXRay() {
+      const out = document.getElementById('portfolioXRayOutput');
+      if (!out) return;
+      try {
+        const resp = await fetch('/api/ml/portfolio-xray', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            holdings: PORTFOLIO_HOLDINGS,
+            cash_shock_pct: PORTFOLIO_CASH_SHOCK,
+            debt_shock_pct: PORTFOLIO_DEBT_SHOCK
+          })
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const d = await resp.json();
+        const fmtIdr = v => 'IDR ' + Math.round(Number(v || 0)).toLocaleString('en-US');
+        const scenName = PORTFOLIO_CASH_SHOCK === 0 ? 'Normal (Audited)' : (PORTFOLIO_CASH_SHOCK === 15 ? 'Payment Delay (-15% Cash / +20% Debt)' : 'Macro Crisis (-30% Cash / +50% Debt)');
+        const riskCol = d.weighted_risk_pct >= 40 ? '#fb7185' : (d.weighted_risk_pct >= 15 ? '#fbbf24' : '#34d399');
+
+        const rowsHtml = (d.holdings || []).map(h => `
+          <tr style="border-bottom: 1px solid #1e293b;">
+            <td style="padding: 6px 8px;"><strong style="color: #38bdf8;">${h.ticker}</strong></td>
+            <td style="padding: 6px 8px; text-align: right;" class="font-num">${fmtIdr(h.amount_idr)} (${h.weight_pct}%)</td>
+            <td style="padding: 6px 8px; text-align: center;" class="font-num">${h.is_bank ? 'N/A (Bank)' : (h.debt_free ? 'Debt-Free' : (h.cash_coverage !== null ? h.cash_coverage.toFixed(2) + 'x' : '-'))}</td>
+            <td style="padding: 6px 8px; text-align: right; color: ${h.stressed_risk_pct >= 50 ? '#fb7185' : (h.stressed_risk_pct >= 20 ? '#fbbf24' : '#34d399')}; font-weight: 700;" class="font-num">${h.stressed_risk_pct}%</td>
+            <td style="padding: 6px 8px; text-align: right; color: ${h.is_flagged ? '#fb7185' : '#34d399'}; font-weight: 700;" class="font-num">${fmtIdr(h.capital_at_risk_idr)}</td>
+          </tr>
+        `).join('');
+
+        const pb = d.peer_benchmark;
+        const wk = d.weakest_link;
+
+        out.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="font-size: 12px; color: #38bdf8;">SCENARIO: ${scenName}</strong>
+            <span class="font-num" style="font-size: 11px; color: #94a3b8;">Total: ${fmtIdr(d.total_capital_idr)}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" class="font-num">
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">SAFE / BUFFERED CAPITAL</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #34d399;">${fmtIdr(d.safe_capital_idr)} (${d.safe_pct}%)</div>
+            </div>
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">CASH-STRESS FLAGGED</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: #fb7185;">${fmtIdr(d.flagged_capital_idr)} (${d.flagged_pct}%)</div>
+            </div>
+            <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+              <div style="font-size: 10px; color: #94a3b8;">WEIGHTED NEURAL RISK</div>
+              <div style="font-size: 13.5px; font-weight: 800; color: ${riskCol};">${d.weighted_risk_pct}% (${fmtIdr(d.total_capital_at_risk_idr)})</div>
+            </div>
+          </div>
+          <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 11px; font-size: 11.5px; color: #cbd5e1; line-height: 1.5;">
+            ${wk ? `<div>&bull; <strong style="color: #fb7185;">Weakest Link:</strong> <strong>${wk.ticker}</strong> (${fmtIdr(wk.amount_idr)}) carries <strong>${wk.stressed_risk_pct}%</strong> stressed liquidity risk (${fmtIdr(wk.capital_at_risk_idr)} exposed).</div>` : ''}
+            ${pb ? `<div>&bull; <strong style="color: #34d399;">Peer Benchmark:</strong> Comparing ${pb.replace_ticker}'s allocation against Debt-Free/low-risk peer <strong style="color:#34d399;">${pb.peer_ticker}</strong> (${pb.peer_risk_pct}% risk) lowers portfolio weighted risk from <strong>${pb.portfolio_risk_before_pct}%</strong> to <strong style="color:#34d399;">${pb.portfolio_risk_after_pct}%</strong>.</div>` : ''}
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 11.5px;">
+              <thead>
+                <tr style="border-bottom: 1px solid #334155; color: #94a3b8;">
+                  <th style="padding: 5px 8px; text-align: left;">Ticker</th>
+                  <th style="padding: 5px 8px; text-align: right;">Allocation</th>
+                  <th style="padding: 5px 8px; text-align: center;">Coverage</th>
+                  <th style="padding: 5px 8px; text-align: right;">Neural Risk</th>
+                  <th style="padding: 5px 8px; text-align: right;">Capital at Risk</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        `;
+      } catch (err) {
+        out.innerHTML = `<div style="color: #fb7185; font-size: 12px;">Unable to run Portfolio X-Ray: ${err}</div>`;
+      }
     }
 
     refreshByokBadge();

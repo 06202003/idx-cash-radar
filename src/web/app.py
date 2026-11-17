@@ -928,11 +928,79 @@ class NeuralStressRequest(BaseModel):
     debt_shock_pct: float = 0.0
 
 
+class PortfolioHoldingItem(BaseModel):
+    ticker: str
+    amount_idr: float = 5_000_000.0
+
+
+class PortfolioXRayRequest(BaseModel):
+    holdings: list[PortfolioHoldingItem]
+    cash_shock_pct: float = 0.0
+    debt_shock_pct: float = 0.0
+
+
+def _compute_book_cash_backing(
+    repo_obj: FinancialRepository, row: dict[str, Any], capital_idr: float
+) -> dict[str, Any]:
+    """Computes proportional Cash, ST Debt, and CFO backing per user capital on audited Book Equity."""
+    t = row["ticker"]
+    equity = 0.0
+    total_assets = 0.0
+    try:
+        with repo_obj.get_connection() as conn:
+            facts = conn.execute(
+                """
+                SELECT cf.canonical_key, cf.value_idr
+                FROM canonical_facts cf
+                JOIN filings f ON f.filing_id = cf.filing_id
+                WHERE f.ticker = ? AND cf.canonical_key IN ('total_equity', 'total_assets')
+                ORDER BY f.fiscal_year DESC
+                """,
+                (t,),
+            ).fetchall()
+            for r in facts:
+                k = r["canonical_key"]
+                if k == "total_equity" and equity == 0.0:
+                    equity = float(r["value_idr"] or 0.0)
+                elif k == "total_assets" and total_assets == 0.0:
+                    total_assets = float(r["value_idr"] or 0.0)
+    except Exception:
+        pass
+
+    cash_idr = float(row.get("cash_idr") or 0.0)
+    st_debt_idr = float(row.get("st_debt_idr") or 0.0)
+    cfo_idr = float(row.get("cfo_ttm_idr") or 0.0)
+    cap = max(float(capital_idr or 10_000_000.0), 100_000.0)
+
+    if equity > 0:
+        cash_per_modal = round(cap * (cash_idr / equity), 0)
+        debt_per_modal = round(cap * (st_debt_idr / equity), 0)
+        cfo_per_modal = round(cap * (cfo_idr / equity), 0)
+        cfo_roe_pct = round((cfo_idr / equity) * 100.0, 2)
+    else:
+        cash_per_modal = 0.0
+        debt_per_modal = 0.0
+        cfo_per_modal = 0.0
+        cfo_roe_pct = None
+
+    cash_pct_assets = round((cash_idr / total_assets) * 100.0, 2) if total_assets > 0 else None
+    return {
+        "basis": "Audited Book Equity (FY 2025)",
+        "equity_idr": round(equity, 0),
+        "total_assets_idr": round(total_assets, 0),
+        "cash_per_modal_idr": cash_per_modal,
+        "debt_per_modal_idr": debt_per_modal,
+        "cfo_per_modal_idr": cfo_per_modal,
+        "cash_pct_assets": cash_pct_assets,
+        "cfo_to_equity_pct": cfo_roe_pct,
+    }
+
+
 @app.post("/api/ml/neural-stress")
 def post_neural_stress_simulation(req: NeuralStressRequest) -> dict[str, Any]:
     """
     Runs the self-trained 3-layer Deep Learning MLP (5 -> 16 -> 8 -> 1) on an issuer's
-    audited XBRL metrics under user-defined money & stress scenarios.
+    audited XBRL metrics under user-defined money & stress scenarios, plus Book Equity Cash Backing.
     """
     t = req.ticker.strip().upper()
     rows = get_screener_data()
@@ -946,8 +1014,8 @@ def post_neural_stress_simulation(req: NeuralStressRequest) -> dict[str, Any]:
         cash_shock_pct=req.cash_shock_pct,
         debt_shock_pct=req.debt_shock_pct,
     )
+    backing = _compute_book_cash_backing(repo, target, req.capital_idr)
 
-    # Find healthiest peer in the same sub-industry for side-by-side IDR comparison
     same_sec = [
         r for r in rows
         if r.get("idx_sub_industry") == target.get("idx_sub_industry") and r["ticker"] != t
@@ -978,7 +1046,113 @@ def post_neural_stress_simulation(req: NeuralStressRequest) -> dict[str, Any]:
         "company_name": target.get("company_name"),
         "sub_industry": target.get("idx_sub_industry"),
         "simulation": res,
+        "cash_backing": backing,
         "safest_peer": peer_best,
+    }
+
+
+@app.post("/api/ml/portfolio-xray")
+def post_portfolio_xray(req: PortfolioXRayRequest) -> dict[str, Any]:
+    """
+    Multi-stock Portfolio Cash-Safety X-Ray: evaluates weighted liquidity exposure,
+    cash-fortress share, weakest-link ticker, and safer peer benchmark across 2-5 IDX holdings.
+    """
+    if not req.holdings:
+        raise HTTPException(status_code=400, detail="Please add at least 1 stock holding.")
+
+    rows = get_screener_data()
+    row_map = {r["ticker"]: r for r in rows}
+
+    evaluated: list[dict[str, Any]] = []
+    total_cap = 0.0
+    total_at_risk = 0.0
+    safe_cap = 0.0
+    flagged_cap = 0.0
+
+    for h in req.holdings[:8]:
+        t = h.ticker.strip().upper()
+        amt = max(float(h.amount_idr or 0.0), 0.0)
+        if amt <= 0 or t not in row_map:
+            continue
+        r = row_map[t]
+        sim = ml_suite.run_neural_capital_stress(
+            r,
+            capital_idr=amt,
+            cash_shock_pct=req.cash_shock_pct,
+            debt_shock_pct=req.debt_shock_pct,
+        )
+        sub = (r.get("idx_sub_industry") or "").upper()
+        is_bank = "BANK" in sub or "FINANC" in sub
+        is_free = (not is_bank) and bool(r.get("debt_free_short_term"))
+        cov = None if (is_bank or is_free) else float(r.get("cash_coverage_ratio") or 0.0)
+        is_flagged = bool(r.get("flag_acute_liquidity") or r.get("flag_accrual_divergence") or (not is_bank and not is_free and (cov or 0.0) < 1.0))
+
+        total_cap += amt
+        total_at_risk += sim["stressed_capital_at_risk_idr"]
+        if is_flagged:
+            flagged_cap += amt
+        else:
+            safe_cap += amt
+
+        evaluated.append({
+            "ticker": t,
+            "company_name": r.get("company_name"),
+            "sub_industry": r.get("idx_sub_industry"),
+            "is_bank": is_bank,
+            "debt_free": is_free,
+            "amount_idr": round(amt, 0),
+            "cash_coverage": cov,
+            "cfo_ttm_idr": float(r.get("cfo_ttm_idr") or 0.0),
+            "stressed_risk_pct": sim["stressed_risk_pct"],
+            "capital_at_risk_idr": sim["stressed_capital_at_risk_idr"],
+            "is_flagged": is_flagged,
+        })
+
+    if not evaluated or total_cap <= 0:
+        raise HTTPException(status_code=400, detail="No valid holdings with positive IDR amount.")
+
+    for item in evaluated:
+        item["weight_pct"] = round((item["amount_idr"] / total_cap) * 100.0, 1)
+
+    weakest = max(evaluated, key=lambda x: x["capital_at_risk_idr"])
+    # Find safer peer in weakest holding's sub-industry
+    weak_row = row_map[weakest["ticker"]]
+    same_sec = [
+        r for r in rows
+        if r.get("idx_sub_industry") == weak_row.get("idx_sub_industry") and r["ticker"] != weakest["ticker"]
+    ]
+    peer_bench = None
+    if same_sec:
+        best_p = min(
+            same_sec,
+            key=lambda c: ml_suite.run_neural_capital_stress(
+                c, weakest["amount_idr"], req.cash_shock_pct, req.debt_shock_pct
+            )["stressed_risk_pct"],
+        )
+        p_sim = ml_suite.run_neural_capital_stress(
+            best_p, weakest["amount_idr"], req.cash_shock_pct, req.debt_shock_pct
+        )
+        new_total_risk = total_at_risk - weakest["capital_at_risk_idr"] + p_sim["stressed_capital_at_risk_idr"]
+        peer_bench = {
+            "replace_ticker": weakest["ticker"],
+            "peer_ticker": best_p["ticker"],
+            "peer_risk_pct": p_sim["stressed_risk_pct"],
+            "portfolio_risk_before_pct": round((total_at_risk / total_cap) * 100.0, 2),
+            "portfolio_risk_after_pct": round((new_total_risk / total_cap) * 100.0, 2),
+        }
+
+    return {
+        "status": "ok",
+        "total_capital_idr": round(total_cap, 0),
+        "safe_capital_idr": round(safe_cap, 0),
+        "safe_pct": round((safe_cap / total_cap) * 100.0, 1),
+        "flagged_capital_idr": round(flagged_cap, 0),
+        "flagged_pct": round((flagged_cap / total_cap) * 100.0, 1),
+        "weighted_risk_pct": round((total_at_risk / total_cap) * 100.0, 2),
+        "total_capital_at_risk_idr": round(total_at_risk, 0),
+        "weakest_link": weakest,
+        "peer_benchmark": peer_bench,
+        "holdings": evaluated,
     }
 
 

@@ -92,3 +92,37 @@ def test_neural_mlp_capital_stress_simulator() -> None:
     assert res["stressed_risk_pct"] >= res["base_risk_pct"]
     assert res["stressed_capital_at_risk_idr"] + res["stressed_buffered_capital_idr"] == 10_000_000
     assert res["model_telemetry"]["model_name"] == "idx_solvency_mlp_5_16_8_1_v1"
+
+
+def test_api_cash_backing_and_portfolio_xray() -> None:
+    from fastapi.testclient import TestClient
+
+    from src.web.app import app
+
+    client = TestClient(app)
+    r1 = client.post(
+        "/api/ml/neural-stress",
+        json={"ticker": "TOTL", "capital_idr": 10_000_000, "cash_shock_pct": 0, "debt_shock_pct": 0},
+    )
+    assert r1.status_code == 200
+    d1 = r1.json()
+    assert "cash_backing" in d1
+    assert d1["cash_backing"]["cash_per_modal_idr"] > 0
+
+    r2 = client.post(
+        "/api/ml/portfolio-xray",
+        json={
+            "holdings": [
+                {"ticker": "WIKA", "amount_idr": 5_000_000},
+                {"ticker": "WSKT", "amount_idr": 5_000_000},
+                {"ticker": "TOTL", "amount_idr": 10_000_000},
+            ],
+            "cash_shock_pct": 15,
+            "debt_shock_pct": 20,
+        },
+    )
+    assert r2.status_code == 200
+    d2 = r2.json()
+    assert d2["total_capital_idr"] == 20_000_000
+    assert len(d2["holdings"]) == 3
+    assert d2["weakest_link"]["ticker"] in ("WIKA", "WSKT")
