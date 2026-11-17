@@ -16,7 +16,8 @@ from typing import Any
 
 _CACHE_LOCK = threading.Lock()
 _QUOTE_CACHE: dict[str, tuple[float, dict[str, Any] | None]] = {}
-DEFAULT_TTL_SECONDS = 300  # 5 minutes
+DEFAULT_TTL_SECONDS = 60  # 1 minute server cache (feed itself is ~15m delayed from Yahoo)
+WIB_OFFSET_SECONDS = 7 * 3600  # Asia/Jakarta (UTC+7)
 
 
 def fetch_single_quote(
@@ -189,16 +190,17 @@ def fetch_price_history(
                 h = highs[idx] if idx < len(highs) and highs[idx] is not None else c
                 lo = lows[idx] if idx < len(lows) and lows[idx] is not None else c
                 v = volumes[idx] if idx < len(volumes) else 0
-                # Lightweight Charts uses unix timestamp for intraday, YYYY-MM-DD for daily
+                # Lightweight Charts renders unix timestamps in UTC; shift +7h for WIB (09:00-16:00)
+                wib_ts = int(ts) + WIB_OFFSET_SECONDS
                 time_key: Any = (
-                    int(ts) if is_intraday else time.strftime("%Y-%m-%d", time.gmtime(ts))
+                    wib_ts if is_intraday else time.strftime("%Y-%m-%d", time.gmtime(wib_ts))
                 )
                 if time_key in seen_times:
                     continue
                 seen_times.add(time_key)
                 points.append({
                     "time": time_key,
-                    "date": time.strftime("%Y-%m-%d %H:%M", time.gmtime(ts))
+                    "date": time.strftime("%Y-%m-%d %H:%M WIB", time.gmtime(wib_ts))
                     if is_intraday
                     else str(time_key),
                     "open": round(float(o), 2),
