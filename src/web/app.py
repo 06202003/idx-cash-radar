@@ -181,7 +181,7 @@ def ingest_new_issuer_data(req: IssuerIngestRequest) -> dict[str, Any]:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=f"Gagal menyimpan data emiten: {exc}") from exc
+        raise HTTPException(status_code=500, detail=f"Failed to save issuer data: {exc}") from exc
 
 
 @app.post("/api/issuers/ingest-xbrl")
@@ -208,7 +208,7 @@ def ingest_new_issuer_xbrl(req: IssuerXBRLUploadRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(
-            status_code=422, detail=f"Gagal memparsing berkas XBRL: {exc}"
+            status_code=422, detail=f"Failed to parse XBRL file: {exc}"
         ) from exc
 
 
@@ -281,19 +281,19 @@ def get_screener_data(
 
         if flag_liq:
             status = "TEKANAN_LIKUIDITAS"
-            badge = "Merah (Kritis)"
+            badge = "Red (Critical)"
         elif flag_div:
             status = "DIVERGENSI_AKRUAL"
-            badge = "Kuning (Waspada)"
+            badge = "Amber (Caution)"
         elif is_free:
             status = "BEBAS_UTANG"
-            badge = "Hijau (Prima)"
+            badge = "Green (Fortress)"
         elif cov >= 1.0:
             status = "SOLVEN_SEHAT"
-            badge = "Hijau (Sehat)"
+            badge = "Green (Healthy)"
         else:
             status = "TERKENDALI"
-            badge = "Kuning (Moderat)"
+            badge = "Amber (Moderate)"
 
         def _safe_int(val: Any) -> int:
             return int(Decimal(str(val))) if val not in (None, "") else 0
@@ -312,7 +312,7 @@ def get_screener_data(
         r["revenue_ttm_idr"] = _safe_int(r.get("revenue_ttm_idr"))
         r["sloan_ratio_pct"] = round(float(r["sloan_ratio_ttm"] or 0.0) * 100, 2)
         r["cash_coverage_display"] = (
-            "Bebas Utang" if is_free else (f"{float(raw_cov):.2f}x" if raw_cov else "0.00x")
+            "Debt-Free" if is_free else (f"{float(raw_cov):.2f}x" if raw_cov else "0.00x")
         )
 
     return rows
@@ -695,7 +695,7 @@ def get_calk_breakdown(ticker: str) -> dict[str, Any]:
     if not files:
         raise HTTPException(
             status_code=404,
-            detail=f"CALK sample not found for {t}. Tersedia: WIKA, TOTL, PTPP, ADHI, WSKT, ACST",
+            detail=f"CALK sample not found for {t}. Available: WIKA, TOTL, PTPP, ADHI, WSKT, ACST",
         )
 
     text = files[0].read_text(encoding="utf-8")
@@ -705,7 +705,7 @@ def get_calk_breakdown(ticker: str) -> dict[str, Any]:
         fiscal_year=2023,
         source_text=text,
         footnote_number=footnote_num,
-        footnote_title="Piutang Usaha & Aset Kontrak",
+        footnote_title="Trade Receivables & Contract Assets",
         page_number=45,
     )
     return extraction.model_dump()
@@ -734,25 +734,27 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
     if not url and not raw_text:
         raise HTTPException(
             status_code=400,
-            detail="Harap masukkan URL berita atau tempel teks artikel berita.",
+            detail="Please enter a news URL or paste the article text.",
         )
 
     headline = ""
     body_text = ""
-    source = "Teks Manual"
+    source = "Manual Text"
     highlights: list[str] = []
 
     if url and not raw_text:
         fetched = fetch_article_from_url(url)
         if fetched.get("status") != "success":
-            raise HTTPException(status_code=422, detail=fetched.get("message", "Gagal memuat URL."))
+            raise HTTPException(
+                status_code=422, detail=fetched.get("message", "Failed to fetch URL.")
+            )
         headline = fetched.get("headline", "")
         body_text = fetched.get("body_text", "")
-        source = fetched.get("source", "Sumber Web")
+        source = fetched.get("source", "Web Source")
         highlights = fetched.get("highlights", [])
     else:
         lines = [ln.strip() for ln in raw_text.splitlines() if ln.strip()]
-        headline = lines[0][:180] if lines else "Artikel Berita Saham"
+        headline = lines[0][:180] if lines else "Stock News Article"
         body_text = "\n".join(lines[1:] if len(lines) > 1 else lines)[:4000]
         highlights = extract_key_highlights(headline, lines)
 
@@ -819,8 +821,8 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
         "ml_forecast": ml_forecast,
         "engine_source": synthesis["engine_source"] if synthesis else "Sentiment Only",
         "contextual_isolation_rule": (
-            "Aturan Isolasi Konteks Aktif: Sentimen berita murni konteks sekunder "
-            "dan tidak mengubah bendera bahaya kas deterministik."
+            "Contextual Isolation Rule Active: News sentiment is strictly secondary context "
+            "and does not alter deterministic cash safeguard flags."
         ),
     }
 

@@ -374,46 +374,91 @@ def fetch_article_from_url(url: str, timeout: int = 10) -> dict[str, Any]:
         return {"status": "error", "message": f"Gagal mengakses URL berita: {exc}"}
 
 
+def _find_best_alias_match(
+    haystack: str,
+    issuers: list[dict[str, Any]],
+    known_tickers: set[str],
+    prefer_earliest: bool = True,
+) -> str | None:
+    """Finds the best matching ticker in haystack by position or frequency."""
+    lowered = haystack.lower()
+    candidates: list[tuple[int, int, str]] = []  # (first_pos, -count, ticker)
+
+    for ticker, aliases in ISSUER_NAME_ALIASES.items():
+        if ticker not in known_tickers:
+            continue
+        best_pos: int | None = None
+        total_hits = 0
+        for alias in aliases:
+            pos = lowered.find(alias)
+            if pos != -1:
+                if best_pos is None or pos < best_pos:
+                    best_pos = pos
+                total_hits += lowered.count(alias)
+        if best_pos is not None:
+            candidates.append((best_pos, -total_hits, ticker))
+
+    if not candidates:
+        for item in issuers:
+            t = item["ticker"].upper()
+            comp_clean = (
+                item.get("company_name", "")
+                .lower()
+                .replace("tbk.", "")
+                .replace("(persero)", "")
+                .strip()
+            )
+            first_two = " ".join(comp_clean.split()[:2])
+            if len(first_two) >= 5:
+                pos = lowered.find(first_two)
+                if pos != -1:
+                    candidates.append((pos, -lowered.count(first_two), t))
+
+    if not candidates:
+        return None
+    if prefer_earliest:
+        candidates.sort(key=lambda x: (x[0], x[1]))
+    else:
+        candidates.sort(key=lambda x: (x[1], x[0]))
+    return candidates[0][2]
+
+
 def detect_ticker_in_article(
     text: str,
     issuers: list[dict[str, Any]],
     url: str = "",
 ) -> str | None:
-    """Detects which covered BEI ticker is referenced in the article or URL."""
+    """Detects which covered BEI ticker is referenced, prioritizing headline and URL."""
     known_tickers = {i["ticker"].upper() for i in issuers}
-    combined = f"{text}\n{url}"
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    headline = lines[0] if lines else ""
+    body = "\n".join(lines[1:]) if len(lines) > 1 else ""
+    url_norm = url.replace("-", " ").replace("_", " ")
 
-    # 1. Explicit 4-letter ticker inside parentheses or standalone uppercase token
-    paren_matches = re.findall(r"\(([A-Z]{4})\)", combined)
-    for t in paren_matches:
+    # 1. Priority: Headline & URL (explicit ticker -> alias/company name earliest in headline)
+    head_and_url = f"{headline}\n{url_norm}"
+    for t in re.findall(r"\(([A-Z]{4})\)", head_and_url):
         if t in known_tickers:
             return t
-
-    word_matches = re.findall(r"\b([A-Z]{4})\b", text)
-    for t in word_matches:
+    for t in re.findall(r"\b([A-Z]{4})\b", headline):
         if t in known_tickers:
             return t
+    head_match = _find_best_alias_match(
+        head_and_url, issuers, known_tickers, prefer_earliest=True
+    )
+    if head_match:
+        return head_match
 
-    # 2. Match known company aliases or full names (case-insensitive)
-    lowered = combined.lower()
-    for ticker, aliases in ISSUER_NAME_ALIASES.items():
-        if ticker in known_tickers and any(alias in lowered for alias in aliases):
-            return ticker
-
-    for item in issuers:
-        t = item["ticker"].upper()
-        comp_clean = (
-            item.get("company_name", "")
-            .lower()
-            .replace("tbk.", "")
-            .replace("(persero)", "")
-            .strip()
-        )
-        first_two = " ".join(comp_clean.split()[:2])
-        if len(first_two) >= 5 and first_two in lowered:
+    # 2. Fallback: Article body (explicit ticker -> most frequent / earliest alias)
+    for t in re.findall(r"\(([A-Z]{4})\)", body):
+        if t in known_tickers:
             return t
-
-    return None
+    for t in re.findall(r"\b([A-Z]{4})\b", body):
+        if t in known_tickers:
+            return t
+    return _find_best_alias_match(
+        body, issuers, known_tickers, prefer_earliest=False
+    )
 
 
 def analyze_sentiment_deterministic(headline: str, body_text: str) -> dict[str, Any]:

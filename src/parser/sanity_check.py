@@ -61,8 +61,25 @@ def run_4way_accounting_check(
             "notes": "Missing balance sheet components",
         })
 
+    # Detect unclassified balance sheet (standard for Banking/Financials under PSAK 1/31)
+    is_unclassified = (
+        assets is not None
+        and liabilities is not None
+        and current_assets is None
+        and non_current_assets is None
+        and current_liabilities is None
+        and non_current_liabilities is None
+    )
+
     # 2. Assets == Current + Non-Current Assets
-    if (
+    if is_unclassified:
+        checks.append({
+            "check": "Assets == Current Assets + Non-Current Assets",
+            "passed": True,
+            "difference": "0",
+            "notes": "Unclassified balance sheet (e.g. Banking)",
+        })
+    elif (
         assets is not None
         and current_assets is not None
         and non_current_assets is not None
@@ -89,7 +106,14 @@ def run_4way_accounting_check(
         })
 
     # 3. Liabilities == Current + Non-Current Liabilities
-    if (
+    if is_unclassified:
+        checks.append({
+            "check": "Liabilities == Current + Non-Current Liabilities",
+            "passed": True,
+            "difference": "0",
+            "notes": "Unclassified balance sheet (e.g. Banking)",
+        })
+    elif (
         liabilities is not None
         and current_liabilities is not None
         and non_current_liabilities is not None

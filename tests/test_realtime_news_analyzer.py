@@ -76,6 +76,22 @@ def test_detect_ticker_and_sentiment_on_wskt_contract_news() -> None:
     ticker = detect_ticker_in_article(f"{headline}\n{body}", issuers)
     assert ticker == "WSKT"
 
+    # Headline-first priority: even if Waskita is mentioned in body, headline PT PP / Adhi wins
+    merger_issuers = issuers + [
+        {"ticker": "PTPP", "company_name": "PP (Persero) Tbk."},
+        {"ticker": "ADHI", "company_name": "Adhi Karya (Persero) Tbk."},
+    ]
+    merger_headline = (
+        "Danantara Percepat Merger BUMN Karya, PT PP dan Adhi Karya Digabung Tahun Ini"
+    )
+    merger_body = "Ketujuh BUMN karya termasuk Waskita Karya dan Wijaya Karya akan digabung."
+    merger_ticker = detect_ticker_in_article(
+        f"{merger_headline}\n{merger_body}",
+        merger_issuers,
+        url="https://kumparan.com/kumparanbisnis/danantara-percepat-merger-bumn-karya-pt-pp-dan-adhi-karya-digabung-tahun-ini-285mnXVZGsi",
+    )
+    assert merger_ticker == "PTPP"
+
     sent = analyze_sentiment_deterministic(headline, body)
     assert sent["sentiment"] == "POSITIF"
     assert "kontrak baru" in sent["matched_positive"]

@@ -161,7 +161,12 @@ class TaxonomyNormalizer:
 
         f_cash_bs = self._find_fact(
             doc,
-            ["CashAndCashEquivalents", "CashAndCashEquivalentsAtEndOfPeriod"],
+            [
+                "CashAndCashEquivalents",
+                "CashAndCashEquivalentsAtEndOfPeriod",
+                "CashAndCashEquivalentsCashFlows",
+                "Cash",
+            ],
             "instant",
             doc.primary_instant_date,
         )
@@ -411,6 +416,9 @@ class TaxonomyNormalizer:
                 "SalesAndRevenues",
                 "Revenues",
                 "RevenueFromContractsWithCustomers",
+                "InterestIncome",
+                "TotalInterestAndShariaIncome",
+                "RevenueFromFundManagementAsMudharib",
             ],
             "duration",
             duration_context_id=doc.primary_duration_context_id,
@@ -442,6 +450,29 @@ class TaxonomyNormalizer:
         if f_cfo:
             canonical_facts.append(self._fact_to_canonical("cfo", f_cfo))
 
+        # Detect reporting currency (IDR vs USD) and apply deterministic year-end FX rate
+        usd_rates = {
+            2020: Decimal("14105"),
+            2021: Decimal("14269"),
+            2022: Decimal("15731"),
+            2023: Decimal("15416"),
+            2024: Decimal("16162"),
+            2025: Decimal("16200"),
+        }
+        unit_sample = (
+            (f_assets.unit_ref if f_assets else "")
+            or (f_cash_bs.unit_ref if f_cash_bs else "")
+            or ""
+        ).upper()
+        if "USD" in unit_sample:
+            reporting_currency = "USD"
+            fx_rate = usd_rates.get(doc.fiscal_year, Decimal("16200"))
+            for cf in canonical_facts:
+                cf.value_idr = cf.value_idr * fx_rate
+        else:
+            reporting_currency = "IDR"
+            fx_rate = Decimal("1")
+
         # Build Filing Header
         filing_id = f"{doc.ticker}_{doc.fiscal_year}_{doc.period_code}_FIRST"
         is_audited = doc.period_code == "FY"
@@ -454,8 +485,8 @@ class TaxonomyNormalizer:
             period_end_date=doc.primary_instant_date,
             is_audited=is_audited,
             is_restatement=False,
-            reporting_currency="IDR",
-            fx_rate_to_idr=Decimal("1"),
+            reporting_currency=reporting_currency,
+            fx_rate_to_idr=fx_rate,
             sanity_check_passed=sanity_res["all_passed"],
             source_xbrl_hash=doc.source_hash,
         )

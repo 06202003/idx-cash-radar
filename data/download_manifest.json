@@ -478,5 +478,565 @@
     "status": "COMPLETED",
     "source": "local_import",
     "updated_at": "2026-11-11T07:58:49Z"
+  },
+  "IDPR_2025_FY": {
+    "ticker": "IDPR",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "c044ab23a0e81f168be7599643f12b0383b217dff18002e58050fdc507384bc2",
+    "source_zip": "instance (1).zip",
+    "extracted_path": "data/raw_xbrl/IDPR/2025/instance_IDPR_2025_FY.xbrl"
+  },
+  "AMRT_2025_FY": {
+    "ticker": "AMRT",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "f9b1c3fbb1bbc66fb052d206336c431b54e9e7f94ad4874c38e0e3d7628682aa",
+    "source_zip": "instance (10).zip",
+    "extracted_path": "data/raw_xbrl/AMRT/2025/instance_AMRT_2025_FY.xbrl"
+  },
+  "CMRY_2025_FY": {
+    "ticker": "CMRY",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "a88a3cc6d0109f7f9f03ef0d17ef9621eedc5b8080adb8f8bbd9d17a10a8a65b",
+    "source_zip": "instance (11).zip",
+    "extracted_path": "data/raw_xbrl/CMRY/2025/instance_CMRY_2025_FY.xbrl"
+  },
+  "CMRY_2024_FY": {
+    "ticker": "CMRY",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "4ff6cb6a3ad6cbdb3a74f80c6323c1198b9e787e017cc4caf28b1c55d99cac38",
+    "source_zip": "instance (12).zip",
+    "extracted_path": "data/raw_xbrl/CMRY/2024/instance_CMRY_2024_FY.xbrl"
+  },
+  "GGRM_2024_FY": {
+    "ticker": "GGRM",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "517cb99cacfaa175d6cbdee3a1bdb2903f6703e6aae5850bba0471ba060d5b8e",
+    "source_zip": "instance (13).zip",
+    "extracted_path": "data/raw_xbrl/GGRM/2024/instance_GGRM_2024_FY.xbrl"
+  },
+  "GGRM_2025_FY": {
+    "ticker": "GGRM",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "97bf9eae4cbdaf57e69310f8170be6fcaa92e7232f9661478ac6ca25c03c9e2d",
+    "source_zip": "instance (14).zip",
+    "extracted_path": "data/raw_xbrl/GGRM/2025/instance_GGRM_2025_FY.xbrl"
+  },
+  "HMSP_2025_FY": {
+    "ticker": "HMSP",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "badad2351b8f4046fcd9afe5474378883df38048462e07f64ff4195b20ba60ec",
+    "source_zip": "instance (15).zip",
+    "extracted_path": "data/raw_xbrl/HMSP/2025/instance_HMSP_2025_FY.xbrl"
+  },
+  "HMSP_2024_FY": {
+    "ticker": "HMSP",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "02ca0aaae766c7038381800e0feff63f119b47b177433c8f9bf9db373b9b03e4",
+    "source_zip": "instance (16).zip",
+    "extracted_path": "data/raw_xbrl/HMSP/2024/instance_HMSP_2024_FY.xbrl"
+  },
+  "ICBP_2024_FY": {
+    "ticker": "ICBP",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "244153faed851ce067bf32597154b0c90eca4b234a4f03ae693f5001435eaae2",
+    "source_zip": "instance (17).zip",
+    "extracted_path": "data/raw_xbrl/ICBP/2024/instance_ICBP_2024_FY.xbrl"
+  },
+  "ICBP_2025_FY": {
+    "ticker": "ICBP",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "be78d7f90cfc349c7fb7d80ba5c578575fab4f1411143b568364bcfba4712b6d",
+    "source_zip": "instance (18).zip",
+    "extracted_path": "data/raw_xbrl/ICBP/2025/instance_ICBP_2025_FY.xbrl"
+  },
+  "INDF_2025_FY": {
+    "ticker": "INDF",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "6f0d448da12f0b1eb29a24176c47c5bcf6e479dabbd3bc258348b8da10f96e2f",
+    "source_zip": "instance (19).zip",
+    "extracted_path": "data/raw_xbrl/INDF/2025/instance_INDF_2025_FY.xbrl"
+  },
+  "SSIA_2025_FY": {
+    "ticker": "SSIA",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "5e40f38b7243d40e3fdd54a446f92dfb47cc1f58bf6e531eae541967f8b58440",
+    "source_zip": "instance (2).zip",
+    "extracted_path": "data/raw_xbrl/SSIA/2025/instance_SSIA_2025_FY.xbrl"
+  },
+  "INDF_2024_FY": {
+    "ticker": "INDF",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "2a392ed1ab80f237811466f22864c95dbbdb04e5bc14369f9865893bafbab896",
+    "source_zip": "instance (20).zip",
+    "extracted_path": "data/raw_xbrl/INDF/2024/instance_INDF_2024_FY.xbrl"
+  },
+  "KLBF_2024_FY": {
+    "ticker": "KLBF",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "385fc989b1100c52d058bb73a30492b53fcb84eb0c093dfe732394804c86072c",
+    "source_zip": "instance (21).zip",
+    "extracted_path": "data/raw_xbrl/KLBF/2024/instance_KLBF_2024_FY.xbrl"
+  },
+  "KLBF_2025_FY": {
+    "ticker": "KLBF",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "e5a49e7e713a07308eda6113fe5654189e04a5d59b4cc21d8f388459895fd310",
+    "source_zip": "instance (22).zip",
+    "extracted_path": "data/raw_xbrl/KLBF/2025/instance_KLBF_2025_FY.xbrl"
+  },
+  "MAPI_2025_FY": {
+    "ticker": "MAPI",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "92e39a24ddcb51374c93df6f4f70afc755ebccf88a03011228fbd0fe79a541a3",
+    "source_zip": "instance (23).zip",
+    "extracted_path": "data/raw_xbrl/MAPI/2025/instance_MAPI_2025_FY.xbrl"
+  },
+  "MAPI_2024_FY": {
+    "ticker": "MAPI",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "a75593a5ce220631475e1d3bc626ab0028d556dc98f7fdc4d2f7698e2c1578a6",
+    "source_zip": "instance (24).zip",
+    "extracted_path": "data/raw_xbrl/MAPI/2024/instance_MAPI_2024_FY.xbrl"
+  },
+  "MYOR_2024_FY": {
+    "ticker": "MYOR",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "a4ecebf902aaa15225cb11723edf4f317fbb5748c1d1ad0ff23438db53ad5c5e",
+    "source_zip": "instance (25).zip",
+    "extracted_path": "data/raw_xbrl/MYOR/2024/instance_MYOR_2024_FY.xbrl"
+  },
+  "MYOR_2025_FY": {
+    "ticker": "MYOR",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "e04965bffccfaf79474e0c47cd7269411d13116d1a267847aab6296075f46cd1",
+    "source_zip": "instance (26).zip",
+    "extracted_path": "data/raw_xbrl/MYOR/2025/instance_MYOR_2025_FY.xbrl"
+  },
+  "SIDO_2025_FY": {
+    "ticker": "SIDO",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "0f5f8245a7937db1953d46f49b3354a68ad9e473fcb2f06604f9dff4dce23faa",
+    "source_zip": "instance (27).zip",
+    "extracted_path": "data/raw_xbrl/SIDO/2025/instance_SIDO_2025_FY.xbrl"
+  },
+  "SIDO_2024_FY": {
+    "ticker": "SIDO",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "cbb8e25aaf0360e27e834afbc102703798b61851e53f8d52d2dd64fae94bfb03",
+    "source_zip": "instance (28).zip",
+    "extracted_path": "data/raw_xbrl/SIDO/2024/instance_SIDO_2024_FY.xbrl"
+  },
+  "BBNI_2024_FY": {
+    "ticker": "BBNI",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "18b53ef06bfa3185b21d904579189e1aadd865387c08f2613c3a7279d639e81f",
+    "source_zip": "instance (29).zip",
+    "extracted_path": "data/raw_xbrl/BBNI/2024/instance_BBNI_2024_FY.xbrl"
+  },
+  "SSIA_2024_FY": {
+    "ticker": "SSIA",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "5868304d6494b2c0e6024f564cdcf5e00ec68c4ca5898c1c4428dc6f832d0ead",
+    "source_zip": "instance (3).zip",
+    "extracted_path": "data/raw_xbrl/SSIA/2024/instance_SSIA_2024_FY.xbrl"
+  },
+  "BBNI_2025_FY": {
+    "ticker": "BBNI",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "0654bfbc29397c4d1588337b7cf0b86119263f91cfd389b986f0d1ac551f16a3",
+    "source_zip": "instance (30).zip",
+    "extracted_path": "data/raw_xbrl/BBNI/2025/instance_BBNI_2025_FY.xbrl"
+  },
+  "BBRI_2025_FY": {
+    "ticker": "BBRI",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "672eedf7767aad9261071770c033c0f00eabdc6868fe5028ca1948ae33ee5d44",
+    "source_zip": "instance (31).zip",
+    "extracted_path": "data/raw_xbrl/BBRI/2025/instance_BBRI_2025_FY.xbrl"
+  },
+  "BBRI_2024_FY": {
+    "ticker": "BBRI",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "b2fc69173af8dff31d5313ef52ed1a72c89c0f4aff867233a7bb7029222143b6",
+    "source_zip": "instance (32).zip",
+    "extracted_path": "data/raw_xbrl/BBRI/2024/instance_BBRI_2024_FY.xbrl"
+  },
+  "BBTN_2024_FY": {
+    "ticker": "BBTN",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "f1856a75c453b4f4d909b1653530313de26080e035b39c53fb978956ee69c09d",
+    "source_zip": "instance (33).zip",
+    "extracted_path": "data/raw_xbrl/BBTN/2024/instance_BBTN_2024_FY.xbrl"
+  },
+  "BBTN_2025_FY": {
+    "ticker": "BBTN",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "67c7200bce84b2ea737486f1b6b74422ef9e26ae1a75b3e112af1c649b05a8b9",
+    "source_zip": "instance (34).zip",
+    "extracted_path": "data/raw_xbrl/BBTN/2025/instance_BBTN_2025_FY.xbrl"
+  },
+  "BDMN_2025_FY": {
+    "ticker": "BDMN",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "81ce549dd4155bf03b75c35b6e6c4f82c78a8a0c8995493d5bd1a82ff491c82e",
+    "source_zip": "instance (35).zip",
+    "extracted_path": "data/raw_xbrl/BDMN/2025/instance_BDMN_2025_FY.xbrl"
+  },
+  "BDMN_2024_FY": {
+    "ticker": "BDMN",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "dcee03a09be34a60904b43251da9d417228eb307086709249e87b376103edc70",
+    "source_zip": "instance (36).zip",
+    "extracted_path": "data/raw_xbrl/BDMN/2024/instance_BDMN_2024_FY.xbrl"
+  },
+  "BMRI_2024_FY": {
+    "ticker": "BMRI",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "d6a50879dc576d0fc2f8bbb41f9bfe90d7b0d2fe8003f9ba6a967023030e1487",
+    "source_zip": "instance (37).zip",
+    "extracted_path": "data/raw_xbrl/BMRI/2024/instance_BMRI_2024_FY.xbrl"
+  },
+  "BMRI_2025_FY": {
+    "ticker": "BMRI",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "a82999bf6afa2378616b0b0d234c8b1f0e356b2f63e6e40995f471726e5170ec",
+    "source_zip": "instance (38).zip",
+    "extracted_path": "data/raw_xbrl/BMRI/2025/instance_BMRI_2025_FY.xbrl"
+  },
+  "BNGA_2025_FY": {
+    "ticker": "BNGA",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "e36d560070d44bb323e7b6b941571858fb972a962e8e8b41d26f803af90061b5",
+    "source_zip": "instance (39).zip",
+    "extracted_path": "data/raw_xbrl/BNGA/2025/instance_BNGA_2025_FY.xbrl"
+  },
+  "BNGA_2024_FY": {
+    "ticker": "BNGA",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "866a6211e75ed2d1738a7922ba70260d209c4834f4e5fb854965125550c7d07a",
+    "source_zip": "instance (40).zip",
+    "extracted_path": "data/raw_xbrl/BNGA/2024/instance_BNGA_2024_FY.xbrl"
+  },
+  "BRIS_2024_FY": {
+    "ticker": "BRIS",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "c0c02cd94d4dcd5ec8ab6ac2a7d79009dbbd72f4e0238835581a18d01a6ce243",
+    "source_zip": "instance (41).zip",
+    "extracted_path": "data/raw_xbrl/BRIS/2024/instance_BRIS_2024_FY.xbrl"
+  },
+  "BRIS_2025_FY": {
+    "ticker": "BRIS",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "14977d078bad410833aade169fcd0f44016259f839f42e696cc95ce77fd08642",
+    "source_zip": "instance (42).zip",
+    "extracted_path": "data/raw_xbrl/BRIS/2025/instance_BRIS_2025_FY.xbrl"
+  },
+  "MEGA_2025_FY": {
+    "ticker": "MEGA",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "bb4b03a5fc9143ea011225e8caaee2c0e6ccb54644631cb643d7c8c97c117184",
+    "source_zip": "instance (43).zip",
+    "extracted_path": "data/raw_xbrl/MEGA/2025/instance_MEGA_2025_FY.xbrl"
+  },
+  "MEGA_2024_FY": {
+    "ticker": "MEGA",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "110ee894b4e6f33a79e70451581231577d1d29b52144a262b897f5ce14b4dbc0",
+    "source_zip": "instance (44).zip",
+    "extracted_path": "data/raw_xbrl/MEGA/2024/instance_MEGA_2024_FY.xbrl"
+  },
+  "ADRO_2024_FY": {
+    "ticker": "ADRO",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "f50cdded5dd115fb86b75eb77fb29d50e3852b651a7d473e2ea1a49359fa27dc",
+    "source_zip": "instance (45).zip",
+    "extracted_path": "data/raw_xbrl/ADRO/2024/instance_ADRO_2024_FY.xbrl"
+  },
+  "ADRO_2025_FY": {
+    "ticker": "ADRO",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "1bf5ce4affb6444db36f4940385bc561c7c0bf234bb3804225b91d2a4563e201",
+    "source_zip": "instance (46).zip",
+    "extracted_path": "data/raw_xbrl/ADRO/2025/instance_ADRO_2025_FY.xbrl"
+  },
+  "AADI_2024_FY": {
+    "ticker": "AADI",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "6fd5fa5ef82cf1e154da2fc4dd134407e7616a3af9d82279892e572858f6425f",
+    "source_zip": "instance (47).zip",
+    "extracted_path": "data/raw_xbrl/AADI/2024/instance_AADI_2024_FY.xbrl"
+  },
+  "AADI_2025_FY": {
+    "ticker": "AADI",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "3ef484eaab837c11cea352013ddc26ff656ba352531965fedd91bfc6744e1448",
+    "source_zip": "instance (48).zip",
+    "extracted_path": "data/raw_xbrl/AADI/2025/instance_AADI_2025_FY.xbrl"
+  },
+  "AKRA_2025_FY": {
+    "ticker": "AKRA",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "df21f7b55d7cc641953bd1e89ee68af74325ece726b04b9d5baca9ec31ef90d8",
+    "source_zip": "instance (49).zip",
+    "extracted_path": "data/raw_xbrl/AKRA/2025/instance_AKRA_2025_FY.xbrl"
+  },
+  "ACES_2024_FY": {
+    "ticker": "ACES",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "359244fb0defbebf784170822950e843ecd3f23f3ee0c91253c971c4ef60334a",
+    "source_zip": "instance (5).zip",
+    "extracted_path": "data/raw_xbrl/ACES/2024/instance_ACES_2024_FY.xbrl"
+  },
+  "AKRA_2024_FY": {
+    "ticker": "AKRA",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "810398c331a2c3ceb396158a0fe29c9b90ba793baedfae40f5c09493ae950335",
+    "source_zip": "instance (50).zip",
+    "extracted_path": "data/raw_xbrl/AKRA/2024/instance_AKRA_2024_FY.xbrl"
+  },
+  "ANTM_2024_FY": {
+    "ticker": "ANTM",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "6b85f62050c177640a01b27d817897284d6be8dea0e72db2a0bcbf38eef5f03a",
+    "source_zip": "instance (51).zip",
+    "extracted_path": "data/raw_xbrl/ANTM/2024/instance_ANTM_2024_FY.xbrl"
+  },
+  "ANTM_2025_FY": {
+    "ticker": "ANTM",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "672589c9f08e1cd969869730dace4178a661c00ed009cd924eb89ce936bba52c",
+    "source_zip": "instance (52).zip",
+    "extracted_path": "data/raw_xbrl/ANTM/2025/instance_ANTM_2025_FY.xbrl"
+  },
+  "INCO_2025_FY": {
+    "ticker": "INCO",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "dbd20648301cac1286793f297d7a0da156df55c7959a46179815154ee9110bf2",
+    "source_zip": "instance (53).zip",
+    "extracted_path": "data/raw_xbrl/INCO/2025/instance_INCO_2025_FY.xbrl"
+  },
+  "INCO_2024_FY": {
+    "ticker": "INCO",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "45dfe525fd68a249852050a3f798b89e511de4f275b6ebfcfcdc1e7db36be598",
+    "source_zip": "instance (54).zip",
+    "extracted_path": "data/raw_xbrl/INCO/2024/instance_INCO_2024_FY.xbrl"
+  },
+  "ITMG_2024_FY": {
+    "ticker": "ITMG",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "ed1dab00538c682ac23d72c53c5ae0247a5b7f3270b4055f13dbc44f385e9ecc",
+    "source_zip": "instance (55).zip",
+    "extracted_path": "data/raw_xbrl/ITMG/2024/instance_ITMG_2024_FY.xbrl"
+  },
+  "ITMG_2025_FY": {
+    "ticker": "ITMG",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "b8d9f32f71cdcb0116fdee36090e0ebb3a315dd5d74e662faa18690d6844868a",
+    "source_zip": "instance (56).zip",
+    "extracted_path": "data/raw_xbrl/ITMG/2025/instance_ITMG_2025_FY.xbrl"
+  },
+  "MEDC_2025_FY": {
+    "ticker": "MEDC",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "31059c70d8c89e28dec46d670b5f2a50a054a01c71e1737c0a40dd26f8a013b7",
+    "source_zip": "instance (57).zip",
+    "extracted_path": "data/raw_xbrl/MEDC/2025/instance_MEDC_2025_FY.xbrl"
+  },
+  "MEDC_2024_FY": {
+    "ticker": "MEDC",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "53f1eb48528c23bc3da828c55bdf568c055af4a8b0b9b6cb5e95be18c5e84fd2",
+    "source_zip": "instance (58).zip",
+    "extracted_path": "data/raw_xbrl/MEDC/2024/instance_MEDC_2024_FY.xbrl"
+  },
+  "PGAS_2024_FY": {
+    "ticker": "PGAS",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "5d53153df80778e9a3e5199561f78ae88db9c3859cd6b0f962dc844a3844f2e4",
+    "source_zip": "instance (59).zip",
+    "extracted_path": "data/raw_xbrl/PGAS/2024/instance_PGAS_2024_FY.xbrl"
+  },
+  "ACES_2025_FY": {
+    "ticker": "ACES",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "67f93818732219e694bf0ccde181e84454b0679711ade7ad79f4073bafbcc5aa",
+    "source_zip": "instance (6).zip",
+    "extracted_path": "data/raw_xbrl/ACES/2025/instance_ACES_2025_FY.xbrl"
+  },
+  "PGAS_2025_FY": {
+    "ticker": "PGAS",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "33780a740013f971dec69fa615b15cd620d2825ae5a45d1c010040a399461027",
+    "source_zip": "instance (60).zip",
+    "extracted_path": "data/raw_xbrl/PGAS/2025/instance_PGAS_2025_FY.xbrl"
+  },
+  "PTBA_2025_FY": {
+    "ticker": "PTBA",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "b970c359e39290d6637713a51af6966dafe718d920f546f992f297e4c0d0b44e",
+    "source_zip": "instance (61).zip",
+    "extracted_path": "data/raw_xbrl/PTBA/2025/instance_PTBA_2025_FY.xbrl"
+  },
+  "PTBA_2024_FY": {
+    "ticker": "PTBA",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "1397d57aa96d3d507786b04ada82cdbf59fa68fc51cacf37c3dbfbb03aec59a0",
+    "source_zip": "instance (62).zip",
+    "extracted_path": "data/raw_xbrl/PTBA/2024/instance_PTBA_2024_FY.xbrl"
+  },
+  "EXCL_2024_FY": {
+    "ticker": "EXCL",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "95eb9ea220afc30135f5396e2192f023aadd4d655603cd216952a1df3b57f7ff",
+    "source_zip": "instance (63).zip",
+    "extracted_path": "data/raw_xbrl/EXCL/2024/instance_EXCL_2024_FY.xbrl"
+  },
+  "EXCL_2025_FY": {
+    "ticker": "EXCL",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "e428ab7b7ad679a92af945e9da83c5ee9481d3dc370c77b48313a33835d7f809",
+    "source_zip": "instance (64).zip",
+    "extracted_path": "data/raw_xbrl/EXCL/2025/instance_EXCL_2025_FY.xbrl"
+  },
+  "ISAT_2025_FY": {
+    "ticker": "ISAT",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "b0c04b23e061ed2155c005eeb1c32682339baf704f83bbbf9e24eaccced0d753",
+    "source_zip": "instance (65).zip",
+    "extracted_path": "data/raw_xbrl/ISAT/2025/instance_ISAT_2025_FY.xbrl"
+  },
+  "ISAT_2024_FY": {
+    "ticker": "ISAT",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "cc9302cf48678fd3d8c546a874e75affd6a8c8e040a9fc5f75687e0e535c4128",
+    "source_zip": "instance (66).zip",
+    "extracted_path": "data/raw_xbrl/ISAT/2024/instance_ISAT_2024_FY.xbrl"
+  },
+  "MTEL_2024_FY": {
+    "ticker": "MTEL",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "58ec7bbdff7fbb68bdc2bf9c5f9b4a2253b33143385836300cf31895f0467217",
+    "source_zip": "instance (67).zip",
+    "extracted_path": "data/raw_xbrl/MTEL/2024/instance_MTEL_2024_FY.xbrl"
+  },
+  "MTEL_2025_FY": {
+    "ticker": "MTEL",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "1c0c5d98b120b1b0c8da8ad387dbe1813b0e5f7985d057b5093d35f571fdea56",
+    "source_zip": "instance (68).zip",
+    "extracted_path": "data/raw_xbrl/MTEL/2025/instance_MTEL_2025_FY.xbrl"
+  },
+  "TOWR_2025_FY": {
+    "ticker": "TOWR",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "143017efe10a8651526f4f3c866c40b2095f17649bbcb3162de7b3d23d902fce",
+    "source_zip": "instance (69).zip",
+    "extracted_path": "data/raw_xbrl/TOWR/2025/instance_TOWR_2025_FY.xbrl"
+  },
+  "TOWR_2024_FY": {
+    "ticker": "TOWR",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "98d41aa9347440c264663fa2ec1a9aff487094efa106a477a75103c43860d929",
+    "source_zip": "instance (70).zip",
+    "extracted_path": "data/raw_xbrl/TOWR/2024/instance_TOWR_2024_FY.xbrl"
+  },
+  "TLKM_2024_FY": {
+    "ticker": "TLKM",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "fab3e0951d9baeca4436a0ba02b0d8551482d37462d1fd1da3653180b96640eb",
+    "source_zip": "instance (71).zip",
+    "extracted_path": "data/raw_xbrl/TLKM/2024/instance_TLKM_2024_FY.xbrl"
+  },
+  "TLKM_2025_FY": {
+    "ticker": "TLKM",
+    "year": 2025,
+    "period": "FY",
+    "sha256": "a2a37f17d9fba0a19942897aab3c94692a546695f799e7a0a9d24e7f764a406b",
+    "source_zip": "instance (72).zip",
+    "extracted_path": "data/raw_xbrl/TLKM/2025/instance_TLKM_2025_FY.xbrl"
+  },
+  "AMRT_2024_FY": {
+    "ticker": "AMRT",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "4b27e43b952b232e09effaceedff21114d085a05db160e09fcff37e7f8308d19",
+    "source_zip": "instance (8).zip",
+    "extracted_path": "data/raw_xbrl/AMRT/2024/instance_AMRT_2024_FY.xbrl"
+  },
+  "IDPR_2024_FY": {
+    "ticker": "IDPR",
+    "year": 2024,
+    "period": "FY",
+    "sha256": "a09a940e728d3c65e13de86d515f86eb4fad483bcb7bc87b26acf26bed5668d2",
+    "source_zip": "instance.zip",
+    "extracted_path": "data/raw_xbrl/IDPR/2024/instance_IDPR_2024_FY.xbrl"
   }
 }
