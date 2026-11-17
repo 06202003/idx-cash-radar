@@ -1772,6 +1772,12 @@
         const inp = document.getElementById('tabChatInput');
         if (inp) setTimeout(() => inp.focus(), 50);
       }
+      if (['calk', 'news', 'chat'].includes(tabId) && typeof getByokKey === 'function' && getByokKey() && !window.location.search.includes('notour=1')) {
+        const ckName = `idx_radar_tour_${tabId}`;
+        if (typeof getTourCookie === 'function' && getTourCookie(ckName) !== '1') {
+          setTimeout(() => startTabTour(tabId), 550);
+        }
+      }
     }
 
     // Number formatters (Stockbit clean style)
@@ -4723,6 +4729,7 @@
       ]
     };
     let ACTIVE_TOUR_STEPS = TOUR_SETS.overview;
+    let ACTIVE_TOUR_COOKIE = TOUR_COOKIE_NAME;
     let currentTourIdx = 0;
 
     function getTourCookie(name) {
@@ -4776,13 +4783,15 @@
     function startLiveTour(force = false) {
       if (!force && getTourCookie(TOUR_COOKIE_NAME) === '1') return;
       if (window.location.search.includes('notour=1')) return;
-      ACTIVE_TOUR_STEPS = TOUR_SETS.overview;
+      ACTIVE_TOUR_STEPS = TOUR_SETS.screener;
+      ACTIVE_TOUR_COOKIE = TOUR_COOKIE_NAME;
       currentTourIdx = 0;
       renderTourStep();
     }
 
     function startTabTour(tabKey) {
       ACTIVE_TOUR_STEPS = TOUR_SETS[tabKey] || TOUR_SETS.overview;
+      ACTIVE_TOUR_COOKIE = tabKey === 'screener' ? TOUR_COOKIE_NAME : `idx_radar_tour_${tabKey}`;
       currentTourIdx = 0;
       renderTourStep();
     }
@@ -4804,7 +4813,7 @@
     }
 
     function endLiveTour() {
-      setTourCookie(TOUR_COOKIE_NAME, '1');
+      setTourCookie(ACTIVE_TOUR_COOKIE || TOUR_COOKIE_NAME, '1');
       const backdrop = document.getElementById('liveTourBackdrop');
       const spotlight = document.getElementById('liveTourSpotlight');
       const card = document.getElementById('liveTourCard');
