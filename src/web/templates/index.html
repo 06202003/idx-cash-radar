@@ -1105,14 +1105,14 @@
       </div>
 
       <!-- Main Detailed Diagnostic (Full-Width col-12) -->
-      <!-- Neural Capital Stress Simulator (Deep Learning MLP 5->16->8->1) -->
+      <!-- Neural Cash-Safety & Money Stress Simulator -->
       <div id="neuralStressPanel" class="card-panel" style="padding: 16px; border-left: 4px solid #38bdf8;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 12px;">
           <div>
-            <strong style="color: #ffffff; font-size: 13.5px;">Neural Cash-Safety &amp; Money Stress Simulator (Deep Learning MLP 5&rarr;16&rarr;8&rarr;1)</strong>
-            <div style="color: #94a3b8; font-size: 11px;">Enter your modal in IDR and test cash-collection or debt shocks to see how much capital faces liquidity/lockup risk vs. the safest sector peer.</div>
+            <strong style="color: #ffffff; font-size: 13.5px;">Neural Cash-Safety &amp; Money Stress Simulator</strong>
+            <div style="color: #94a3b8; font-size: 11px;">Enter your modal in IDR and pick a scenario below to see how much capital is exposed to balance-sheet liquidity risk vs. the safest sector peer.</div>
           </div>
-          <span class="badge badge-green">Self-Trained Neural Net (CV Acc 96.7%)</span>
+          <span class="badge badge-green">Self-Trained Neural Model</span>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1.45fr; gap: 14px; align-items: stretch;" class="radar-pulse-grid">
@@ -1129,19 +1129,32 @@
               </div>
             </div>
             <div>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;">
-                <span>Cash / Revenue Drop Shock:</span>
-                <strong id="lblCashShockVal" class="font-num" style="color: #fbbf24;">-15%</strong>
+              <label style="font-size: 10.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">CHOOSE SCENARIO (1-CLICK)</label>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" onclick="applyNeuralScenario(0, 0)" class="btn-detail" style="font-size: 10.5px; border-color: #059669; color: #34d399;">Normal (Audited)</button>
+                <button type="button" onclick="applyNeuralScenario(15, 20)" class="btn-detail" style="font-size: 10.5px; border-color: #d97706; color: #fbbf24;">Payment Delay</button>
+                <button type="button" onclick="applyNeuralScenario(30, 50)" class="btn-detail" style="font-size: 10.5px; border-color: #e11d48; color: #fb7185;">Macro Crisis</button>
               </div>
-              <input type="range" id="rngCashShock" min="0" max="50" step="5" value="15" oninput="runNeuralCapitalSim()" style="width: 100%; accent-color: #38bdf8;">
             </div>
-            <div>
-              <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;">
-                <span>Short-Term Debt Hike Shock:</span>
-                <strong id="lblDebtShockVal" class="font-num" style="color: #fb7185;">+20%</strong>
+            <details style="font-size: 11px; color: #94a3b8;">
+              <summary style="cursor: pointer; color: #38bdf8; font-weight: 600;">Fine-tune stress assumptions (optional)</summary>
+              <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;">
+                    <span>Cash / Revenue Drop:</span>
+                    <strong id="lblCashShockVal" class="font-num" style="color: #fbbf24;">-15%</strong>
+                  </div>
+                  <input type="range" id="rngCashShock" min="0" max="50" step="5" value="15" oninput="runNeuralCapitalSim()" style="width: 100%; accent-color: #38bdf8;">
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;">
+                    <span>Short-Term Debt Hike:</span>
+                    <strong id="lblDebtShockVal" class="font-num" style="color: #fb7185;">+20%</strong>
+                  </div>
+                  <input type="range" id="rngDebtShock" min="0" max="100" step="10" value="20" oninput="runNeuralCapitalSim()" style="width: 100%; accent-color: #fb7185;">
+                </div>
               </div>
-              <input type="range" id="rngDebtShock" min="0" max="100" step="10" value="20" oninput="runNeuralCapitalSim()" style="width: 100%; accent-color: #fb7185;">
-            </div>
+            </details>
           </div>
 
           <!-- Output Metrics in Rupiah -->
@@ -2299,6 +2312,14 @@
     function setNeuralCapital(val) {
       const inp = document.getElementById('txtNeuralCapital');
       if (inp) inp.value = val;
+      runNeuralCapitalSim();
+    }
+
+    function applyNeuralScenario(cashDrop, debtHike) {
+      const c = document.getElementById('rngCashShock');
+      const d = document.getElementById('rngDebtShock');
+      if (c) c.value = cashDrop;
+      if (d) d.value = debtHike;
       runNeuralCapitalSim();
     }
 
