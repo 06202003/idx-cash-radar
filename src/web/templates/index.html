@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IDX Cash & Accrual Radar | IDX Fundamental & Cash Solvency Screener</title>
-  <!-- Chart.js Minified CDN (Fast 60KB UMD) -->
+  <!-- Chart.js & TradingView Lightweight Charts CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
   <style>
     /* Reset & Base System Styles */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -639,22 +640,19 @@
         </button>
       </div>
 
-      <!-- Main Navigation Tabs -->
+      <!-- Main Navigation Tabs (Compact 4-Tab Layout) -->
       <nav class="nav-tabs">
         <button onclick="switchTab('screener')" id="tabBtnScreener" class="nav-tab-btn active">
-          Stock Health Screener
-        </button>
-        <button onclick="switchTab('radar')" id="tabBtnRadar" class="nav-tab-btn">
-          Cash Risk Map
+          Stock Screener
         </button>
         <button onclick="switchTab('calk')" id="tabBtnCalk" class="nav-tab-btn">
-          Financial Filings &amp; Notes
+          Stock Detail (Live)
         </button>
         <button onclick="switchTab('news')" id="tabBtnNews" class="nav-tab-btn">
-          News Link Analyzer
+          News &amp; URL Analyzer
         </button>
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
-          Ask AI Assistant
+          AI Analyst
         </button>
       </nav>
     </header>
@@ -782,6 +780,7 @@
             <tr>
               <th id="thColTicker" onclick="sortTable('ticker')">Stock Ticker &#x25B4;&#x25BE;</th>
               <th id="thColSector" onclick="sortTable('sub_industry')">Industry &#x25B4;&#x25BE;</th>
+              <th id="thColPrice" style="text-align: right;">Live Price (1D)</th>
               <th id="thColCash" onclick="sortTable('cash_idr')" style="text-align: right;">Cash in Bank &#x25B4;&#x25BE;</th>
               <th id="thColDebt" onclick="sortTable('st_debt_idr')" style="text-align: right;">Short-Term Debt &#x25B4;&#x25BE;</th>
               <th id="thColCoverage" onclick="sortTable('cash_coverage_ratio')" style="text-align: center;">Cash Buffer &#x25B4;&#x25BE;</th>
@@ -794,7 +793,7 @@
             </tr>
           </thead>
           <tbody id="tbodyScreener">
-            <tr><td colspan="11" style="text-align: center; padding: 24px; color: #64748b;">Loading data...</td></tr>
+            <tr><td colspan="12" style="text-align: center; padding: 24px; color: #64748b;">Loading data...</td></tr>
           </tbody>
         </table>
       </div>
@@ -943,14 +942,45 @@
       <!-- Selector Bar -->
       <div class="card-panel" style="padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
-          <strong style="color: #ffffff; font-size: 14px;">Fundamental Diagnostics &amp; IDX Audit Notes Inspector</strong>
-          <div style="color: #94a3b8; font-size: 11.5px;">Select any of the 48 issuers to inspect canonical financial statements, receivables breakdown, and cash solvency.</div>
+          <strong style="color: #ffffff; font-size: 14px;">Stockbit-Style Live Price, Daily News &amp; Annual Financials Workspace</strong>
+          <div style="color: #94a3b8; font-size: 11.5px;">Real-time IDX stock chart (.JK), daily news sentiment cron feed, and audited annual XBRL financials (FY 2022&ndash;2025).</div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
           <label style="color: #94a3b8; font-size: 11px; font-weight: 700;">SELECT ISSUER:</label>
           <select id="selCalkTicker" onchange="onTabCalkTickerChange(this.value)" class="form-select" style="min-width: 280px; font-weight: 700; color: #38bdf8;">
             <option value="WIKA">WIKA | Wijaya Karya (Persero) Tbk.</option>
           </select>
+        </div>
+      </div>
+
+      <!-- Stockbit-Style Live Price Chart + Real-Time Triangulation Card -->
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px;" class="radar-pulse-grid">
+        <div class="card-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 8px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong id="stockChartTickerTitle" style="color: #ffffff; font-size: 15px;">WIKA.JK</strong>
+                <span id="stockChartLivePrice" class="font-num" style="font-size: 16px; font-weight: 800; color: #38bdf8;">-</span>
+                <span id="stockChartPeriodChg" class="badge badge-yellow font-num">-</span>
+              </div>
+              <div id="stockChartRangeMeta" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Loading market chart...</div>
+            </div>
+            <div class="nav-tabs" style="gap: 4px;">
+              <button onclick="setStockChartRange('1d')" id="btnRng1d" class="nav-tab-btn" style="padding: 4px 8px; font-size: 11px;">1D</button>
+              <button onclick="setStockChartRange('5d')" id="btnRng5d" class="nav-tab-btn" style="padding: 4px 8px; font-size: 11px;">1W</button>
+              <button onclick="setStockChartRange('1mo')" id="btnRng1mo" class="nav-tab-btn" style="padding: 4px 8px; font-size: 11px;">1M</button>
+              <button onclick="setStockChartRange('3mo')" id="btnRng3mo" class="nav-tab-btn active" style="padding: 4px 8px; font-size: 11px;">3M</button>
+              <button onclick="setStockChartRange('1y')" id="btnRng1y" class="nav-tab-btn" style="padding: 4px 8px; font-size: 11px;">1Y</button>
+            </div>
+          </div>
+          <div id="stockOhlcLegend" class="font-num" style="font-size: 11px; color: #cbd5e1; display: flex; gap: 12px; flex-wrap: wrap;">
+            <span>O: -</span><span>H: -</span><span>L: -</span><span>C: -</span><span>Vol: -</span>
+          </div>
+          <div id="stockPriceChartBox" style="position: relative; height: 270px; width: 100%; border-radius: 6px; overflow: hidden;"></div>
+        </div>
+
+        <div id="stockTriangulationCard" class="card-panel" style="padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: #0b1329; border-color: #1e3a8a;">
+          <div style="color: #94a3b8; font-size: 12px;">Loading live price, news sentiment, and annual financials synthesis...</div>
         </div>
       </div>
 
@@ -1029,6 +1059,31 @@
       <div id="newsAnalyzeResult" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="card-panel" style="padding: 24px; text-align: center; color: #94a3b8; font-size: 12.5px;">
           Paste a news link above or click <strong style="color: #38bdf8;">Sample: WSKT IDR 5.6T Contract News</strong> to see AI Sentiment + Accrual Radar working together in real time.
+        </div>
+      </div>
+
+      <!-- Daily Auto-Fetched IDX News Sentiment Feed (Cron + Manual Refresh) -->
+      <div class="card-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
+          <div>
+            <strong style="color: #ffffff; font-size: 14px;">Daily IDX News Sentiment Feed (Auto-Fetched RSS Cron)</strong>
+            <div id="dailyNewsMeta" style="color: #94a3b8; font-size: 11.5px; margin-top: 2px;">Loading daily RSS news snapshot...</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <select id="selDailyNewsSent" onchange="renderDailyNewsFeed()" class="form-select" style="font-size: 11.5px;">
+              <option value="">All Sentiments</option>
+              <option value="POSITIF">Positive Only</option>
+              <option value="PERHATIAN">Caution Only</option>
+              <option value="NETRAL">Neutral Only</option>
+            </select>
+            <input type="text" id="txtDailyNewsSearch" oninput="renderDailyNewsFeed()" placeholder="Filter ticker or keyword..." class="form-input" style="width: 175px; font-size: 11.5px;">
+            <button onclick="refreshDailyNewsNow()" id="btnRefreshDailyNews" class="btn-detail" style="background: #059669; color: #ffffff; border-color: #10b981; font-weight: 700;">
+              Pull Latest News Now
+            </button>
+          </div>
+        </div>
+        <div id="dailyNewsFeedGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; max-height: 520px; overflow-y: auto; padding-right: 4px;">
+          <div style="color: #64748b; font-size: 12px;">Loading auto-fetched daily headlines...</div>
         </div>
       </div>
     </section>
@@ -1141,6 +1196,103 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: MARKET & NEWS MATRIX (LIVE STOCKS + NEWS SENTIMENT + FINANCIALS TRIANGULATION) -->
+    <section id="viewMatrix" class="hidden" style="display: flex; flex-direction: column; gap: 12px;">
+      <!-- Top KPI Ribbon for Triangulation -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px;">
+        <div class="card-panel stat-card">
+          <span class="stat-label" style="color: #34d399;">ALIGNED HEALTHY</span>
+          <span id="matAlignedCount" class="stat-value font-num" style="color: #34d399;">0</span>
+          <span style="font-size: 10.5px; color: #94a3b8;">Strong Cash + Positive/Neutral News &amp; Price</span>
+        </div>
+        <div class="card-panel stat-card">
+          <span class="stat-label" style="color: #fbbf24;">CATALYST VS CASH GAP</span>
+          <span id="matDivergenceCount" class="stat-value font-num" style="color: #fbbf24;">0</span>
+          <span style="font-size: 10.5px; color: #94a3b8;">Positive News or Price Up Despite Cash/Accrual Watch</span>
+        </div>
+        <div class="card-panel stat-card">
+          <span class="stat-label" style="color: #fb7185;">STRESS CONFIRMED</span>
+          <span id="matStressCount" class="stat-value font-num" style="color: #fb7185;">0</span>
+          <span style="font-size: 10.5px; color: #94a3b8;">Thin Cash (&lt;0.20x) + Caution News or Price Drop</span>
+        </div>
+        <div class="card-panel stat-card">
+          <span class="stat-label" style="color: #38bdf8;">LIVE MARKET FEED (.JK)</span>
+          <span id="matQuoteStatus" class="stat-value font-num" style="color: #38bdf8;">Loading...</span>
+          <span style="font-size: 10.5px; color: #94a3b8;">Contextual Isolation Rule Active</span>
+        </div>
+      </div>
+
+      <!-- Triangulation Scatter Chart -->
+      <div class="card-panel" style="padding: 14px 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 10px;">
+          <div>
+            <strong style="color: #ffffff; font-size: 13px;">Triangulation Map: Live 1D Stock Move (%) vs. Cash Coverage (x) Colored by News Sentiment</strong>
+            <div style="color: #94a3b8; font-size: 11px;">Spot where market price action and news headlines diverge from audited IDX cash solvency. Click any dot to inspect financials.</div>
+          </div>
+          <div style="display: flex; gap: 10px; font-size: 10.5px; color: #94a3b8; align-items: center;">
+            <span style="display: inline-flex; align-items: center; gap: 4px;"><span class="status-dot dot-green"></span>Positive News</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px;"><span class="status-dot dot-amber"></span>Neutral News</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px;"><span class="status-dot dot-red"></span>Caution News</span>
+          </div>
+        </div>
+        <div style="position: relative; height: 260px; width: 100%;">
+          <canvas id="matrixTriangulationChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Filter Toolbar -->
+      <div class="card-panel filter-toolbar">
+        <div class="filter-controls">
+          <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">TRIANGULATION FILTER:</span>
+          <select id="selMatrixSignal" onchange="renderTriangulationMatrix()" class="form-select">
+            <option value="">All Triangulation Signals</option>
+            <option value="ALIGNED_HEALTHY">Aligned Healthy</option>
+            <option value="CATALYST_VS_CASH_GAP">Catalyst / Price vs Cash Gap</option>
+            <option value="STRESS_CONFIRMED">Stress Confirmed</option>
+            <option value="RESILIENT_DIP">Fundamental Resilience (Price Dip, Strong Cash)</option>
+            <option value="NEUTRAL">Neutral / Balanced</option>
+          </select>
+          <select id="selMatrixSector" onchange="renderTriangulationMatrix()" class="form-select">
+            <option value="">All Sectors</option>
+            <option value="CONSTRUCTION">Construction</option>
+            <option value="FMCG">Consumer &amp; Retail (FMCG)</option>
+            <option value="BANKING">Banking</option>
+            <option value="ENERGY">Energy &amp; Mining</option>
+            <option value="TELECOM">Telecom</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <input type="text" id="txtMatrixSearch" oninput="renderTriangulationMatrix()"
+                 placeholder="Filter ticker (e.g. BBRI, PTPP)..." class="form-input" style="width: 200px;">
+          <button onclick="refreshLiveQuotesForMatrix()" id="btnRefreshQuotes" class="btn-detail" style="background: #0284c7; color: #ffffff; border-color: #38bdf8; font-weight: 700;">
+            Refresh Live Quotes
+          </button>
+        </div>
+      </div>
+
+      <!-- Triangulation Table -->
+      <div class="card-panel table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Stock</th>
+              <th style="text-align: right;">Live Price (IDR)</th>
+              <th style="text-align: right;">1D Change</th>
+              <th style="text-align: center;">News Sentiment &amp; Latest Headline</th>
+              <th style="text-align: center;">Cash Coverage</th>
+              <th style="text-align: right;">CFO TTM</th>
+              <th style="text-align: center;">Sloan %</th>
+              <th style="text-align: center;">Triangulation Signal</th>
+              <th style="text-align: center;">Inspect</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyMatrix">
+            <tr><td colspan="9" style="text-align: center; padding: 24px; color: #64748b;">Loading triangulation matrix...</td></tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
@@ -1321,7 +1473,8 @@
       radar: [],
       regression: null,
       calk: {},
-      forecast: {}
+      forecast: {},
+      quotes: {}
     };
 
     let currentSortCol = 'cash_coverage_ratio';
@@ -1367,19 +1520,16 @@
       }
 
       const tabScreener = document.getElementById('tabBtnScreener');
-      if (tabScreener) tabScreener.textContent = isAwam ? 'Stock Health Screener' : 'Fundamental Screener';
-
-      const tabRadar = document.getElementById('tabBtnRadar');
-      if (tabRadar) tabRadar.textContent = isAwam ? 'Cash Risk Map' : 'Cash Distribution Map';
+      if (tabScreener) tabScreener.textContent = isAwam ? 'Stock Screener' : 'Fundamental Screener';
 
       const tabCalk = document.getElementById('tabBtnCalk');
-      if (tabCalk) tabCalk.textContent = isAwam ? 'Financial Filings & Notes' : 'Filings & CALK Notes';
+      if (tabCalk) tabCalk.textContent = isAwam ? 'Stock Detail (Live)' : 'Stock Detail & Financials';
 
       const tabNews = document.getElementById('tabBtnNews');
-      if (tabNews) tabNews.textContent = isAwam ? 'News Link Analyzer' : 'Real-Time News Analysis';
+      if (tabNews) tabNews.textContent = isAwam ? 'News & URL Analyzer' : 'Daily News & URL Radar';
 
       const tabChat = document.getElementById('tabBtnChat');
-      if (tabChat) tabChat.textContent = isAwam ? 'Ask AI Assistant' : 'AI Financial Analyst';
+      if (tabChat) tabChat.textContent = isAwam ? 'AI Analyst' : 'AI Financial Analyst';
 
       // 2. Ribbon Cards
       const r1 = document.getElementById('lblRibbonUniverse');
@@ -1464,7 +1614,7 @@
 
     // Fast Tab Switching (0 ms latency)
     function switchTab(tabId) {
-      ['screener', 'radar', 'calk', 'news', 'chat'].forEach(t => {
+      ['screener', 'radar', 'calk', 'news', 'matrix', 'chat'].forEach(t => {
         const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
         const btn = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
         if (t === tabId) {
@@ -1478,6 +1628,9 @@
 
       if (tabId === 'radar' && !chartInstance) {
         renderRadarChart();
+      }
+      if (tabId === 'matrix') {
+        renderTriangulationMatrix();
       }
       if (tabId === 'chat') {
         const inp = document.getElementById('tabChatInput');
@@ -1848,7 +2001,7 @@
     function renderTable(rows) {
       const tbody = document.getElementById('tbodyScreener');
       if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 24px; color: #64748b;">No issuers match the selected filter criteria.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 24px; color: #64748b;">No issuers match the selected filter criteria.</td></tr>';
         return;
       }
 
@@ -1901,6 +2054,14 @@
         }
 
         const btnLabel = isAwam ? 'Inspect' : 'Audit Detail';
+        const q = (APP_CACHE.quotes && APP_CACHE.quotes[r.ticker]) || null;
+        let priceCell = '<span style="color: #64748b;">-</span>';
+        if (q && q.price_idr !== undefined) {
+          const chg = parseFloat(q.change_pct || 0);
+          const chgColor = chg > 0 ? '#34d399' : (chg < 0 ? '#fb7185' : '#94a3b8');
+          const sign = chg > 0 ? '+' : '';
+          priceCell = `<strong style="color: #ffffff;">${Number(q.price_idr).toLocaleString('en-US')}</strong><div style="font-size: 10px; color: ${chgColor};">${sign}${chg.toFixed(2)}%</div>`;
+        }
 
         html += `
           <tr>
@@ -1909,6 +2070,7 @@
               <div style="color: #94a3b8; font-size: 10px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.company_name}</div>
             </td>
             <td style="color: #94a3b8; font-size: 11px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.idx_sub_industry || '-'}</td>
+            <td style="text-align: right;" class="font-num">${priceCell}</td>
             <td style="text-align: right;" class="font-num">${fmtRupiah(r.cash_idr)}</td>
             <td style="text-align: right; color: #94a3b8;" class="font-num">${isFree ? 'Rp 0' : fmtRupiah(r.st_debt_idr)}</td>
             <td style="text-align: center;" class="font-num">${covStr}</td>
@@ -1929,15 +2091,17 @@
     }
 
     function inspectFiling(ticker) {
-      openDetailModal(ticker);
       const selCalk = document.getElementById('selCalkTicker');
       if (selCalk) selCalk.value = ticker;
+      switchTab('calk');
+      renderStockPriceChart(ticker, currentStockChartRange);
       renderDetailedDiagnostic(ticker, 'tabCalkDiagnostic');
       renderCalk(ticker);
       renderForecast(ticker);
     }
 
     function onTabCalkTickerChange(ticker) {
+      renderStockPriceChart(ticker, currentStockChartRange);
       renderDetailedDiagnostic(ticker, 'tabCalkDiagnostic');
       renderCalk(ticker);
       renderForecast(ticker);
@@ -3318,7 +3482,7 @@
 
       const sorted = [...APP_CACHE.screener].sort((a, b) => a.ticker.localeCompare(b.ticker));
       if (selCalk) {
-        const currentVal = selCalk.value || 'WIKA';
+        const currentVal = (selCalk.value && selCalk.value !== 'WIKA') ? selCalk.value : 'BBRI';
         let html = '';
         sorted.forEach(item => {
           const isSel = item.ticker === currentVal ? 'selected' : '';
@@ -3396,6 +3560,12 @@
       }
     }
 
+    function switchNewsTicker(t) {
+      const sel = document.getElementById('selNewsTicker');
+      if (sel) sel.value = t;
+      analyzeNewsLink(new Event('submit'));
+    }
+
     function renderRealtimeNewsResult() {
       const data = window.LAST_NEWS_ANALYSIS;
       const resBox = document.getElementById('newsAnalyzeResult');
@@ -3409,6 +3579,15 @@
       const posChips = (data.matched_positive || []).map(k => `<span class="badge badge-green">+ ${k}</span>`).join(' ');
       const warnChips = (data.matched_warning || []).map(k => `<span class="badge badge-red">! ${k}</span>`).join(' ');
       const hlHtml = (data.highlights || []).map(h => `<li style="margin-bottom: 4px;">${h}</li>`).join('');
+      const multiTickerChips = (Array.isArray(data.detected_tickers) && data.detected_tickers.length > 1)
+        ? `<div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 11px; margin-top: 2px;">
+            <span style="color: #94a3b8;">Other Issuers Mentioned (Click to Switch):</span>
+            ${data.detected_tickers.map(t => {
+              const isAct = t === data.detected_ticker;
+              return `<button type="button" onclick="switchNewsTicker('${t}')" class="btn-detail" style="padding: 2px 8px; font-size: 10.5px; ${isAct ? 'background: #0284c7; color: #fff; border-color: #38bdf8; font-weight: 700;' : ''}">${t}</button>`;
+            }).join('')}
+          </div>`
+        : '';
 
       let fundHtml = '';
       if (data.fundamentals && data.detected_ticker) {
@@ -3519,6 +3698,7 @@
             ${posChips} ${warnChips}
             ${!posChips && !warnChips ? '<span style="color: #64748b;">Neutral / General Disclosure</span>' : ''}
           </div>
+          ${multiTickerChips}
 
           ${hlHtml ? `<div style="background: #0b0f19; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937; font-size: 12px; color: #cbd5e1;"><strong style="color: #38bdf8; display: block; margin-bottom: 4px;">Key Facts Extracted from Article:</strong><ul style="padding-left: 18px; line-height: 1.5;">${hlHtml}</ul></div>` : ''}
         </div>
@@ -3539,9 +3719,9 @@
         APP_CACHE.regression = window.EMBEDDED_REGRESSION || null;
         populateTickerDropdowns();
         applyFilters();
-        renderDetailedDiagnostic('WIKA', 'tabCalkDiagnostic');
-        renderCalk('WIKA');
-        renderForecast('WIKA');
+        renderDetailedDiagnostic('BBRI', 'tabCalkDiagnostic');
+        renderCalk('BBRI');
+        renderForecast('BBRI');
       }
 
       // 2. Resilient background refresh
@@ -3701,6 +3881,153 @@
       reader.readAsDataURL(file);
     }
 
+    let currentStockChartRange = '3mo';
+    let stockPriceChartInstance = null;
+
+    function setStockChartRange(rng) {
+      currentStockChartRange = rng;
+      ['1d', '5d', '1mo', '3mo', '1y'].forEach(r => {
+        const b = document.getElementById('btnRng' + r);
+        if (b) {
+          if (r === rng) b.classList.add('active');
+          else b.classList.remove('active');
+        }
+      });
+      const sel = document.getElementById('selCalkTicker');
+      renderStockPriceChart(sel ? sel.value : 'BBRI', rng);
+    }
+
+    async function renderStockPriceChart(ticker, rangeStr) {
+      const titleEl = document.getElementById('stockChartTickerTitle');
+      const priceEl = document.getElementById('stockChartLivePrice');
+      const chgEl = document.getElementById('stockChartPeriodChg');
+      const metaEl = document.getElementById('stockChartRangeMeta');
+      const triCard = document.getElementById('stockTriangulationCard');
+      if (titleEl) titleEl.textContent = `${ticker}.JK`;
+
+      // Render Triangulation Card immediately from cache
+      const row = (APP_CACHE.screener || []).find(x => x.ticker === ticker);
+      if (triCard && row) {
+        const tri = computeTriangulationRow(row);
+        const dailyList = (APP_CACHE.dailyNews && APP_CACHE.dailyNews[ticker]) || [];
+        const latestNews = dailyList[0] || {
+          sentiment: tri.sent,
+          headline: tri.headline,
+          date: 'Latest',
+          source: 'IDX Disclosure'
+        };
+        const chgText = tri.chgPct !== null ? `${tri.chgPct > 0 ? '+' : ''}${tri.chgPct.toFixed(2)}% (1D)` : 'N/A';
+        triCard.innerHTML = `
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px; margin-bottom: 10px;">
+              <strong style="color: #38bdf8; font-size: 13px;">REAL-TIME STOCK + DAILY NEWS + ANNUALS</strong>
+              ${tri.signalBadge}
+            </div>
+            <div style="font-size: 12px; line-height: 1.6; color: #e2e8f0;" class="font-num">
+              <div>&bull; Live Quote: <strong>${tri.q ? 'IDR ' + Number(tri.q.price_idr).toLocaleString('en-US') : 'Unavailable'}</strong> (${chgText})</div>
+              <div>&bull; Cash Coverage (FY25): <strong>${tri.isFree ? 'Debt-Free' : tri.covVal.toFixed(2) + 'x'}</strong></div>
+              <div>&bull; CFO TTM: <strong style="color: ${row.cfo_ttm_idr >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(row.cfo_ttm_idr)}</strong> | Sloan: <strong>${row.sloan_ratio_pct > 0 ? '+' : ''}${Number(row.sloan_ratio_pct || 0).toFixed(1)}%</strong></div>
+            </div>
+          </div>
+          <div style="background: #111827; padding: 10px 12px; border-radius: 6px; border-left: 3px solid #38bdf8;">
+            <div style="font-size: 10.5px; color: #38bdf8; font-weight: 700; margin-bottom: 3px;">LATEST DAILY NEWS (${latestNews.source || 'RSS'} &bull; ${latestNews.date})</div>
+            <div style="font-size: 12px; color: #f8fafc; line-height: 1.4;">${latestNews.headline}</div>
+          </div>
+          <div style="font-size: 10.5px; color: #94a3b8;">
+            <em>Descriptive synthesis only: daily news and price action do not alter deterministic XBRL cash safeguards.</em>
+          </div>
+        `;
+      }
+
+      try {
+        const resp = await fetch(`/api/market/history/${ticker}?range=${rangeStr || '3mo'}`);
+        if (!resp.ok) throw new Error('Unavailable');
+        const hist = await resp.json();
+        if (priceEl) priceEl.textContent = `IDR ${Number(hist.last_price).toLocaleString('en-US')}`;
+        if (chgEl) {
+          const pc = parseFloat(hist.period_change_pct || 0);
+          chgEl.textContent = `${pc > 0 ? '+' : ''}${pc.toFixed(2)}% (${hist.range.toUpperCase()})`;
+          chgEl.className = `badge font-num ${pc > 0 ? 'badge-green' : (pc < 0 ? 'badge-red' : 'badge-yellow')}`;
+        }
+        if (metaEl) {
+          const flatWarn = hist.is_flat_suspended ? ' &bull; <span style="color:#fbbf24;">SUSPENDED / ZERO VOLUME</span>' : '';
+          metaEl.innerHTML = `High: IDR ${Number(hist.period_high).toLocaleString('en-US')} | Low: IDR ${Number(hist.period_low).toLocaleString('en-US')} | Vol: ${Number(hist.total_volume || 0).toLocaleString('en-US')}${flatWarn}`;
+        }
+
+        const box = document.getElementById('stockPriceChartBox');
+        const legendEl = document.getElementById('stockOhlcLegend');
+        const pts = hist.points || [];
+        if (pts.length && legendEl) {
+          const lastPt = pts[pts.length - 1];
+          legendEl.innerHTML = `<span>O: <strong>${lastPt.open.toLocaleString('en-US')}</strong></span><span>H: <strong>${lastPt.high.toLocaleString('en-US')}</strong></span><span>L: <strong>${lastPt.low.toLocaleString('en-US')}</strong></span><span>C: <strong>${lastPt.close.toLocaleString('en-US')}</strong></span><span>Vol: <strong>${Number(lastPt.volume || 0).toLocaleString('en-US')}</strong></span>`;
+        }
+
+        if (box && typeof LightweightCharts !== 'undefined' && pts.length) {
+          if (stockPriceChartInstance) {
+            stockPriceChartInstance.remove();
+            stockPriceChartInstance = null;
+          }
+          box.innerHTML = '';
+          const chart = LightweightCharts.createChart(box, {
+            width: box.clientWidth || 640,
+            height: 270,
+            layout: {
+              background: { color: '#0b0f19' },
+              textColor: '#94a3b8',
+              fontSize: 11
+            },
+            grid: {
+              vertLines: { color: 'rgba(31, 41, 55, 0.5)' },
+              horzLines: { color: 'rgba(31, 41, 55, 0.5)' }
+            },
+            crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+            rightPriceScale: { borderColor: '#1f2937' },
+            timeScale: {
+              borderColor: '#1f2937',
+              timeVisible: Boolean(hist.is_intraday),
+              secondsVisible: false
+            }
+          });
+          const candleSeries = chart.addCandlestickSeries({
+            upColor: '#10b981',
+            downColor: '#ef4444',
+            borderVisible: false,
+            wickUpColor: '#10b981',
+            wickDownColor: '#ef4444'
+          });
+          candleSeries.setData(pts.map(p => ({
+            time: p.time, open: p.open, high: p.high, low: p.low, close: p.close
+          })));
+
+          const volumeSeries = chart.addHistogramSeries({
+            priceFormat: { type: 'volume' },
+            priceScaleId: '',
+            scaleMargins: { top: 0.78, bottom: 0 }
+          });
+          volumeSeries.setData(pts.map(p => ({
+            time: p.time,
+            value: p.volume || 0,
+            color: p.close >= p.open ? 'rgba(16, 185, 129, 0.35)' : 'rgba(239, 68, 68, 0.35)'
+          })));
+
+          chart.subscribeCrosshairMove(param => {
+            if (!param || !param.time || !legendEl) return;
+            const d = param.seriesData.get(candleSeries);
+            const v = param.seriesData.get(volumeSeries);
+            if (d) {
+              legendEl.innerHTML = `<span>O: <strong>${d.open.toLocaleString('en-US')}</strong></span><span>H: <strong>${d.high.toLocaleString('en-US')}</strong></span><span>L: <strong>${d.low.toLocaleString('en-US')}</strong></span><span>C: <strong>${d.close.toLocaleString('en-US')}</strong></span><span>Vol: <strong>${Number(v ? v.value : 0).toLocaleString('en-US')}</strong></span>`;
+            }
+          });
+
+          chart.timeScale().fitContent();
+          stockPriceChartInstance = chart;
+        }
+      } catch (e) {
+        if (priceEl) priceEl.textContent = 'N/A';
+        if (metaEl) metaEl.textContent = 'Market history unavailable for this symbol.';
+      }
+    }
+
     async function loadBackgroundData() {
       try {
         const scResp = await fetch('/api/screener?fiscal_year=2025');
@@ -3729,6 +4056,329 @@
           APP_CACHE.regression = await rgResp.json();
         }
       } catch (e) {}
+
+      try {
+        const qResp = await fetch('/api/market/quotes');
+        if (qResp.ok) {
+          const qData = await qResp.json();
+          APP_CACHE.quotes = qData.quotes || {};
+          applyFilters();
+          renderTriangulationMatrix();
+        }
+      } catch (e) {}
+
+      try {
+        const dnResp = await fetch('/api/news/daily');
+        if (dnResp.ok) {
+          const dnData = await dnResp.json();
+          APP_CACHE.dailyNews = dnData.news || {};
+          APP_CACHE.dailyNewsMeta = dnData;
+          if (Object.keys(APP_CACHE.dailyNews).length > 0) {
+            window.EMBEDDED_NEWS_SENTIMENT = Object.assign({}, window.EMBEDDED_NEWS_SENTIMENT || {}, APP_CACHE.dailyNews);
+            applyFilters();
+          }
+          renderDailyNewsFeed();
+        }
+      } catch (e) {}
+
+      renderStockPriceChart(document.getElementById('selCalkTicker')?.value || 'BBRI', currentStockChartRange);
+    }
+
+    async function refreshDailyNewsNow() {
+      const btn = document.getElementById('btnRefreshDailyNews');
+      const meta = document.getElementById('dailyNewsMeta');
+      if (btn) { btn.disabled = true; btn.textContent = 'Pulling RSS News...'; }
+      if (meta) meta.textContent = 'Fetching latest IDX headlines via Google News RSS across 49 issuers...';
+      try {
+        const resp = await fetch('/api/news/daily/refresh', { method: 'POST' });
+        if (resp.ok) {
+          const dnData = await resp.json();
+          APP_CACHE.dailyNews = dnData.news || {};
+          APP_CACHE.dailyNewsMeta = dnData;
+          if (Object.keys(APP_CACHE.dailyNews).length > 0) {
+            window.EMBEDDED_NEWS_SENTIMENT = Object.assign({}, window.EMBEDDED_NEWS_SENTIMENT || {}, APP_CACHE.dailyNews);
+            applyFilters();
+          }
+          renderDailyNewsFeed();
+        }
+      } catch (e) {
+        if (meta) meta.textContent = 'Failed to refresh daily news.';
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Pull Latest News Now'; }
+      }
+    }
+
+    function crossCheckDailyHeadline(ticker, headline) {
+      const urlInp = document.getElementById('txtNewsUrl');
+      const rawInp = document.getElementById('txtNewsRawText');
+      const selTicker = document.getElementById('selNewsTicker');
+      if (urlInp) urlInp.value = '';
+      if (rawInp) rawInp.value = headline;
+      if (selTicker) selTicker.value = ticker;
+      analyzeNewsLink(new Event('submit'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderDailyNewsFeed() {
+      const grid = document.getElementById('dailyNewsFeedGrid');
+      const metaEl = document.getElementById('dailyNewsMeta');
+      if (!grid) return;
+
+      const newsMap = APP_CACHE.dailyNews || {};
+      const meta = APP_CACHE.dailyNewsMeta || {};
+      const sentFilter = document.getElementById('selDailyNewsSent')?.value || '';
+      const q = (document.getElementById('txtDailyNewsSearch')?.value || '').trim().toUpperCase();
+
+      if (metaEl) {
+        const tsStr = meta.updated_at_utc ? new Date(meta.updated_at_utc).toLocaleString() : 'Not synced yet';
+        metaEl.textContent = `Last Cron Sync: ${tsStr} | ${meta.ticker_count || 0} Tickers | ${meta.total_articles || 0} Headlines`;
+      }
+
+      const cards = [];
+      Object.keys(newsMap).sort().forEach(ticker => {
+        const items = newsMap[ticker] || [];
+        items.forEach(item => {
+          if (sentFilter && item.sentiment !== sentFilter) return;
+          if (q && !ticker.includes(q) && !(item.headline || '').toUpperCase().includes(q)) return;
+          cards.push({ ticker, ...item });
+        });
+      });
+
+      if (!cards.length) {
+        grid.innerHTML = '<div style="color: #64748b; font-size: 12px;">No daily headlines match the current filter. Click <strong>Pull Latest News Now</strong> to fetch fresh news.</div>';
+        return;
+      }
+
+      grid.innerHTML = cards.slice(0, 60).map(c => {
+        const badge = c.sentiment === 'POSITIF'
+          ? '<span class="badge badge-green">POSITIVE</span>'
+          : (c.sentiment === 'PERHATIAN' ? '<span class="badge badge-red">CAUTION</span>' : '<span class="badge badge-yellow">NEUTRAL</span>');
+        const safeHeadline = (c.headline || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return `
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 6px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <strong style="color: #38bdf8; font-size: 12px;" class="font-num">${c.ticker}</strong>
+                  ${badge}
+                </div>
+                <span style="font-size: 10px; color: #64748b;" class="font-num">${c.date || ''}</span>
+              </div>
+              <div style="font-size: 12px; color: #e2e8f0; line-height: 1.4; font-weight: 500;">
+                ${c.url ? `<a href="${c.url}" target="_blank" rel="noopener noreferrer" style="color: #e2e8f0; text-decoration: none;">${c.headline} &#8599;</a>` : c.headline}
+              </div>
+              <div style="font-size: 10.5px; color: #94a3b8; margin-top: 4px;">Source: ${c.source || 'Google News RSS'}</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 6px; border-top: 1px solid #1f2937; padding-top: 8px;">
+              <button onclick="crossCheckDailyHeadline('${c.ticker}', '${safeHeadline}')" class="btn-detail" style="font-size: 10.5px; padding: 3px 8px; background: #0c4a6e; color: #38bdf8; border-color: #0284c7;">
+                Cross-Check vs Cash
+              </button>
+              <button onclick="inspectFiling('${c.ticker}')" class="btn-detail" style="font-size: 10.5px; padding: 3px 8px;">
+                Open Chart &amp; Financials
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    let matrixChartInstance = null;
+
+    function computeTriangulationRow(r) {
+      const q = (APP_CACHE.quotes && APP_CACHE.quotes[r.ticker]) || null;
+      const chgPct = (q && q.change_pct !== undefined) ? parseFloat(q.change_pct) : null;
+      const newsArr = (window.EMBEDDED_NEWS_SENTIMENT && window.EMBEDDED_NEWS_SENTIMENT[r.ticker]) || [];
+      const topNews = newsArr[0] || null;
+      const sent = topNews ? topNews.sentiment : 'NETRAL';
+      const headline = topNews ? topNews.headline : 'Periodic IDX financial filing';
+
+      const isFree = r.debt_free_short_term === true || r.debt_free_short_term === 1;
+      const covVal = parseFloat(r.cash_coverage_ratio || 0);
+      const isCashStrong = isFree || covVal >= 1.0;
+      const isCashWeak = Boolean(r.flag_acute_liquidity || r.flag_accrual_divergence || (!isFree && covVal < 0.25));
+
+      let signalCode = 'NEUTRAL';
+      let signalBadge = '<span class="badge badge-yellow">NEUTRAL / BALANCED</span>';
+
+      if (isCashWeak && (sent === 'POSITIF' || (chgPct !== null && chgPct > 0.5))) {
+        signalCode = 'CATALYST_VS_CASH_GAP';
+        signalBadge = '<span class="badge badge-yellow">CATALYST VS CASH GAP</span>';
+      } else if (isCashWeak && (sent === 'PERHATIAN' || (chgPct !== null && chgPct < 0))) {
+        signalCode = 'STRESS_CONFIRMED';
+        signalBadge = '<span class="badge badge-red">STRESS CONFIRMED</span>';
+      } else if (isCashStrong && (sent === 'POSITIF' || (chgPct !== null && chgPct >= 0))) {
+        signalCode = 'ALIGNED_HEALTHY';
+        signalBadge = '<span class="badge badge-green">ALIGNED HEALTHY</span>';
+      } else if (isCashStrong && chgPct !== null && chgPct < 0) {
+        signalCode = 'RESILIENT_DIP';
+        signalBadge = '<span class="badge badge-green">RESILIENT FUNDAMENTALS</span>';
+      }
+
+      return { r, q, chgPct, sent, headline, isFree, covVal, signalCode, signalBadge };
+    }
+
+    async function refreshLiveQuotesForMatrix() {
+      const btn = document.getElementById('btnRefreshQuotes');
+      if (btn) { btn.disabled = true; btn.textContent = 'Refreshing...'; }
+      try {
+        const qResp = await fetch('/api/market/quotes');
+        if (qResp.ok) {
+          const qData = await qResp.json();
+          APP_CACHE.quotes = qData.quotes || {};
+          applyFilters();
+          renderTriangulationMatrix();
+        }
+      } catch (e) {} finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Refresh Live Quotes'; }
+      }
+    }
+
+    function renderTriangulationMatrix() {
+      const tbody = document.getElementById('tbodyMatrix');
+      if (!tbody || !APP_CACHE.screener || APP_CACHE.screener.length === 0) return;
+
+      const sigFilter = document.getElementById('selMatrixSignal') ? document.getElementById('selMatrixSignal').value : '';
+      const secFilter = document.getElementById('selMatrixSector') ? document.getElementById('selMatrixSector').value : '';
+      const qSearch = (document.getElementById('txtMatrixSearch') ? document.getElementById('txtMatrixSearch').value : '').trim().toUpperCase();
+
+      const allEnriched = APP_CACHE.screener.map(computeTriangulationRow);
+
+      // Update KPI counts
+      const alignedCnt = allEnriched.filter(x => x.signalCode === 'ALIGNED_HEALTHY').length;
+      const divCnt = allEnriched.filter(x => x.signalCode === 'CATALYST_VS_CASH_GAP').length;
+      const stressCnt = allEnriched.filter(x => x.signalCode === 'STRESS_CONFIRMED').length;
+      const quoteCnt = Object.keys(APP_CACHE.quotes || {}).length;
+
+      const elAl = document.getElementById('matAlignedCount');
+      const elDv = document.getElementById('matDivergenceCount');
+      const elSt = document.getElementById('matStressCount');
+      const elQs = document.getElementById('matQuoteStatus');
+      if (elAl) elAl.textContent = `${alignedCnt} Issuers`;
+      if (elDv) elDv.textContent = `${divCnt} Issuers`;
+      if (elSt) elSt.textContent = `${stressCnt} Issuers`;
+      if (elQs) elQs.textContent = `${quoteCnt} / ${allEnriched.length} Live`;
+
+      const filtered = allEnriched.filter(x => {
+        if (sigFilter && x.signalCode !== sigFilter) return false;
+        if (!matchSector(x.r.idx_sub_industry, secFilter)) return false;
+        if (qSearch && !x.r.ticker.includes(qSearch) && !(x.r.company_name || '').toUpperCase().includes(qSearch)) return false;
+        return true;
+      });
+
+      // Render Scatter Chart
+      const canvas = document.getElementById('matrixTriangulationChart');
+      if (canvas && typeof Chart !== 'undefined') {
+        const pts = filtered.filter(x => x.chgPct !== null).map(x => {
+          const col = x.sent === 'POSITIF' ? '#10b981' : (x.sent === 'PERHATIAN' ? '#ef4444' : '#f59e0b');
+          return {
+            x: x.isFree ? 5.6 : Math.min(x.covVal, 6.0),
+            y: x.chgPct,
+            ticker: x.r.ticker,
+            price: x.q ? x.q.price_idr : 0,
+            sent: x.sent,
+            real_x: x.isFree ? 'Debt-Free' : x.covVal.toFixed(2) + 'x',
+            color: col
+          };
+        });
+        if (matrixChartInstance) matrixChartInstance.destroy();
+        matrixChartInstance = new Chart(canvas.getContext('2d'), {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: 'IDX Triangulation',
+              data: pts,
+              backgroundColor: pts.map(p => p.color),
+              borderColor: '#0b0f19',
+              borderWidth: 1,
+              pointRadius: 5.5,
+              pointHoverRadius: 8.5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            onClick: (e, els) => {
+              if (els.length > 0) {
+                const pt = pts[els[0].index];
+                if (pt && pt.ticker) inspectFiling(pt.ticker);
+              }
+            },
+            scales: {
+              x: {
+                type: 'linear',
+                min: 0,
+                max: 6.2,
+                title: { display: true, text: 'Cash Coverage Ratio (Debt-Free plotted at 5.6x)', color: '#94a3b8' },
+                grid: { color: 'rgba(31, 41, 55, 0.6)' },
+                ticks: { color: '#94a3b8', callback: v => v + 'x' }
+              },
+              y: {
+                type: 'linear',
+                title: { display: true, text: 'Live 1D Stock Price Change (%)', color: '#94a3b8' },
+                grid: { color: 'rgba(31, 41, 55, 0.6)' },
+                ticks: { color: '#94a3b8', callback: v => (v > 0 ? '+' : '') + v + '%' }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: ctx => {
+                    const p = ctx.raw;
+                    const sign = p.y > 0 ? '+' : '';
+                    return `${p.ticker}: Price ${Number(p.price).toLocaleString('en-US')} (${sign}${p.y.toFixed(2)}%) | Coverage ${p.real_x} | News ${p.sent}`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 24px; color: #64748b;">No issuers match the selected triangulation filter.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(x => {
+        const r = x.r;
+        const priceStr = x.q ? Number(x.q.price_idr).toLocaleString('en-US') : '-';
+        const chgStr = x.chgPct !== null
+          ? `<span style="color: ${x.chgPct > 0 ? '#34d399' : (x.chgPct < 0 ? '#fb7185' : '#94a3b8')}; font-weight: 700;">${x.chgPct > 0 ? '+' : ''}${x.chgPct.toFixed(2)}%</span>`
+          : '<span style="color: #64748b;">-</span>';
+        const sentBadge = x.sent === 'POSITIF'
+          ? '<span class="badge badge-green">POSITIVE</span>'
+          : (x.sent === 'PERHATIAN' ? '<span class="badge badge-red">CAUTION</span>' : '<span class="badge badge-yellow">NEUTRAL</span>');
+        const covStr = x.isFree
+          ? '<strong style="color: #34d399;">Debt-Free</strong>'
+          : `<strong style="color: ${x.covVal < 0.20 ? '#fb7185' : (x.covVal >= 1.0 ? '#34d399' : '#fbbf24')};">${x.covVal.toFixed(2)}x</strong>`;
+        const cfoColor = r.cfo_ttm_idr >= 0 ? '#34d399' : '#fb7185';
+        const sloanVal = r.sloan_ratio_pct || 0;
+
+        return `
+          <tr>
+            <td class="font-num">
+              <strong style="color: #38bdf8;">${r.ticker}</strong>
+              <div style="color: #94a3b8; font-size: 10px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${r.company_name}</div>
+            </td>
+            <td style="text-align: right;" class="font-num"><strong>${priceStr}</strong></td>
+            <td style="text-align: right;" class="font-num">${chgStr}</td>
+            <td style="max-width: 260px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                ${sentBadge}
+                <span style="font-size: 11px; color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${x.headline.replace(/"/g, '&quot;')}">${x.headline}</span>
+              </div>
+            </td>
+            <td style="text-align: center;" class="font-num">${covStr}</td>
+            <td style="text-align: right; color: ${cfoColor};" class="font-num">${fmtRupiah(r.cfo_ttm_idr)}</td>
+            <td style="text-align: center;" class="font-num">${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%</td>
+            <td style="text-align: center;">${x.signalBadge}</td>
+            <td style="text-align: center;">
+              <button onclick="inspectFiling('${r.ticker}')" class="btn-detail">Inspect</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     if (document.readyState === 'loading') {

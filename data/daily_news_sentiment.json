@@ -1,0 +1,1224 @@
+{
+  "updated_at_utc": "2026-11-17T04:59:15.977696+00:00",
+  "updated_timestamp": 1794891555,
+  "ticker_count": 39,
+  "total_articles": 117,
+  "news": {
+    "ACES": [
+      {
+        "date": "Wed, 01 Apr 2026",
+        "sentiment": "POSITIF",
+        "headline": "Laba ACES di 2025 Turun Tajam, Ekspansi Jadi Beban di Tengah Daya Beli Lesu",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNUUNIMjVpTWxZWXkxSWZHVzhYb2VVaFU1eVB1VDFCTWpLbjh1dC1BX0xqSUItZ1dvMDM4TDVJM1pTb1VrVTFQNkd4RVl6SjhoUUlzeGNZbG5UWmpIS19IT05DNE9WVTIxLVZOZHFiTDR4RjZWV0d5V1AtR29POTRsY1ZCRThCRGNMeXllVTZNRGVQd3NLM0RlUUYybnVkZjVDYzBoLUl4X3pKVk9sX3ZCYThUNUxSQWE3UzZva2FUQQ?oc=5",
+        "matched_positive": [
+          "ekspansi"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Fri, 07 Aug 2026",
+        "sentiment": "POSITIF",
+        "headline": "Aspirasi Hidup (ACES) Untung Besar dari Dolar AS Laba Naik, Ini Dampak Masuknya ACE",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPSm5Gb080clZXSVJ2N3l4X2tQX0x3T285S3U1SVpKM1lRRkJZcmYzYjlMLXY5RzdYVWNwMjFDa2h5LTdxQjlnM1NmVFhVQVRKRGN6dXNFVEpvMEwzSzhEd3NzNTJyY3F6akQtS0Z6SjRZTktsaXhNU3hJRkg2SWpGcEh1YzlsUXlLcm1VOHk5cmtjTWpkdFFKeF9VVlB4ZDRhS0xPQy1vQWRwSWtRc0hLSEdGX3VCX2_SAa8BQVVfeXFMTUtwLWxGc05QYW5LSkFrX3VwYkVoaDFMLVJXRkwtWTViQ3RPRkZYdHY0UVR0bndVbHBrbVRBOEYyRENfaUM4VFQzWkEyMUJOUm90Z05PNmZBcU83bEdjOTNCUFZvZXJ6SmY3ZklUSlpBWVFSaFNMSk12NUhmaTVyb0RMajBpU1Y3S3BkbkhoNFphR0xZdmdUaXJ6Mm90TFB3UVBzNnlSZVVzcVkzdVhfQQ?oc=5",
+        "matched_positive": [
+          "laba naik"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 25 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyeksi ACES — Target Harga untuk 2027",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFA4R2dSM0xKVmZPOVVmeU5YcG5GM0cyVlZGMFRhRUNnYl9pVGQzeVJHMTNYamdwV2V0LTJReDFsenRvam9jeHBOejdaanhJb2hQSXhUVzBaOHNxMjF1WGNPWjF5a1A2Nm5ONThhb0FhVVdEZEJE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "ADRO": [
+      {
+        "date": "Sun, 19 Apr 2026",
+        "sentiment": "POSITIF",
+        "headline": "Dividen Jumbo ADRO Cair Mei 2026, Ini Estimasi Yield & Jadwal Lengkapnya",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNcktfV210aUFLRTFGejI0dTRhWHlTQUx1Z2RXUHVQZzk4OVRNOFR4YmNoLTV4X3J0bXlpanRtbnp0NlF1aDBNWlZuZjJSeDFLVUQyNnBYa1IzLUVoc3Z6RVRBVlozdG8yZFJtX3FQaE9yMTFUMHZKdVhrRldZNGxmdHpicWY0YlpPVGlqd0k3UWlvYXdfNnhMaUFIXzNEVTFRSXhxV1ZobThRYnJsb2JpSXozTWVBTzM2?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 20 Jul 2026",
+        "sentiment": "POSITIF",
+        "headline": "Saham ADRO: Harga 1 Lot, Dividen, Pemilik & Buyback 2026",
+        "source": "Pluang",
+        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxNSXRGd1NOMVJubncwWDR2aVdsY3B6SUhtN3hncnNXN0piMm5pZGZxLXE4VG5RRkxLS2FlX3NqdUdTN0RwU1hnMzVuU211bmdwSjhBQlI1aVFjVklHTmpGTTBQNUJrSHltd1RPT294NURqMG5RaWEyNlMzMDF3VEkyUXJ3?oc=5",
+        "matched_positive": [
+          "dividen",
+          "buyback"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 15 Dec 2024",
+        "sentiment": "POSITIF",
+        "headline": "Tebar Dividen Jumbo, Saham ADRO Bergerak di Bidang Apa?",
+        "source": "Stockbit Snips",
+        "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxPdUxmYXNvY1hrNHNLOEdRcEJHbmtuODFnRGpsVEpuTDFhR2d5OVl3X1hJamNtNnlKTmFjUEZWanJ1ZkdsSXpVVTlzU1NVd0x0emdjczBJdFdmbHZWc0pxR19JMmNqNi1qQWhKUm1WZEUwUVpaUDJJSTc3aEdCejAzNDZjWkpPSUhPTXpDV0xDaTQ5R0NY?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "AMRT": [
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Penjualan Alfamart Berpotensi Melambat, Simak Rekomendasi Saham AMRT",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPZ0hnVmxBaGUtLWhBNTF1emN6eGk4QU1SYV9nTVA4Ty1sbWJMbTdUV2FqdFNEbTVzV0NfZ1hsbHU0LVJtSVZ3RzRSa0tsR3J6a1B2elJSV2RXVWJwSW92TnpSQjZNbFVXVDY4X24wNEg0NHYxUUZXaVQzUXVmenpZV3lLTTZwUmNmUlJnb05RRGhiY3hGVG9NYmc1SW01WTFZb1BNdC130gGeAUFVX3lxTFBPMWxWNnltcU9JSjFJSFZfb3ptcjVvNEpvRm9DX2NadUhxZ2VGdTFSNFBJYUU3U29XWjJMY2hReUFJd0NDaTlEem1DZ29MOTdOOUprT2lUaHI1Q2c1Szl3SHFZbnNfWG9hX0ZCend1WFhmRTZOVmRQTHVUcldOX1ZpSzFWNHNKMXlXa2ljZzk2bHJRSzdzRlBBMV9HZ1ZB?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 12 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Rekomendasi Saham Hari Ini: AMRT, BRMS, JPFA & SSIA",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOWV96UDgtMnNIbkREV19QS3ZHdTVNQV95X3g3eTM0S3RTT1p5Rm1OdERBcGlLOUM1SV9tdFhPV3ZodTNIMjR2Qk0wOXpkcGo1T3ZuVHVoTFUwN1MtVEFQWFRDekIxcjZrdWJRTVExSTRUcWQzanNmTVRmZGtNYU9pREo0cnJlVmV3N2g2a2I0OXEwSjFoLXlpT2FR?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 12 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Dampak Rebalancing MSCI Terbatas, Cermati Saham AMRT, MEDC, dan UNTR di Perdagangan Hari Ini",
+        "source": "SWA.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxNUEktQ3pKQjBQME5Nc1ViSk1qeDFxMVYwNmlCakE5bDJPWkNZN25fZWRMSlNTa2ZqZ0lHUi1fRjkzeEdmalpnWWZ0dkQwZm5aMEJ4VFVaWWpvcEtGdFl5TzVLVmp4Wk1BTGI0ZHdPNjdyblZDMDVBNzRzWmZVdTd6cVpldm5BWjFNZVlGaG9rVHFLUWNtdHc2NDRwdEdzWFNGWGt1Rm5LbXJBblZtMDN6XzV3Ty14ODFQMVdr?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "AADI": [
+      {
+        "date": "Wed, 11 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Distribusi Saham AADI ke Empat Keluarga Konglomerat",
+        "source": "Bloomberg Technoz",
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQZmwwYkNiVnNRTzV5aWhPWHhVNTR0VzZrNXhzN1lmRkJKOFBycDktRENEWG5oS08xWGUtLWx1cWFlWHV0NFplQ1FhNnl0Z1FFS0FxckZFdVF5VW4xMTk3SnFPMTY3enFVQjdUYWs4NW9uc1JLNHRPSEhabzZvelEwQ0RVMno0MDc0WE1oYW9tS2l1cFhmWUFBOGVPNXhvWGtuMVdldkRR?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 20 Oct 2026",
+        "sentiment": "POSITIF",
+        "headline": "Adaro Andalan (AADI) Gelar Buyback Saham Senilai Rp5 Triliun, Catat Jadwalnya",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQUHdMM2Z1MDlmRllwTllkVWtNM1NTR20xR0lhWG9DcHItRTFocFZKODYxSXV6Y21HbG4ybWZMOUdKUmZRVXhuSFRsRkswQjlyVUFYWUVqTjJFcnBpTG45SjNWcV9wbjFnQml0b3d4S0pESE5pRzB3bDUycWxTOUQ0Z240QXNEVmhFTDIwSTJoTldvc0ZVVi1JZjdheHgzalNtVFFCcWYtaWloWVhMaUE?oc=5",
+        "matched_positive": [
+          "buyback"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 28 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "Dividen AADI US$200 Juta Cair Juni 2026, Yield Diperkirakan Capai 5,5%",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQUVliTHVkcjZyb2NaSnpaYjlNYXB0SGEwZmlsd2JOMmlIZkhsTXZMa2UyZTI2QUNudXZjckxOdDgwNTVGRjRxclBINVJqa1ZfcTB4MGJ4OTk3X0ZLTFlsdmdfLXFIUndQQkFJWC1vYjNxV3Q4UExEYU1ubnpqdGlNOF9hVzRIdlZDRTZfRTdqTFhfY3R1aFJiRW9iUlJndldkalBmZG9Xb29IRDk4ZGRwUEUyMVA?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "ANTM": [
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "Penjualan Emas ANTM Tertekan, Harga Jual Tinggi dan Peluang Dividen Jadi Penopang",
+        "source": "KONTAN",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNZ3VHeDY1clJPRG9UenA4X19kaWYyU1pSby1hcDllLURKR1BBTnNwei1iTXZJNnhJQ1hobV9xRTJSejUyUE9OTmJtVzVFOFZwd3lIcGFobzE2V0x0c3Y1OUZWemRIb2hUdFc3NF9faEJzVk91MGVxa3ktcGJNQy1UUXRRLXdzeFAzUF80RXROZkhjM2FjS3d4cE40eTFvQnJ3M2cyRjVmdUVNYTNFaTF2ZE51TFo?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": [
+          "tertekan"
+        ]
+      },
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "Dividen ANTM Berpotensi Tembus Rp312/Saham, Yield Capai 11%",
+        "source": "Bloomberg Technoz",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPZEhKd1dzNlhLVzZja2ZjX3RYOFE0RDBRaTFKUTdBNmd3MHRwZkFORjlSUWVZXzRiZXhYcE80aUpIQkxnTnJYUXRTY0M1c0RJLVVzNWwxX0Zha0lCVzY4Qk9tSUs5Zk5ianJ6VE5ybFB2N0RoaVdKS1p6Rk1yb1F0QTMzdE82TUlRcU5mVGFqU1I5ckJGdERZUUNpQk9xek1Kb1E4ZGxHaUJYQjBhcWc?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "ANTM Berpotensi Bagikan Dividen Rp312 per Saham",
+        "source": "Koridor.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE8zYmlFRXJGOGFIdGlKTGR1NWd3RW9mdzhBaVJuT3BpMlZtQUUwc2tTSU11N2NPQXpaLWprbW8wYXVmX3ZuNUZHOHZSVjh3VFI5bTFPaEtjcw?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "AKRA": [
+      {
+        "date": "Wed, 11 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "AKRA Ambil Alih Penuh SPBU BP-AKR Senilai US$14,22 Juta, Apa Dampaknya bagi Saham AKRA?",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOOHB5aTEzdVBNbkNfY2NTYUZHSWo3cDFOdF9TcjRyajNZcS11cmZSZjQtNUZESUdScThNd0tkVHdnckZUVVVYb094UHVVdjBVRUNPZS1sbXhXelp3Um9oZDNLMjNsV3ROZ3J0eHZnVWJzS1RIR1EwcHZJV0ZBSjB2ZnFQU3plVUJneVVRaHdRQXp4YmgxMGtFa1pXQ0drNElvM0wxZXJjbEdiQW8?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 11 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "AKR Corporindo (AKRA) Menanti Margin Tinggi",
+        "source": "investor.id",
+        "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxQSTN2bzB5LU80cW12c0UxWDhQV3B4c0JneE40ZkZSeE1hYWVxTWlpYmJBczZvTzJGZi1XbThkLUFRLTMzaWljQktZZS11X19YOUwyNFdGZUtPVG9ILVM1T09IUGRzY1pmaHdqZkVOTzc1TlFwS01Zck96TnVRX3J0dA?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 09 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "BP Lepas 49,9% Saham SPBU di Indonesia ke AKR Corporindo (AKRA) - Bisnis.com",
+        "source": "Bisnis.com - Ekonomi",
+        "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxOaUNSd1lxTXhRMFJDcVdMTHlLT3Fhb1Rya1ExNE1iOHlIVUhKeUJuTmloajMzQ0xHcFNCRFBwbXJNaG5CRVRLZEctUU1DVlNSeGRLeG1DSDAzcjYxZWpBTXF1NFhqN2tIWF9kRzhZQUNYT2pZU0dVMVlLdnZweGtDdWNyTUQ5WGFIa0xBcTNwZWpETldDN1hBeEIzOXJaa0VjT0I0Sl8yeGxmSEZiNGVGdQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "ADHI": [
+      {
+        "date": "Wed, 26 Aug 2026",
+        "sentiment": "PERHATIAN",
+        "headline": "ADHI belum bayar bunga obligasi Rp60,8 miliar, saham disuspensi",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxPNHB5b200VmU3RnJ5WlRuZl9wR2x4eVZLU1pLMEVxRUZTcFJfeVg0QkZkeXJjUmtFMXFyZlloUUo2R3pqRXZWNGV2SlVIaGJ2T2hRNFVRYUdWS3BOMHowV0hrYVZHb0VpWlg5Unl0amEtYmloWVpLNnNXWkN4bmxscGdRcDB5Z3pvbFo4MTZaeHJJMkJPcHJQWkhCcUMyVWxjR3BaY0piZTlIUQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": [
+          "suspensi",
+          "bunga obligasi"
+        ]
+      },
+      {
+        "date": "Mon, 24 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Tanggapan Perseroan atas Penghentian Sementara Perdagangan Saham ADHI",
+        "source": "Kompas.com",
+        "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxQRy05WWJhOUcyaENxZm5JaTBSQmV2Ni14a0ZObzJxOXRYRXNxTTY2MHV3eng3eWNLLWxOX3FKQ0lpd2w5Q0s5Mk11eUtlVE5BS0s2MEYyc0lvZlo0VjE2Y3lGaU1kSUV1dHNHZE9LN3ljbGhmOWk3OU9fRjc4cFROVW14S2k1X3hWLU9iX2N3YzBPWWdRVGJLcWRKYmtrdUpFeXpZM2x2blpXb1FOUDJCTGl6MHNJWlZpeTR2aWxNUQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 24 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Perdagangan Saham Dihentikan Sementara oleh Bursa, ADHI Buka Suara",
+        "source": "CNBC Indonesia",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOTkFLRTJEQ3FEOEJ0aE84RmdFNTVHUlhJYkxIT1hacjRtN0o4ZUJibTlfVEJWcWxwQ3BJX2hMamphdllpajgwRERqU2RuN09HUHA4TFk5RTkwYnY0ZG5UOXE1amhuZUEtSmFMS0diMjVqX3pCZDAwVjhJMHFZZS1Sbi1SMGNCRE8zeTBwWWE3eTNvMmN2RGZEMjZBY0NyQUdmQkE1NjlFTzdGNTBnS0JiaHhiMG5xM21LQmtSRU80eXFsUmlqU3fSAcsBQVVfeXFMT1JfejVhYlFnMUdLUHJJRF90WFhkT2F2bGpTdm1oQWVoQ2xETU1heWFWaG51a0JtRkIySWxBU1doYVJPdXpGUEJTbDFSck5JQVZXS2daNEc3NUVCa1A0Yy1pbkpxOHktaHVNY1BJeHVPOFh5Q3h6a2tvcE5pY0ZjUkdYdzB0bUM5NGJVeldCaVRfZmdLVjRBblRZbkFjVERaZS10ZVpLUngwMUpDUC1sa2pzeHQ4S05iREFjNVlKUThYWXJZOUNVSmxnLTQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "BBNI": [
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Sebelum Investasi Saham Bank, Pahami 3 Rasio Lewat Studi BBNI",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOUmxFRU1jZmJmZ0Zsd1ZrSkpvOVNPRUpqZnk5STl4Uk9WaHBMTXFsaUlQVEczVG1qaDViVFpINkdHdUEweTNGemQzRWxtVkVUVW04Z3lqWFBqa1BkSElkUmdYbzB5aVV0Mkd1MmtGWENXaWVZZ0dmSDFZaTRacjRMMHpWYjZodExZUHQzWHdYRnAxemJZNG1z?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Harga Saham BBNI Berpeluang Naik ke Rp 3.668, Begini Proyeksi Analis",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxORURyT2syVUJjN05FbnJFOTFvUDhUQ19BVmllUnh1djFBUV9QWGFqc2Rqc3pUSm9IeDludS0zcTNBbEI2cGlBSGNBVWNqU2JlWFNQQnRINkZRUnQtYlRYTXpfWkdhcnlnellMRkdCOTFIdWtsSzNRVmxVWFJfSXJvOGpxZXN0alJTX2NPZlFlSHFzX2hfZGQ5NU9kUVdRR0hCR3BF0gGcAUFVX3lxTE1LSDZ4REVUVmJGMkdyaG4ydThoRkFta1lrYXczV1IzMkM1TXM2c19GbDFqaVAtdUdPZ183YlBfTUczTHA3VEpUMUp6WURxcEFmaTdVandscGlwY0h6Si0yMTVVbE53N29vR2M5SXZ0eE9jQ0hfZUc2MGNZdnF0WmJRaG9seTBadkpsWW12OWQ4OGVQV0pVUW14NkFSNg?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 09 Mar 2026",
+        "sentiment": "POSITIF",
+        "headline": "RUPST BNI Setujui Dividen Rp13 Triliun dan Buyback Saham Rp905 Miliar",
+        "source": "BNI",
+        "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTFAyU1hCS0s5TnVZeXBOQzlFWTFMNlJaMVdZc2RpYmxpMVNUb3dBdWlseURUYzFGMkdZQ2Z4LXhRb0NVTWJfSlp6SkVvWEtwYndYYmcxMElxd2dnUFBzSW9oZlF5MUFyUHJqT2o5UDZ4ZWIxM2pGZXRR?oc=5",
+        "matched_positive": [
+          "dividen",
+          "buyback"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "BBTN": [
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Rekomendasi Saham Tim Analis Bareksa Hari Ini: BBTN, INET & BKSL",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxQNlhQOHBYN0xxbEQ3ZldaMjhmRVEyY1FOc1lKcmdsOWllS1VCWDNvYlRabkQ2RlJsTE9OZzA1WmRMMFJCOTc2cktkemNhZUdXa1FScXY3eWRmQWs2cV94V0c3WGtSblFjRkY5RmEtQVVPZHE3T3VlQ19vLVBMUFlWZWtoYTZCU0syMW8xbnpCQmhSUUdxZWtidjBSemdkM1Y0eF9JWVRmQnJXbGhO?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 25 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyeksi BBTN — Target Harga untuk 2027",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9IZmpQdG92OWRQREI5S29tVVY4U05xYmpfZXpONnE2OHYxLU1WMXFBc3p0b2d2d3pwaEc4cWhiTGduVVJkMUZaNFdPVTI5ZEFkWHVuRGRpSllWYmVzZjBTMzctbUU4ZXFqWmFRRTJhWHVZMEtO?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 19 Jan 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham BTN (BBTN) Breakout, Harganya Bisa Sentuh Segini",
+        "source": "CNBC Indonesia",
+        "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxNNW1pLWVOWmlhX3ZMR05EOHhMVC14OVVfelZVeWNiR0xzX1o1RXBKc21vQXVlMUJrNzRnT3FTQm00MlJqWV9vTjJTVTlyOWlIRUxmd215REZDMmpJT1JLSG9JUXluZjRwTVptZzVsakZ4aU9VcFd6ZVpqTTNXQ2pOOUpVV3hFNHExOEFLano4ODBmR1pTYlJRdldkTHAxZlQyTFhBdzB4NnZCZXlWRkJwUlkzdEN5Z9IBuwFBVV95cUxNQ0dIQTMyaDN3cVlRaEJrZGxxV3dpQXI5Z0Jzbl80YXM4QlIxTkZfOWNneWJwcVVNY3RPa0kxU2NRRk5PVWo0MVg5a2JUMUdBVlVCR0V2VjRtdS1kOWk5UWlVS0RtQkdYZ3gyNjNKWWhJWWt1aDNCR1hJd0hMSVJxbGpUZlo1R0VHUTJTZWFvdkVJVDRoR1FpcGJ5b3Z6NHVUTGV5Tk9XdG9UYUN4XzJxOXFhQXc0dEVSck9R?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "CMRY": [
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "Kenaikan Harga Produk & Ekspansi Distribusi Jadi Katalis, Cek Rekomendasi Saham CMRY",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNVmxKNVJoMXh2clVIUzc3U2xTd0ZaN3Z5c2FZSzNXLUJVLU8tQkdEa0tRZW0yZ2lPcmNyYlFHVS00MTR0MkthOXBPb1RPSVM5djdZYXgwUzlYQTNBX0hFOHVYOC1aaEkyUkRRY0p6N214a1JFRmF2SWhxZkZvNURMWjA4TjdacERpeHRCY3M3R1hETktsYkFSR2xQc0RwR3ZXUHBPRC00RE1KMDV0Qkp2clpJNVVucEto0gGwAUFVX3lxTE9kZGYyMlkwV0dOOHVDMmtSek80dTJ2VWJLSjlpS3hLNmY2ZHJndlZ5V3ZLRmhsd0o2bGhwdmI1c056ZHk0ajhMZDU4VjFMNzNfbUx4STFwdmlVZXBZLWhuc2kwa3dETlhnS2NlSHNaa1l2Tmx2LWdWNDZtZmIxY1QwV2VCNU5vZ2tRRWRMZ09DWDYzX2NDVVh2Z1BlLTdtbnYwLTg2QzZNTWtkbWhsZ1ZK?oc=5",
+        "matched_positive": [
+          "ekspansi"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Cek Rekomendasi Saham dan Prospek Cimory (CMRY) yang Siapkan Kenaikan Harga Produk",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNSVUzNEJkQk1Dd1BlUmhZeHIxYjd6S1d5SWtpRnpjZ0F2anNtMmlzd2ZXb2JEemM4bTZQWGNuWW1iTUg2TGhEVWJvd2VINUdUb0E5bWJZMVVraVllVlVhV3UtMXN1d3JrcjJCcktaUi1sR3N1S0I1Q3Q3Q3I2OXdEMU9xUHR1c0FucVY4cWY5RW5DdnJOS1FBTkRPa0tlU3FHTjRRclVLUGMtQnNFLTJRR2l1bTloclnSAa8BQVVfeXFMT1NIdjRSZjBYQVNaQ2RRN0tEX3VfYWplalBFUVlYQ0FZRzFKaEp3R3pGa1Axb3hoUTRhYnEtbW9HWExEVEpEOFJhbTBPejNzTVFZQThKZHNtUWZ4cVlPdFNnQjVxSVBVLWh5RUhoXzBDYzZheFVaVHMzMENld1ZCSUpvQjdkZzhHV09uZ2ROQWczMEVjVTBiNjd1YWZ5dDBRQlJXUEZrWDhXZkVaYmVyVQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 06 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Laba CMRY naik 17,88% pada semester I 2026, jadi Rp1,17 triliun",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxQejQ4VzJMREJPMGtkRnhnV2ZFblRkb2lSOV9KQ3ZsMkZ6NFJoNHFBRDdwWUdfd2E5N0RmZ2xMOFBBd0d1WWtUTHpUUElGRjI1SXpORUFnZDg2WktEbENta1ZqamFUT2dUWmZ1Qlh4M3g5TmtHcWpMRkFsTkdIcjVDVWNiYWxyWHFaNXAwYzhRVTV3dXJXRThQNzRWaUFOS2w4RFJlcTd5TGU?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "BBRI": [
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham BBRI Naik Hampir 9% Sepekan, Asing Kembali Lakukan Net Buy",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxQcXdNWHRCUVJtZFlZNUN6dWdISVR5WEIxNHNRX0RfbVdZUDVrNmdNazRSSjUxUDNsUXA4QnIwUkZEUFdpdEY3UUx5SzFXMUtVY2M0cmpPMkwwQV8xWVNmN0VFUE9EYU5oMlBpM3FtOHZLSHdGXzlUbnc1RkxIWGpYdFFEaVdUbVloOTZQUVZ1dTRjOHIzZEx1X0Z3M0o?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Investor Asing Net Sell Ratusan Miliar, Saham-saham Ini Dijual",
+        "source": "Bloomberg Technoz",
+        "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOeHNLdmh4UWZYakVkNHZtN3BjbFhZckZMVEcxa1VhUkJ3cF9HemV1ZnVybmNKWlR4bnRuYW03eUpueGxvcVQ5aHRucm1DNGVZa1NmOUphYkNUSEZXcmxNYl84ckdLc3pjWkdwOG8zVjIxZFpFd2RwVVhJVjhqWUpnc0UwRU1tWWRsMWYzT2I0dWhZX24tb2p5ZVVSWGFiaC1LM1dQZXAteGM0NVVMcjU5WGJSZw?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Asing Borong Saham BBRI dan BBCA Saat IHSG Melemah",
+        "source": "Demokratis.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiY0FVX3lxTFA2VWVEcElBY1dBb3R6YldSdmMzdWRyWV9PZF9xTjhtVkhBdE4tcGJfa0djRnpiVF9jbXBleUdkUzNncGNhMjdvT0R3eVlwODJ1Z040X2xSMXZWZC1lTElIZnVTWQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "BRIS": [
+      {
+        "date": "Sat, 14 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Cap HSC oleh BEI dan Didepak FTSE, BRIS Masih Layak Untuk Investasi?",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNQU5STXVxQzlJNlY4Zk9IR2pYLWFaV190Yy1LenRzODJuRlRycHE2RzdLS1djMk84eDd1SjhnX0ZteFZoVE9oeFBVYl9DV2dvbVZGLTFTZEkyQ3plODc3TVJYSG1ZZDBUMDFweUUxWlgtbldybWVvWUJYTDE0TVRWT08xcFpSUzhvNG9nTjg2MklQMzNqQWhsVEdB?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 28 Oct 2026",
+        "sentiment": "POSITIF",
+        "headline": "BSI (BRIS) Buyback Saham Maksimal Rp500 Miliar, Ini Jadwalnya",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOVWU2Qkh3bTlzLWRFLTBET1VpbGZPdHVNLVVzR3dZUy1rVTVzdGlnRE1KWV9nZ1Fpb25pUk1pMkNXTV9LMloyUFBVbkxFREIyLXJaWm5YNGZINDJ3ZlgtY2hjNl94NERrUTl4OE5nSGtUcVJjVnVSODdTY0JvWFF5TG5yUVdOck5UT0JOQk1PZFVjVzczdXA1Zg?oc=5",
+        "matched_positive": [
+          "buyback"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 10 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "BSI (BRIS) Sebar Dividen Jumbo Rp1,51 Triliun, Ini Estimasi Yield & Jadwal Lengkapnya",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQUTZXNmRoa053QkEwSllfRDlrU2QzNWhJR0dsSDMtMnJkM3hwelZSWW1nWmQxY2t3WmJtdVhMX2hWekYycWpQbUhxVm9WTmUzYzFucmd3M3ZGSlV2Y0MxWV83akRXbWVVaURleHNOelhoeHNSb080UVlzVFQ3NFFpUWNPTHZuRWhOZk5qOFhya3ZoSi1ZUGtRdWE1NDVaZGtycGQ2VmFxVFFBN3BTZUpYeEQ4cHFuX2JrRXJsa19wandiVXIweWc?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "DGIK": [
+      {
+        "date": "Fri, 13 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Kembali Borong Saham DGIK, Global Dinamika Kencana Kini Kuasai 68,20%",
+        "source": "Pasardana",
+        "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxOMHlWY0JUSzhSX096SHJvRWtoQXBETVZKUFZzdG1nWmdFcEh5b1pXbjEtNUV3MWctRnVQN0FIWjhRUDRyM3R6N0F3dU5iTTY0ak1TZnZMdFAwS29xVlhyellFSXNZYmFlOXZZWVFHdkhEZkEtZjljMnRZV2tzQ21BWmZLT2lpalR2NW00R25YZzlmQ1VpZlhSekR2TUNLZm1lM1VzLVR4UQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 12 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Berturut-turut, Pengendali Borong 8,16% Saham DGIK Senilai Rp61,28M",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxQaG5ObE5iSXlfT3A5RUVWc3RvTkdPdjd6c0hQTlhMVVBGUEhrclBFMHBTWDRpN0hzRllmVnRIaFhETGV0eFNHLWI4U3RCVEMtNUlCTlZPcGV4dnFrM0F3X1MzelBBOFdPY1k4b1pmZXNRX0FIVHJDVkpFSG5vd3RwNFNmY29hZXl4SGVlY0w0WjVQX3E5UUE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 04 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Nusa Konstruksi Enjiniring (DGIK) Akan Jual 400,21 Juta Saham Treasuri kepada Global Dinamika Kencana",
+        "source": "SWA.co.id",
+        "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxNYUZsbW1hSjU5RjlZOFdKMmRoMkMxazFabkNsSUVYaDJIRFhxOGw2dVh6N1VJbTEwbzh5WHZnR2V0OFV3VU1qMi1HWko3ZDFobjQzMTZBbWo0OXJiVTBlRG1wUmxvX3BiYkdsemx1ZFJhcmhKeU1ucEpaSElmRnJLT2Ytcl9fQV9mak9XRFpNZzd1WHZ6VEZOcjdKX1BFbEhjSUtrcmdMZ2xOZzhCdlNHVXJJQjZFdUQ3dTdwbGxmVEQwS3Q2N0c0?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "HMSP": [
+      {
+        "date": "Wed, 20 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "HM Sampoerna (HMSP) Bagikan Dividen Rp56,3 per Saham, Potensi Yield 7,8%",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNclY3dWVGY1JDMFpzejRsZzd6eUk3UDI4Z0wzNGhNaDJnU1hQaUNTSEpPM2VRMlFXQ3NiXzdKN2tUaENIS18ySkoyQUM0TVBOQm9rM0JRSC1zQkUyX1RjR3VUMEVuTXdPeWxoRURKTTc4UW1IeklPUFNxR09faV9FYnRrdTNWVVdvRkNFRFpaNk5qOTdmMGJ2WHFVNG9pR2FaOVBDV2ZBaHNacDh5amFNSHkwT0o?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 04 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Prospek Saham HM Sampoerna (HMSP) Usai Tak Lagi Masuk Indeks Kompas100",
+        "source": "Kompas.com",
+        "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQUXdjNGt1bmZSbXNpZXNpSjVfbDE1MXZxbnpnWGpLMmotWFNkOHJPZmN4Yi00YWpuLUVqZVVwQ1M2Z0lpclJXTFpJZFM2NHI1UkdLc1QtVDNkU1BSQlUzaTI5RGNvM3NZVlRLdWVUcVRzcXdiMFktZDV3aFpEVHJXamt4VS1CU3d1OEJOalJ2TXJfb3I1dDRtc3lGZUdFSDloajVLTXJRcmUyR0YtNE1jd3pseVRzanVPNVdFcjREZng4enJsUzZV?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 29 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "Cek Rekomendasi Saham dan Prospek HM Sampoerna (HMSP) Saat Cetak Kinerja Moncer",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxOaUtiNmJGRmNQME9lR0tTQ09hZ2ozMkF2dDk2TGktRVotQ1ozMFRNdDJaYlZ4RzNINDBvWThvam1YTF9WVVM1ZGdHekFBVmtfRGNUN2R5LS1QNXdpQWhfV3pyZ0dOWW5jelNYUi1jLXNHVDcwRjZjbzBzclB0TFExYnlucEZpVWJNMXZKM1M5NS1MLUlZRWZCbWhrWTVRbnlGeElSdlFlb0FZSUxOWV9DMVRSONIBqwFBVV95cUxQNXZ5WW1RUnluUEtIZ2hYdHRUdjJZNEtEdDRxUjZrT19HOWJtRzlwRGM4ckdLRjNmRDdQcnRoTFAwMWV4YWowMko0SG9RVUNGY3pYZVZVRzgwdGRxRVRyczVjelI3dGpXd1oyajNiSWdWQTZCN2pVQnAwVVNKMjZtWjliNTBfUWVwM0x0WFJqbTF4MUxsbk5TQ1lmTzUyME9iN0NQTXNwaVAteUE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "GGRM": [
+      {
+        "date": "Sat, 14 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Perubahan Drastis Gudang Garam (GGRM)",
+        "source": "investor.id",
+        "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTFBOOFhSTm02UlFCVTIwT3dSYlQ4UmtzNHhyS2g3UHlYUXFDUmo0Rll5dUloLTBhSGxrMWRMUnFXNGlQdnJTY3dUR2QwdE9GX2ZpSVJlOFBYaVpJd1RPVUhhZ0NOaV9BZkxlSjZzVkdObHRmd0djZHZ3WA?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 15 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Intip Prospek Saham Gudang Garam (GGRM) Usai Masuk Indeks LQ45",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNM00waHR3S1pzU3FldFh1cFAxaWlBZ3ZpR2NaWVEtYU4wTjdhakh4SlRFbkdVeWRtSERfSnhEdHg2RFhOekZmak9UaWg5NEY0eWd5X2xKRDBkWnlLMFdqUmQyTV9KR25kQ3c4S0dBdDBFc2dETXR0dHRENUEwN1h5OWZKMHpBZVB0VTlWaGwtbmg5MWl5RDltNzh4ek7SAZQBQVVfeXFMTUhuQnhOZEZuS1dfNEhHaXFGWUhDOTg2M1IwVHJXeGo1Z1U0WUMta2IxUVY5X1k3QVZZVkR2czBJYk1BdDNpVUFwem5JQ01YLWNESkhJXzl4QklKMXZWN0dpTm5HVEF1Nm5pR0dxODZCY0NZS0F4Q0hvSDJOS0ZkdjRQMjZfQzE3MlN6dFJiSjNfRVNpYQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 15 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Intip Prospek Saham Gudang Garam (GGRM) Usai Masuk Indeks LQ45",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBITUFFQzMtcGtNdWh3NkdMamhHaTA1T3cyc0FCMnBBc3ZiM2cyQTg1ZTk1dURoZkZqWnhfNnNkQndjTTVjdzZDZWN6d3NJZHlULWJBdENub0lvMlVVN1NuU3lhLWdIQQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "IDPR": [
+      {
+        "date": "Sun, 04 Mar 2018",
+        "sentiment": "NETRAL",
+        "headline": "Chart dan Harga Saham IDPR — IDX:IDPR",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTE9KVklJV0lvQnVVTTJURGxKVVJUZ2JORXpEOXFfdC1IR2ZJV3hEMjItbUxob0JicTdKQ2RkdV81enNHdHVyNHhzWWRud3lKUkd6SjF2V19Fcw?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Fri, 07 Nov 2025",
+        "sentiment": "NETRAL",
+        "headline": "Bos Indopora (IDPR) Investasi 1,08 Juta Saham, Tambah Porsi Jadi 2,75%",
+        "source": "SWA.co.id",
+        "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNa2pYYlZTeEh2NlVCUnR4Q3gzZ0lBQjNDdGlRWmlkb2ZRa2VBd2lrVERZV0lZcFhPWnZrTzV3aDJsQVhHY2VLZm9DMkRKWWdwV3kwbmpPekdIbWxmQ3hLWDhTd1Z6aU1qdzFQczNyYjAzNTFOdGxjLWNPNnlheEdxcDVnbl9ZbmtyU3BWX2JaM2RpOUFyNmZ5YVNR?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 02 Nov 2023",
+        "sentiment": "NETRAL",
+        "headline": "Investasi Untuk Kepemilikan Langsung, Dirut Indonesia Pondasi Raya (IDPR) Tambah Sahamnya",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxNVnpKbDNJZ3NKdW5DN2pyUTdTMjRhRWQwNDlUTUVmakxLUEF2MHdncjBlWEV2T01Yd0Q1aFlTTWozY2RVblVDX3pWM0NaQUdQbGZOMGJTS29CNy1wcUV1dGVGenprNExkQjd0Tll0QlNHbkN3QS0zUlRmcm02dEFuVHYyNTVWSTAxNjhlbHU5TGc0djdmelIzZDVxVVVDUkQ4UzFacWtDTlprZG1qazFpRkd2azA?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "INDF": [
+      {
+        "date": "Sun, 03 May 2026",
+        "sentiment": "NETRAL",
+        "headline": "Indofood (INDF) Catat Penjualan Rp33,89 Triliun di Kuartal I 2026, Laba Bersih Naik 9%",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPdmtIMzk5ZHJZX3ZwcGxYXzk0YmNnZDMtNml2eGpERWlLdXRsTDlLaGw3UXFLb3BZMUxzaDZ0SmJzRjRFYThKX0tUek9mSDFjZDlZWnd4elk3bWtjemQ5YUNpQmJxOXdub0xCaWpMNW83aGNjYXZUSE9JVFQ3Um1tVVo5eERackJudDdoUVFucGs1QTJPYTJxbUp0WmRaUDJZQU9Qd2pVV3lNWnQ4X3RKREJmMVVjaWwyc1N2cXNfRzBTS19UZVNmaQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Fri, 23 Oct 2026",
+        "sentiment": "POSITIF",
+        "headline": "Indofood Sukses Makmur (INDF) Akan Gelar Buyback Saham, Siapkan Dana Rp 750 Miliar",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPdUVFRllNY1NRMFBXekVOeVJRdUs0UUV5VzdSbDMzU3Z5clh3cG1MRjlDVHk3YjdlU0Mwc2k5ZF80MjBTa1VjLVI5SGxQOFg0bldPSF9vTWE5a0E5MW1jZzg4TEdjaGdtNndVdFh2MTNpVVh1YXlhN1Q1OVRGV183UmwzcVJ6a0dlYmlMWUx3Y2xpZEk0YzFteFl4bGVMb194VDdneG1qMFpVeE9ubGpCeXMwSXBtUdIBrgFBVV95cUxPNFBPeUMtbUNhQmRJYUI2UWdYa25wTHFLYmhtVlhteWFyb21aTWgwWXRZRHpmREJZNGN5ZHU4ajhtb0MzZVhoSV8yb2lNSnZKOE5yb25OSmFwenRaalZTODZNQXU2U0pQWHZURW1SNjVzemMzOXR4SDBxRjF5RFdUeTN2QWxrclZyc1BuQmZCaHhDbjNNYXU5OEdGcXVGeXVNbDlMWDJoSlFGNVNYMEE?oc=5",
+        "matched_positive": [
+          "buyback"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 25 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyeksi INDF — Target Harga untuk 2027",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBqM2RIbzJib3hNNUYxV0RvQ25OMXA0M0hrNEtSMEVPcGVPN3htNi13dDMzdUNJRHdqRUgtXzUyZjRzbkEtTDZVMkUzNEdNdGlmeFBnSGRTWDVtVGk5ZHhLQU1GVE9IWTl6R2oxRHY1bmV0cHRE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "ICBP": [
+      {
+        "date": "Sat, 14 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Kinerja Penjualan Indofood CBP Naik 14,5% di Kuartal III 2026",
+        "source": "https://www.suaralandak.co.id/",
+        "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQaktvYnlpZkxUclZYeHdUTTRISkg2T281REppeE9PcGVLdm93SkNUc2dWVkU0alVnc2RCd1daUWU4djh5a1ZzSjVncGQ0eHVLR21GZjF5R0M0aFJVbVZ1dlpPYmNsZEZ0OHM3NHB4ZDIxQjFueTYxYjZGWXFIT1d1RHRaZHVxVHlyb0JUVHVTTmJHZjQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 15 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Indofood CBP Pacu Penjualan 14,5 Persen hingga September 2026",
+        "source": "Demokratis.co.id",
+        "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTFBPSnpqa0hpc0MwNnIzbG9OMUtaX1FPbWZYYVVzWW4zQWh6cHpwSERCM01vY0FXWmJVSDU2emZhRGZmeEdudThsaktOa0xiQjNsLVhDaW5pLWFvWlJDX3hqRWRPX1MzdWh3ODNKLVVNLUY1Z2M0N3c?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 15 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Indofood CBP Pacu Penjualan 14,5 Persen hingga September 2026",
+        "source": "bsinews.id",
+        "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB1MnVCcVNUTDQxTzhMejhFU1lGN2FpazYxd1RVSEttd3BCa2F2WnVJV3h3OVN5Um10SGFOMVdFc0IyMkI3bkxMVlEteW9pNVNSa2hVdmFtZlRnOVRYcEJQWXZWQ3ZSakE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "ISAT": [
+      {
+        "date": "Tue, 04 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Direktur Indosat Borong 1 Juta Saham Indosat (ISAT)",
+        "source": "Kompas.com",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxNU0JhQUtLSWVzUzdRSmFxc1FnRDg2WUliLXUxMXdDNnpPY2JscS1MSlR6MFlRaDZ6SG0zaVJaSEc0MjZuQWFodk5EejE5ZTk2eHB1bHRmTm5CU2JodnhYTXh4dnA4TFpqS0Q2N1BZNEZjNVcwNnlweTdYMGg5ekMwdjA4RzNvRlI1SzF2NzdaMmRSMzMtdHVXZlV1bFNIRXoyUjlLcTR0cDdOTG5Ldmc?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 11 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyek AI Zankore Bisa Tambah Laba hingga 29%, Target Saham Indosat (ISAT) Dikerek",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxQSWpZVklEb0xOQlFpV1ZnSDRBMTdCSy0xUXVDeW8tY2I2U2poWElNcjdQZ0UxNjloV05mMlVGTlJGY3FRdm1ZUzdVZk83dHJzR1dqcXY5ZXc1aVlBcEJmckJwVm01QTZTS1owNzVnX1IzWXotNjN3YXVQYkt6WlliMl95Q2VBckgwdnV2VnMyWVhzMHotRjBJS2NSUDd3aHB6MU1YM2p2MUdPME5VYVBuNDlQa0jSAawBQVVfeXFMT01UQklJelVtamlrRzh3dnVPaTRtR0dyLXBVQzNLT1E0ZDdHRllhQjV2cnNyUXdpYTltNXp1TlRiX1hiZmNaRWVjRE82TzR1dktSN2J5Rkl3N1ZwNGozRXcyNGZNeGxrNTRSbm1VeVdpSWdmMnBnbVFmX0I5aEtsY0ZoZC00LVFBaTJKSmY1UEgyR0dBdUM2TWg3VGxFSWhjSF9kZVpZZmtLeHQ5WQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 27 Aug 2026",
+        "sentiment": "POSITIF",
+        "headline": "3 Sektor Saham yang Dapat Berkah dari Booming Ekspansi Data Center di Indonesia, Ada Apa Saja?",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxNeU5yZmx0Z09pZE1VZ1JQSTFCS1E0bWFPSTIyMHVHeFo2MlM0Vl9PUXM3MUhtX2FOWmo3V3BlUFMxVVdrR21FX3hOeTJfajBOUWxOalFmTGtIZ0dJbjlyVXhNYWRnam5vaDJmM3VVXzdHMUtiUFM3QnVLSTNFOC1NdTBKOXZPWjRLNEFXT01heHRsa2hy?oc=5",
+        "matched_positive": [
+          "ekspansi"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "INCO": [
+      {
+        "date": "Thu, 04 Jun 2026",
+        "sentiment": "POSITIF",
+        "headline": "Vale Indonesia (INCO) Umumkan Dividen Final 2025 US$0,00433 per Saham, Payout Ratio 60%",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxObDdEclJIMXJRdGwya2hieEozemNPTGs4VWVSR0lxZlQwV0JvNXE4SzlfQWFhejJmWmwzeGdkdjdydW1EWnhoZ2dyUWNoS2N2RzVkdjhmcTg0ZnJMVS1EMWZoejYyWnl4X3VQWENMeVFZRU8wSFJZaWctaEt5T05NNVNkUnNrcUwzZ20tMkNvdHFKR0E2QnphSTg4MGcwanc0SEZfTjlqQ28yeFZRN1pnWG1xSW5yQzV0WHBJVWI0LTk1dFJVcnl1Tw?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 25 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyeksi INCO — Target Harga untuk 2027",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE1lb1VJcDZMQlVYVXNiTGd6eEVTV3c2QmpmUHMxajFYelRoLWE0a1JVbUV0UW4zaE1NaHBQbU4wT3VBZGYzTk1kQVpST21HQlhLOE1fNG5oaXY1SGlqWkdJeTk4TXhRRzR6VURJRThUcFgyUGho?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 13 Apr 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham Vale Indonesia Tbk (INCO) Sudah Mahal? Analis Turunkan Rekomendasi ke HOLD",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOMVVxYjZBWjdYWjBRQ3NUeThXWEN1NXF0bm9xQ1pYd2N4V2t6cDZ2TEppcnpMOFBua183TW9nUThCMHRDUnkzMWp0VkszTS1GZmZOWEVQeDVPZjNaaGY2WGQ4ZVVZRXByc0FobXNyazUzcXF1VXAtYTJNQU55a3VoeWpBSmdBX2dDVUd3bmYxbWswUGRmTGhOSUNSMnlhMGswV3hmZWJBM0Y5ZFh5azNSXzBaSVFUTGN1ZFRYdDNvejNNZnc?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "KLBF": [
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Cek Rekomendasi Teknikal Saham KLBF, TPIA, dan MEDC untuk Selasa (17/11)",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPLUdBR1prb1M5cHVBbmkyeS12Qy1hVmpuZlNXT0poa1ZMd0pkQzdTSzRuSlNpNjh1US1FYWhvRmw5dDU1c3pfMFJDTmY3M2V6SlBpWFIxT0hFNDN6OFE5SzU0OEJDVldLSlBVLXdZanMzQ3VYNWViRHFfVFZuNjNsd3RUR3BmVERnY05LdEZQQk05VXBhTnhPMFJQYUlFb19rSzFEQUpB0gGeAUFVX3lxTE9RZWhGelptRy0zY1hJeWdvNF9SdF9KdWJSVl90Ync2bkxmdnNMdEh4MTB1QUpLM01zaDg5R0JBZXotaGJNUkdFZUJzUjUtQk9xMmF4SmFaa1FLRUh5Z1pBWGtvcXRQc05sSDl2NjlrRV9oRGF6UnhFdWhnYlphUzk3cDBWTkNoWEo4Q3NaVVRVODB4Z0I2WUh3ck9QM0p3?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 09 Jul 2026",
+        "sentiment": "PERHATIAN",
+        "headline": "Rupiah Tertekan, Begini Prospek Saham Kalbe Farma (KLBF) hingga Akhir 2026",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTFBUT2NrZkFyaUlLM01VOHhYdy1EcFZ4T1hWMFNmenZzcDhRNks5OTI3Vm9EWENvRERURjNtY1liSE1xRHU1MzIzWldYSzZRNVRLTkZycVVqbHlGd1Jxc25kZkhUZmRYdw?oc=5",
+        "matched_positive": [],
+        "matched_warning": [
+          "tertekan"
+        ]
+      },
+      {
+        "date": "Tue, 26 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "Dividen KLBF Rp21 per Saham, di Bawah Ekspektasi Tapi Bukan Sinyal Negatif",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxOMTlucFY3R0ppSjJlUk5iZXBVWDJtaXFuMFJMR0pTVUF0YTFvWmQwS0Rpc1JJTWR0QXZCNkdldmhjTVkzMm1fQjZGejFmdWJIbmhjNGpKeHBwNmttQU9weHJvaUF5Z2Z5SExTR2lYOW03NkJLZXYzVjJZNmxkWEs5cURUd2VLdVNsU1BndFk5UnBLQlI2MVluRWdoWWE0NGdDMmhTcHFWcjlSRkhzVmlWQW5TUmNnMVlMODBLbjFR?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "ITMG": [
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "Nama-Nama yang Siap Panen Dividen Interim ITMG",
+        "source": "Bisnis Indonesia Premium",
+        "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxOczB2UEtVZ0RsSzhDU3JJWkFzcGNpZ25qVDRJVXk0MUdKbVVYQnoxZmNoaE9DeUpvNHQ1dlR1RUNhRlRuRU5VM0lnMlN4dlZOaXJNbEJXWmVHRzltVDdqb0tOYkFURkVmRng4NGVqY1Z0b0F2VExaMmhJWkRPbGd5U1ItZERFTmdvY3VGa3dTQWRObmJ1cWNwbF9BdjMzajFK?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Musim Dingin Dorong Harga Batu Bara, Saham PTBA hingga ITMG Jadi Incaran",
+        "source": "Indragirione.com",
+        "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPREJnS08tVXh2Qlk5SUNxS09XNFhwbHF5bWxYQmNvZU9lNldBNC1oalNBcWs5ZUV0VzFvZUVSeG9nQk82UFFUc3E2dWppbzVORzVfVThOZmFpLXZGbVNfajJKU3dfZU94dVFwRnBWNzlnU1pRQmcxQ0ZHOHcwekE2b0JVc2xSdk5TTkRrZGhZT0JyZFAwMnVsbHlYbHdMbWFGTUM0NWpNRzkwcDNw0gGyAUFVX3lxTE13cWxMQ2QwV09aX3oxbEVISWFDU2R4enhBdmc0VjNUWVhHRXVSUzdQb0V1aTJtQUF4MThHSEZNejRvbTFla0dLYjdVTEN2YXZwRFktWlRqaDVUa2QwdWh0SWNVOU1UdWpBNmVQXzE0Sk9HNHpRYjNFWnJpRnV5SXItbi1qVE5DSVVtMGFzaE5fSmJjdWk0YmZzdFAzN3F0N0FjSmYya1oxTVJUTEVIb09GX0E?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 03 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "Indo Tambangraya Megah (ITMG) Tebar Dividen US$ 74,2 Juta, Ini Jadwalnya",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMiggFBVV95cUxPV2pxUllXRHNXZVp4aEktaUYxNTUyQXpKYXBOdUxZYmI1cXhqcVY5NlJHaXptRDhtN3pJUU1kbWx3aW1HcVIxU0pZMU5mMXRjR0ZZMHpKejFaWjNyeG9ickdsc3pVN016RmtPRUpDbGtnVFlia3BRYXRNeUtWZ1VMb2l3?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "MAPI": [
+      {
+        "date": "Mon, 03 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham MAPI Melesat, Asing Borong Rp9,3 T Usai Tender Offer & Laba Semester I Naik 27%",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQVzM1SzRlSWhvalB3dVp2NlZ4X3ZfaGJqb2dmUDNGRXBGYlVUeTlNRmhUd0xDQjZ2LXZEZ3RzeHByT2ZYVE40UXZ4aUJaYkhtektrSDM0R3Jid1FVRXFOejkwbkRPcE05QmctbjlLSU9GdVQweUEzNVFEZ18tZzFnLTdiR2J0THd6Qzliak8xZ0dEd0g1MzFRbFpHUjRKMF9DWGYwVjNxaTF5ZkJkODh0Unl6SmpkQ1VsUmJ4MS1qTjhpRi1HSDNj?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 04 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Tender Offer Mitra Adiperkasa (MAPI) Rampung, Porsi Saham Publik Susut Jadi 12,76%",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxQd1hCOUpXWUtwNkNURHp0R2dXbVdWd0ZFTnRGZVZLcEg1eURkN24xRUpuMjVpV19xZ05sQzFFVEdGVmZaQ3I0dUI1bzhDaXhJbkRSNlJWdVlzSWg1RGxpZnRVUnBqb2xMS2F3WGN1bDViSDB4ZkpoRFYxY19Cd1NDcm9KSHlDeXhEUE1Rc01xdVVuWWdrcWFpZ2pidE9vNXU5dmZ3X25zYnJHbnRKd2FHdVhrWdIBqwFBVV95cUxORURrMVRKUmtMWkQzNXpFQXJtT3IyWEtMNjgtVXc5QVZJME8wT2FRclVnY0hEVVFSZHpDaWotcEw5d1J5WF9ET255dlNySlEyV2Q0MVlnX2U4R0FtdGY0dFhCMjZBWEdLMk1OV2YyOF9wNDlYTlVxSWgtcUtiRVVIVG52ZEpMRHhock1TUFA1bkZUWm5ESlg4UGlCM19ETjdzMElwQ0R2dU5ZdEE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 02 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham Peritel Mitra Adiperkasa (MAPI) Berikan Cuan Tertinggi di Indeks LQ45",
+        "source": "SWA.co.id",
+        "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxPZ3piQWZ4UDFRS0NrN0t5VmlDZC0tYVpPcXI1SW01eGtsVTY3c05TdkgwRzZiVUsyeHdyOEV2bi00NVR4MnMzQ19CbDFvOG82NE51c3R3MFotM0tZWjQ3LUQ1NlNud1pPVlJ1TE9nV204MTFlYVB3OFlwdGlQdnBxSHc0MkVGMk1oRUNYVnRSYzhWbE9EV3M4WFpLUlQ4bXlfMExkbDZn?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "MTEL": [
+      {
+        "date": "Wed, 28 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "Dayamitra Telekomunikasi (MTEL) Realisasikan MESOP Tahap III pada 1 November 2026",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOQy1OdTYtTHhobF93REpUMzNWT0NjYVlmOGFlM1Y1YkpMZkJrcVVTdGkyNklqeExOcTNKOWg4WE1tTG8tcFJMV0tCLTlTZlM1anBQcTgxSUR0dENlcmh2cXV3ZmIxSnM0c2VwMmVnZ2RwYTU0MzcxTG1XbF8zaVJoMklqbUYwb2FjblVST0xzNHdiTmdZOTFhbU5pNzRUX2xFb0NpdzVsVGZxc0taZERRM3h0TFlnQdIBrgFBVV95cUxNRGluTFQxeDRvcjdySkFiMlBHVjYwWlIzaEpKdElXOVJKMFZxQU54MUp6SG83V1I3RUNva3JjVWwxRVI0RjdqNE11R29hU2hxUm9IaWdNV3dlZ1NiV3F4dmZCQkpsdW1JU1RFWFhfUGFZSzRNRERNM0ZBdEdVSGRILW5Va0lUaGFCbHVQbUhzaFh0U0F0NTFSNFVfZllKeVBsUHZ0S25MOWdoczdrN3c?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 06 Jul 2026",
+        "sentiment": "POSITIF",
+        "headline": "Catat! Cum Dividen Dayamitra Telekomunikasi (MTEL) pada 8 Juli 2026",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE15YzZFQWUyVVpxUV9XbEVIa3FPYjc0ODZtVTJnZnpBaTVmc2UzelNmLWtZMXR2cWpfRHpXeVd4UWJEUDZnUWdYRzZ1N1hDdFlnRU5FY0IxeElIR09fVGhwY3prV0ZmZw?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 26 Jul 2026",
+        "sentiment": "NETRAL",
+        "headline": "Mitratel (MTEL) Tebus Rp35,93 Miliar Saham Tolak Penggabungan Usaha",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxPYkdiT1ZLZWFyU3Z6djA0QzVDVDRGZjdIUkxoNk1na3dKbFV4dGtQRzZZazJiTGhiRVMzWklmOEM0MW1vbGt5dWFDTG5nN20yNWJkM2VRUXo0YzJVNWtYRDd5U0ZwSnZtUHNGVFZQd0VTMGlTblN0Q1poNlpLaEJTNDhSSm9VNWFkd1o4eXd5V0hqYlBGbVZR?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "MYOR": [
+      {
+        "date": "Mon, 27 Apr 2026",
+        "sentiment": "NETRAL",
+        "headline": "Laba Bersih Mayora Indah (MYOR) Melonjak 37% di Kuartal I 2026, Efisiensi Biaya Jadi Kunci",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxQeGJ2UmN0VUpoVG16ME4wSURIc085aTBQVGxWLWRtX1FiZzdULWlieG5SMzA1c0MtZDExOUJkYnRNMWJZLUhIeUdkWGV4dVgzVWphMjZ1dTVMMHU5NWZPeDdnSTdwR0FJYnB6T2RxWTR2R0dSM2NjVy1LVWVldXgwVnJONV9vTTNsZHl5a2N2SUZtTlNmR1Vqc29oWUF2YTA0cF9jTzNoY0VibVFVaUxCMnF2Nmo4THRpWm16S1R0b2ZxZUk4YlNyMk1uVmdVcmM?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 30 Sep 2026",
+        "sentiment": "PERHATIAN",
+        "headline": "Saham Mayora Indah (MYOR) Anjlok 34% Sepanjang Tahun 2026, Simak Rekomendasi Analis",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQQTk5T0huYnFySmQtUVBlN0tfY1lFQVRSLVIzaHhwUmx4bkdMaHh6T19KTnIyTGo1aHRyaUFsQ3FOX2Z2Z2lCeTNqS05rWjZLUFVZdjk5emkxNXVEcE1qam5NRE5nbnhWTUdrZHR3MGdvLXJGemlwSmtTYURaeFZUU1hHRm1laEVSQk9KNkRwaFU3M1ZSWC0zUVp0X0FfNUp0ZG9vcVpsUlR5SE1CZUREbE5TWWEtd9IBrgFBVV95cUxQdG02TkZNM1hIWWw0YVlkQ1VkSy1vQkwyZXlEMEhobWJ4ZTZWbXhsWUVJNEpUVFY5MXBMdE82eUN6R2o2bXdBY0Y2c216SU1uLUdkQWV4SFUzdFpQRE9SVDFvV3d0a0EtUlVxUkx6aE9YUkFwZUgwa0NQRjJvMFpMRTR2WVlXTk9vZUR0SWdaT2NWLXZRTTJIMmhVamJ0TzFHYlJ0cUxEQkJvZlh1MlE?oc=5",
+        "matched_positive": [],
+        "matched_warning": [
+          "anjlok"
+        ]
+      },
+      {
+        "date": "Thu, 25 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyeksi MYOR — Target Harga untuk 2027",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTE9wVENRV3ZaNXdDVnlUQi1CQ3REYWoyVm1zb2tPdVNiVFhaeGtCYzVwb2dKcGE0WVRMbkphdVR0Z3d0dUdxYzBXaUR5RFhhNENPSDNNa0dOQU8tLXZXUXhmOEljNWdfZEM0NGluR3FNVVJ6X0hL?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "PGAS": [
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Prospek Ngegas Saham PGAS",
+        "source": "Bisnis Indonesia Premium",
+        "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQV011U1NPTGhTcEJxVWs0WGctcXQxSFpPQTQ5U1lsaU1DVDBXNWpDa0tnWmdOY1gyTUl5MzVidW9vb3VYbDJvSEFQOUY4aE90MkRwcjZFdG0zc0pGWllRUHJzWjhZaXlBZ2Q4UEtIeWtxeUVETTBleS1pYU1fZjczVEptMVk?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 01 Sep 2026",
+        "sentiment": "NETRAL",
+        "headline": "Rekomendasi Saham Tim Analis Bareksa Hari Ini: PGAS, ITMG & ELSA, Begini Prediksi IHSG",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxNTU96eWx1ZWZ2dUhjZnhpY3dRVEpFajhYQUNiaVFQVFVlU2RMNG5McDhBOXhvaHhzSW9RSVVtRDlHZnZPUDZQZHo5TllPbkxPb0xMb2Vub19xYmpUYndDY2g5dWM1cFBtdnB6dTd3dW9ZZzlKTklCZjBYS2F2OEVoc3dtbURBMGlEZ2dTcUVMZUNsVWgtUkZwc08xbllPVUpLdFB4TWl1cnFiVzVPeE9LOHkwV0JUVDYxZGNERXBhWjRuN0FsX0VObQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Fri, 14 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Lo Kheng Hong Borong Saham PGN (PGAS), Ada Apa?",
+        "source": "Ajaib",
+        "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQZDlEalVwQW1sRnpFX1pINnE1OTZJVHY4dUVsdXNTN1kwRTJXRVFvMFJGQ3pRUTVEX05YZDVfdFJ3X0JOeUYyNG5CeWxWVnFaNFgtMDk5OTZzZ3BxbENzMEF4bkJqRUUxNTB5MmZkOUxEQWJUOVZBRmRUVDZCTGpwTllHaXQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "PBSA": [
+      {
+        "date": "Fri, 30 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "Pandu Sjahrir-Supra Sekuritas (SS) dan Paramita Bangun Sarana (PBSA)",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQTGtRYXBKb2hKREhJSGU4NDdxQUVtZ2hCY1BFWjh4T3llajMxcUVFNTN5M1RjVlg0YVlGbjlZVzhmLXZ2ZVg5c3hhQXQ1a0ZEMXcwSzFOOExVYTNfSEtwMEhBeXB5RVZ5cXJCd2czbVlINGp1RDgtRW4wQ05PN25FYWYzcFFnWllUdW9kUHZ3cHlzbksycmY0?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Fri, 09 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "Paramita Bangun Sarana Mau Stock Split Saham Jadi Rp 25 Per Saham",
+        "source": "CNBC Indonesia",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxOOVhPYWRNd01hTXFOUTZ4TDdlZC0yQjR1U1pDRlVTUjNKNktpYkhLUUNGR25FaW9HM2hIejcyS3lVUWVhTHQ2UDlzVkQ4U21sQjVGYzUtVHo4SmowbU01Rmo5bGVEeW53YnhPRlpGRTQ0N3prYkc3aXZoUHhRMHRwaS1mcHZsZGdsUTJNNHpkY0YyYXRDNGQxMldqQ1p1Qk9rS3pFNk5pdVUzMmR3aTRGUVFrQWxYUkc1WE81VFNPa09NaURfT1HSAcsBQVVfeXFMTUFTXzBzRFU1cm4yaUw5M2s3YUVJVzlLWWRXcXB4ZHBJeFFwQm5iSEx1cnJDaWMxckFxV1NtSThKczlXUmVRT2VoZXRubEF5Wk5XUUNOTndXX2hQOXJ3UFlKWHdueU80WXBDajBMZXZxZHBrQzh0aXJtb2JvMm5RbU45MUNJVVZIcVBpUng4TEVGdUtiTmd0WE1jbjZOQy1XdFpMdXFjdmtEd0d4S1EwWVh6ODI0MjJuemY1Ukc5aHJQSVVIVVMzRnlNNU0?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 22 Sep 2026",
+        "sentiment": "NETRAL",
+        "headline": "Bidik investor ritel, PBSA dapat restu stock split 1:2",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxPZUVnb2hmVkJmN0NaMk1uaXQ1VndoVGQ5aW03Mng0OVpYbGRSa1NuOTNPQmhQOV9wek1GQW5PM3B5T0NOcU5MbGNtaEc1ZHVZd29uc1FSa202T3A2QWIwek5RRWtPSVdDUUV0bEMwVVZPazRFalNON0I4UWttS2FmdWg5MW1HdHBqUVFXZ3JmYXhJdUl2WkhnV1BvWU8?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "NRCA": [
+      {
+        "date": "Tue, 26 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "Nusa Raya Cipta (NRCA) Bagikan Dividen Rp40 per Saham dari Laba Tahun Buku 2025",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE03MEtVWldQVllPSkRTOW93SGU4bjJ3Rmp2UWpTbGxGYWJ3MVlEM1duOXAwVGNiWDFVMGdZblBxeElmeC1kaTh1YlBBbUoyMkpQSnZPZ1d1NFJwNkhWeW1UQ0d4V3BNdw?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 04 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "SSIA tambah kepemilikan saham NRCA sebesar 14 juta lembar, jadi 64,50%",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxPa2c3N25HSDV0cG5uMEJEekE4UmVDUkFkV0lWdzRwRklhS2Y4UERKXzNvem96aExXM1dKMnFUSU5GWEFqbE5YOU5pQ0FlVUdXcENqZC1lUUlTOGQzY3dpMzNDNzNuaWRkNjhnRUx4MXFNcnpKRUlQcXphNl84YnZ4V09Telo3Mkk2aVZiOGdkSklqQ05pUkUzUEtwaEQ4WmtzV2YzajNzaFRXWFloSHlacXRR?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 26 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "NRCA Tebar Dividen Rp99,85M Setara Rp40 per Saham, Yield Jumbo!",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNMUpaWU04OXZTUDctbUlxQjNqcURiaEFBUXh0MTJkT1NCZUkxdFJsa2ZuSHR6Yzd2LURMVHc2STFLdG52akYweW9SSnhlTGZMMnc4NDRLelVIaURGTXU5NDNYQUxqVE0zelhFN2xPVHVpaW9WT3BxTVhlVUw3UDJUMzB0YS1NcnJtMmhXODFSeHBZZw?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "PPRE": [
+      {
+        "date": "Wed, 19 Aug 2026",
+        "sentiment": "POSITIF",
+        "headline": "PPRE raih kontrak baru Rp1,5 triliun hingga triwulan II 2026",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPOERicXU3SnV1RzNCaHRleHBDeHFzSlZnN2RoMU5YVWY5SjNvdVRnZWV5Um9KZTdWdUctdU9QRWpvVklSV0lJOWlZUlhYWXVxOXJjWGlhTzhDdy1pNDZnSjdfb3hSQ1lka3JJRFBScjJla3NXVG0tVDQ3S2tKcXF5ZXdpbkJBUUVBRzlfQXdZQkhDdGVfbWE1REY1MDEtbkVaTjl5Y1o0Yw?oc=5",
+        "matched_positive": [
+          "kontrak baru",
+          "raih kontrak"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 07 Jul 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham PPRE Menguat Konsisten, Sudah Cukup Menarik Untuk Dikoleksi?",
+        "source": "KONTAN",
+        "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQZjBnVmxhZ0JoUHNDNkkzdGoyOHR4MjFOWWI3UV9vNXYzai1Jc3VJZXYwYTBNMVFCaVFpSFRzY3B1TnFpbEVVTldwdGtYQ1doQ1ZOT0F3OHlaSHVZNkFsU1RnU2Z4N1I1Z2JzaHpya1UxUFh6MWtKZF96M0FzUGh6M1FUS3U0cS15cUtkejlkTGFmRkUzTUNZUnQxbjY0c00?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 31 May 2026",
+        "sentiment": "NETRAL",
+        "headline": "PP Presisi (PPRE) Buka Suara soal Rencana Divestasi Saham PT LMA",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxObHBxeUJFRExwdkpmU3dMaFdiNXp2TE13MTloZERuYWNZYzFvV0Vmc3o2TWN4bVEyXzlTVnBLeWZpb1ZPNUs1dHFHSndvR3Z3MHpwbEt6bWxRZE5NeFN6WmZrdFY4SHUwQk1qbTRCTmN2bXNraHZVRUtzTEtrc3lWWXA3VnRKZW9idGlscy1VRU1oXzJM?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "SIDO": [
+      {
+        "date": "Fri, 23 Oct 2026",
+        "sentiment": "POSITIF",
+        "headline": "SIDO Tebar Dividen Interim Rp300M, Jatah Investor Rp10 per Saham",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxPZXZPQVphdlNFT3ZqMWo1cUdJY25NMFlQdG1aNW9GcjJsMzNpMUx0cW1pZU1zUHJtNkNoN2FWYmFfMWJnX1Y3SmZVbWJRWlk1LU83MTVDNk9QcmdhdXZndS15Y29RT3ZPMnh3RDFhc2ZDZGpha3FjaFNEdTMyN0lNcGJockdpd3dUM21BQ1hPcUlFM216Q0E?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 10 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Rekomendasi Saham Hari Ini: JSMR, PGEO, PTRO & SIDO",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxOVkF4alVGMVUydEl5SEg1V3VEc3ozd0FWTkZwdXBtY2pWV2JrZ1pFVVo0c0k5OWlLazRaRV9uaXk5MnR0RVFEWWxoaDJhM2FzTjlWRFRZSFNkZkhTa0x4QkQteGFNaWtva3h2OXUtdE1nejNrNXZIZUlZdThFM25HN3JUSzZ4aE1FQ25VVG1Zckx1VExmZlF4amhR?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 23 Mar 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham Barang Konsumsi Stabil, Sido Muncul Perluas Pasar Ekspor",
+        "source": "Kompas.id",
+        "url": "https://news.google.com/rss/articles/CBMilgFBVV95cUxOSDBSSUpITmtUS1R4anhFWU1RV2NKWDdCOGFSOE9pVEFMMWo3LXVnNGlYYzdjZEx4THY5OEhDc0VWVkExRXJIdHRBcmpoYnZhQjhEUHZfWU1LQTRBYlFFQnFXai1ZUHo4OVFLVklra2lQTWNpT0JaMW8xOU5DZ0RWVng5OEhSYkVuRER3UmhJSGtKTDI0VXc?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "SSIA": [
+      {
+        "date": "Mon, 26 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "Cuan! Surya Semesta (SSIA) Persilakan Karyawan Beli Saham Diskon",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxOZEQtV2s2VEZjUEF2bHhMN05UMXMtcHF1VUlubnE2cFl4YmVRZGctdFNDTmJvQS1HWTRkNmhSQjFSa1ZsUFVwYXRoTG1wRlk2dG5tNkRnM3hwdHo5NVhSLU5WWTl3aXdVbFQyUE9aSUhtNkZFY1NkMUo4b2V1dTV2SVZKRW9KaDEzbWNadGw4ckNIX2c?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 26 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "Surya Semesta (SSIA) Siapkan MESOP, Maksimal 82,34 Juta Saham Bisa Dieksekusi",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQbHpoaVB5UDB2aUlkTXItOWQ3OElGT0lkbkhMcGpDV2ptWmZjU3VDVGljMDY0QktNR1piMGRaTTlzV1RuS0o3Mlh2MGczNVBaQkFIRzAyQWswZjgzQkdGMzloRWNyRVVMeDVhNTBfUEdYNXQwTEI0d1N2QVU0Y2tuT2hKdmtLMnV3V0M1Zkt1TTFNZDJ2V2NzUzlRSkVUTkZqcXFGNnNkX3BWZGZXbVHSAaYBQVVfeXFMUFZCQ0YtWkxLT2JxbnVrd1p2X3M0Vmpqc2cxOFVhQVEzTmFURUxZcXl2TlB4M3pHUy1CQXlWeGo2M3JYZThkRm1INWNUazlPOW1RX2lpTkE4QlQtOTZON2U5WVZEblBZN3AxbzMwMmEzZExFWkZJcS1XUmU5dTJ0ZjBZNG9OOFY1MVAyY1JrR3hkblVuaUoxSzFMd3Izb2JpMlFNa0U1QQ?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 19 May 2026",
+        "sentiment": "NETRAL",
+        "headline": "Surya Semesta Internusa (SSIA) Terbitkan 235 Juta Saham Baru via MESOP, Ini Dampak & Rekomendasinya",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxPRUZNanByVlBWWUt0bmQzXzhlYjJDV3ktWmxMdm5XNkViTjJHdlJGMVdlc3dBb3JuREVZejlDYnFUbU9DZndDd081UjNZN0pDakZ0eEFEdlZZNlhwbkpkT2lsRXZWOFFxMi1Va3J0THJDSWhjSVBuTnZoZWRERlBISlpFRlIwSHBhOUxBTXBEbTk3MENsSEpRWFNhUncySTlxWTlYVXVFeDRMSmdPXzZTTThPdzVvUmhBYzAyd3R1N19vT2VHUU5FT3JlUjY1ZWFfWEdzU19Sb3F3Zw?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "TLKM": [
+      {
+        "date": "Tue, 20 Oct 2026",
+        "sentiment": "POSITIF",
+        "headline": "Telkom Siapkan Percepatan Buyback untuk Mendukung Nilai Jangka Panjang Pemegang Saham",
+        "source": "Telkom Indonesia",
+        "url": "https://news.google.com/rss/articles/CBMi1gFBVV95cUxQUGlUbkJXLThQeFpZUGp2ek1rc1B1N3RBcVZtenZBUVR3TGxodkNaRXNUS0MydkZCMXUwZFg4STlDbTJiNDdIa1NPbTF0ZzROYjF0NXppSzE1djdPbkxIMC1Ibno3cGpGNFk5Wk53WUx6VGcxZC03NXBfRDRMM0ZPUlFiaU9QWVhKWTAxbkdIbUNBZFZwOHVkTjJrZDdUMnI4OGV6ZmlrUlNfQ29ZczR3OGdJM3RmYTlxV0dFX0FrRThURXB5cE5iOV8yektsOHdORjdHUkx3?oc=5",
+        "matched_positive": [
+          "buyback"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Saham TLKM Diborong Lagi Investor Kakap, Kantongi Miliaran Lembar",
+        "source": "Bisnis Indonesia Premium",
+        "url": "https://news.google.com/rss/articles/CBMiuAFBVV95cUxNVXlNODAweDJTQW1hYTZUN2M1MDdreXZveE91dTNwQk5aZjdaeW5PLTJtNXJldzYzUDVUbzdVdTZ5akh3QXpFb3k4dDJQVnRYZUJiaUFGWXl2bVI5SGItb2ZGSnlnbTNlb0dPenBMU0VBaE9SR2dURXJjSnhyTDVfUG9Md2lwWnNrUUxFcjV4YnFhQVFKTDhYcjhKdXEzZWt2bXNfZ3R3bUVYMEp6NXpjSnkwNGk1bWpP?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 12 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Cek Rekomendasi Teknikal Saham TPIA, TLKM, dan ITMG untuk Perdagangan Jumat (13/11)",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPajZybkNvRjVRVDZ0NE04R19Mcy16Nlk0U0YwZE1xT2xRc0ZrQnV0YWs4RTdHeGxJd2laOHlIWF94SFZ2WkdIZWxBU2Izam93eC1mNnl4dG0wbko1aDZ5TG9qR1dWX3M3Y0JvWGpCNFJ6TThBUUpCR295Q09jQWwwWlZIUlhBM3pLZEItbW44VFpQTFZpRWRoVnItQ1ZNcFlwbFdZQTZIbWJVWG1xU0ptNFhvX0jSAawBQVVfeXFMUHRWbk5RQnl6d1cwbXUxOE5XMFFuUmlmS3F3d1ROeVd3cHQ4QzJDbkFyVFJadlNuVnQzS2M4V2cwck4xLThSMlo5d1pHNnl6TlctMG1VS2Y2UkNHU0Y0Y0xxdUtJNDhxSVNkWDYxNTFkR0dTTUFETTZ0ZVAxRGdjck1MZDR3WGpOZ1B5SjFrS25iYzRXUzE5T2VGTGpVQjZsLWRERF9qajVTdEdCaA?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "TOPS": [
+      {
+        "date": "Fri, 13 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Totalindo Eka Persada (TOPS) Diputus Pailit",
+        "source": "Bloomberg Technoz",
+        "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxOYnRvMXhBQVhuQkM4bktsZzRaMG4xU0pYU3FHLWhmd3hhaWhtUzdyUVQwUE5MY1RhaUl6a2tmSXFHM3gwWUNJdGwzVDdaZVNSTTc0aVBBNzY4czBrakVXWWVURHgzM0JUaElacVJja0NuYk9lZHdyOHEtYnExVGl3RmgyZmUycWU4SnN0TVlLbnpua2lqaG5ITg?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 31 Dec 2025",
+        "sentiment": "NETRAL",
+        "headline": "Perkembangan Terbaru si Saham Rp1",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE9VSURmeFFpRDVXQWNKZzJLeEp4YVlORktlN1NHb0NSOVU3WDRzLVlHTlJkc1hlc2xCMTczcDlfNWRLNWo0b0RrS3lqODBYTlhFaGFTTUc5VzE1WllmY1ZCaVhfSkZZbVdGdm1Zc1d5aFl1NG8?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 16 Jul 2024",
+        "sentiment": "POSITIF",
+        "headline": "RUPSLB Totalindo Eka Persada Tak Kuorum, Buyback Saham TOPS di Rp 1 per Saham Gagal",
+        "source": "KONTAN",
+        "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPQ0Vfa3U1elpET0VLcE1QVk5pNjJ6a2FuTHY2OTlYYjY4T3EyVlFPNkRWNGxpTXZQNnRibHk5ODN4SmJTdS1OS0tIVGQzQXpYejRDT0VSMFVKVHpSajVUbjZlWHlvYjI3VFgwcHdHckwyMVpmaFBlZS04WmIxWDJuVXYtZlBJQ1gyUFBvYTRiRmZEaUxPWmprUndIT2I5QjcwajJ3d1RGSW1LNmR4bTRia3RhY0Q2Wkk?oc=5",
+        "matched_positive": [
+          "buyback"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "TOTL": [
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Total Bangun Persada (TOTL) Berjuang Raih Proyek Swasta Rp10,7 Triliun",
+        "source": "Lotus Andalan Sekuritas",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPM013dF9TNU9TeHNVNTZpZUpkclA5YllwSWk5VGhDRWxlWFBUbnYyZHY4cHEyM0JjOHc4UTBLOUE5TTZCSmk0MnJ2eEZCUEdpSjdNalFhUnNJNUJGS0NRZzQ3OWxETmtuaVV2MUkzV2huSTNOQkNUNVZCZjVybUlzVWp1TzFhaEFCb2owLXVfTU42d3h4cGhUNk92SmF2dWFxcUpyT1RWUVNuQkhKZ1E?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Mon, 16 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Total Bangun Persada (TOTL) Rombak Jajaran Manajemen, Ini Prospek Sahamnya",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxNdzJRQVRpNjU1UHZuV29kZmVyNFQ5OUVFZUhNZkE5bkJKQzZpc2J6UnZXQVNkVzluMTNYTzIzQzQ0MW0wZUtHLU1aUVJkVUNjazVMeHA3bEN5dEFyQ3Q5V1Y4OXg3LWR6Qi1iSHJQdnA3YU5WQ3dvbFNWRFlVcm10WjJCNzRZTnQ0ZE81OHpoaGhtZnJ5X2syWVRzbFVpbGdGNWR6Q1JqcU9DaGfSAaMBQVVfeXFMT0VHNHhDa2tXOVNpR0w2VVVOd0p6c09XYUFsR0QtcTNxRUVWNGQ3UTlOZ0JWcVladFpGdW82TE5jZmR1dDk3NTZJMEhxQ0VFcE5VNDhjR1Y4T3BESlA2WGQ0ZzZjVW9ZYnpvTG92ZEx1Zm1DOGFkLW4tUHgybnBTbnNUbkJvQ3Y5RmJjSFJJaDdtdUYyNWZicWdWLUVOanlYSl93cw?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 16 Jul 2026",
+        "sentiment": "NETRAL",
+        "headline": "Direktur Total Bangun Persada Lepas 236.700 Saham TOTL, Sinyal Apa?",
+        "source": "YB Sekuritas",
+        "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxQdlJTUk4xUlhCWmRHcFZfVW1sTUtDbWFiRFNGM1ZLTS13aXduUUZMTk5RaFlCT1pBMUdZdHRCZERFM2ZXNzJNRWh2cmE1Rm84dWxDLVlOV3pudzVITjE0aHpWR0ItUktsdXVlaDMtbHRXdHVBdjRhd1VoUEtXLVIyMXgzVEVTdy1mRGtOdE10WGoyWFN0cEFqWmRoQmRJRGM?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "TOWR": [
+      {
+        "date": "Tue, 17 Nov 2026",
+        "sentiment": "POSITIF",
+        "headline": "Profil Utang TOWR Berubah, Laba Bersih dan Nasib Dividen Jadi Pertaruhan?",
+        "source": "KONTAN",
+        "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOVTQzSThfTVFyWUpGdm5xLVpCOGJrY0JvQ21XY2JQUWtrR016d3RDSVhMSnZoeTFtYkhQMzhxZ0ZWWWpPRjN2NkFHYUJwVC1XR2xyTUVCN1FLSnVlQW1TcU9NVFA1RDExb0pMckIzQjRkaHBMbHRBZWhaTENxXzVXWWhYLTVlejIyTWRDckV0c2lWR2E2c1FON2N4Snkyc09IX2xEdmhwOF8?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 21 May 2026",
+        "sentiment": "POSITIF",
+        "headline": "Sarana Menara (TOWR) Bagikan Dividen Final Rp6,89 per Saham, Yield Berpotensi 1,72%",
+        "source": "Bareksa.com",
+        "url": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxPQXl4NlAyTGd3dHFpWHRKWkI5WDNVY0FTWC1NVy13c0FCcFVkWGFRYm1ReGVkZnBiYjljYmp3U05NUFUteEJ5YmRhMzNDTFpuNTktN0JjWU9ueVJLY0RITlFDQnBCUkNLdTBuY09hMXFORHY5a3BQZ3ctSEpvcnN0aHVZVmlBbXFob1RpWmVMMElmNGd4OFRCbWRQMW5GZDR4c1pZOXRVSGZnX1BCZVR2VC12ZkJ1eF9uTkk3b3RHUXZKNzA?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 30 Sep 2026",
+        "sentiment": "POSITIF",
+        "headline": "Sarana Menara Nusantara (TOWR) Bakal Kucurkan Dana Rp500 Miliar untuk Buyback Saham",
+        "source": "SWA.co.id",
+        "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxQZWl1d0dyNEdVTktmTDFkUFF2ZFNlLWg3U2R4UjJULUVTeTB3c1FPNmp4QnFsdGEyM3V6MGNLSkNZc0lPa3dGV1daRnlsNm43N2NXQTgwTVhKeEVJQVJHUElaYVJLdGVJelRjdzhmRkUyOWpsVmY5NDl3cVRRSFVNcXpNTjRfX1ZMVkxGQklGWnNvSFJhYk5oXzY0cElwVVhvMU80VUljNlhWVkdUMGoycw?oc=5",
+        "matched_positive": [
+          "buyback"
+        ],
+        "matched_warning": []
+      }
+    ],
+    "WEGE": [
+      {
+        "date": "Thu, 27 Aug 2026",
+        "sentiment": "POSITIF",
+        "headline": "WEGE raih kontrak baru Rp775 miliar hingga Agustus, melonjak 568%",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxONHR3eUNueWRDdV9sZ25nNlJvVTRranU4UDVRMXpxVTJsR3lmYmM1aEU1eEVzRDROTjVGWjQ0Qndwckx6MG9COVhfZTBodzhvdWw0dmtzZmN3NHlPWk9sbjVjSTRDeDRwRDhKSF93ZVdrMkFJTHJLRkM4bEZsZ0w2NWNDTWNxSmk3SFNiZ0U0NVZMc0szbzREcGIwTXc4UlB0SE83dmozRllIVTQ?oc=5",
+        "matched_positive": [
+          "kontrak baru",
+          "raih kontrak"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Tue, 11 Aug 2026",
+        "sentiment": "PERHATIAN",
+        "headline": "Saham Naik 8% Usai Putusan PKPU Ditolak, Tapi Awas Wika Gedung (WEGE) Masih Merugi",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxOWG5jY29pRi1VR25zanJFOG5WU1VlNkhnV3FaamMzUnBXQ3doQXBYX0g4Rk1UdUNuME1keUliZVRFVUdwUU5yVklFUXBzUUl4dXUtbmZaejBOUGNJM2tlOXBOQ2JCbDJTckxIZmNEN1hVMmU1UnVPSkI0VDlrUUhDMDdNWUpFR0llYTM0ZkZrS0s2QmZHdWdfMU90aVc2dmgtSnNHNzhZS2o5WkcxaWNvUTdMOEHSAawBQVVfeXFMTXZ4R0RjRDVDaHAyQnNrSUpHVFZOQmhfSW9FMTFfWVBMaWJDaS1rRHZhUU5HWlhLWFIzWVlpdGsyVWFtU2Iwc3A3SHBndVVUcFM2WkxMakd2d21iZk5vcVVZeGlONUk5ZmthU3lxMVU1RmFSNkR1TDdoMlRkT0JxZGtNejVDWkxyQk9hMVZhVzhPNzFKTzBvMGhmbEh2bXMzbnF3UFdaeVhKR25HZg?oc=5",
+        "matched_positive": [],
+        "matched_warning": [
+          "pkpu"
+        ]
+      },
+      {
+        "date": "Fri, 12 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Wijaya Karya Bangunan Gedung (WEGE) Lanjutkan Pembangunan Kompleks DPR II IKN Senilai Rp1,96 Triliun",
+        "source": "SWA.co.id",
+        "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxQeUR1S1U4X3I1NHIzejJqQ3o5VTZRNlRMVzcxMTE4QjZjRnRFYURWRzV2NWdUQzBVc1Fmb2VaNjZoREl2SXNtaWpUaHdkUFFacWNieWFuaXRZYVNSVDMyMDZPWVpwWkxQZnNDbjdzUTNGOHkwZ2JCcjROMWxzSGQwamZHQ2xKTW5Hb3BGSmx2TXlseHFReHpORC1OZnhkaHd5eGtLeHhOSXVraWlsWUdyclFJczJWNUVzRHJaNk43ZXNidHRlWUE?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "WIKA": [
+      {
+        "date": "Fri, 13 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "Masuk List HSC, Wijaya Karya (WIKA) Buka Suara",
+        "source": "kontan.co.id",
+        "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQNXg5N0FLZzB5QktCZVBjNU4yVFlnVFM3MDZreHZIS3h3bHhIQWg2ZTdJTWdKNzFUeGIwSUhuVmJwa1lFaGhBM0w5SG0zRFEzdG9kb090UUJILTBUTGxGMF9TMGJuaW85UXVBRDA4c3dEY2VXM3cxQ0JhYmpFbWlneldjNVVjUdIBfkFVX3lxTE9icEo1SDMzS0tSTXoxWVVWQ3VOak5ocHc0YXdIMTFxMUFVbHBFRDlrYUgwckluZVUxM1pqdXJaSVFkNkFuUERwbFhGUzd5WnY5bmxGN3BsbVZfaEtDM09DbzM2d3ZUY1pIdnJ3UUo5NUlpamxjdzVSLVpFWFJVdw?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sun, 25 Oct 2026",
+        "sentiment": "NETRAL",
+        "headline": "WIKA Lepas Seluruh Saham Winner Senilai Rp641 Juta ke WIKA Recon",
+        "source": "Emitennews.com",
+        "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxQZ1hCTnB1ZmNjSEdEMi02QzVVUnRsUDF3WFJSUTBzSEJyOXhLdXBhTEJGV0x2dGtXMkxFTXNnUTZzcjhOd2x5RVFxSnl2cDYyczA5b0hYMHBnSmc3ZmhJajJ2ZmZDVW5pX0xSai0zN2N1elR0WU5QQWx2QzlDd3RMRVZ0bmZ0N1dXcThHSTRpS09acG5UcnN3?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Fri, 13 Nov 2026",
+        "sentiment": "NETRAL",
+        "headline": "WIKA Hormati Penetapan Saham Konsentrasi Tinggi oleh BEI",
+        "source": "Demokratis.co.id",
+        "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBRTWZrNFBvMTZaRGVyeDVOUWEteWVGV24tNXFxdlY4OHdXZGY3OUd6MXB0YVdEdzZlS3dGcFZJX1JsZ0t1aGlEcC1MU0RNc09qeWc3Q3lGbGF3dzA4NTExMHFTYTA?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ],
+    "WSKT": [
+      {
+        "date": "Fri, 09 Oct 2026",
+        "sentiment": "POSITIF",
+        "headline": "Waskita Karya (WSKT) Lepas Kendali Waskita Wado Energi, Investor Baru Masuk Lewat Suntikan Modal Rp14,11 Miliar",
+        "source": "YB Sekuritas",
+        "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxNWFlTVG9COFBJdDZ3VFhSUGdsT3dZREgzNFJFYkJybDNJZ25LbUd6NW8zcEN2em9XTk5WUGpjUmoxRG9FQUhoZFBrYTRHUFFiTDVKaGdRN21wdWYwcWM1NEhaMk5VZjU3eVdKLXVyRkpPRW9FR3AxQndPUWhiWTZoRHJCVnVXaWJ2M3YxVFUyYnBMWkswYURIeVZ6UHNFb3RuQnJNTmdOYzFBR09hcVNwbFpKcGppaGctZnNmSDktYlBrRG5Pb3pjWmdSOENVZXVMWGxsZDE5VFQ?oc=5",
+        "matched_positive": [
+          "suntikan modal"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Wed, 19 Aug 2026",
+        "sentiment": "NETRAL",
+        "headline": "Danantara Bicara soal Potensi Delisting Saham Waskita Karya (WSKT)",
+        "source": "Lotus Andalan Sekuritas",
+        "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPVkF1MXR2N1lsYWhySkpLbm1QZVViMjJ3WHVkNmpFa1ZqZW9nbE45T0ZvS2FZNEZMVFRnclhyYlI0NHhEOTUwZE1PRFotRmloalZvdTVZeDZQR3dOdlZNLWVrV3M0bFlBQ2M2OUVPMlVHTEZ3VDFNNGdwZ3U3eWlNeEo5eVp4d2RyR2F4VGdiWjQ0SHNROEptSGNMYmVCdmJpZi00RzRrZzg?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Sat, 12 Sep 2026",
+        "sentiment": "PERHATIAN",
+        "headline": "Peringkat Waskita Karya naik 3 level berkat restrukturisasi utang",
+        "source": "IDNFinancials",
+        "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxPS2VyNTZ0LWRYXzVYRVNoc3JLUzJ2MzZJQWFUTkdoVEROWjZYQjM2TS0tNXo1NnI5WURtS2VTbkw0ZVhzSDNPRWFDY2F4Nk5MS09HdzVkdFhVQWQwamNobmRRMWJ6ZnZYZ0o2TE44cDhxRkxIYWZwalZpNVM1ZG5MeWtyZ0c1NEx6dFhUMnVQNlRjVDNnYURUWUs0YUhQbER1UTZBd1ZtWFJ1b3JGVnc?oc=5",
+        "matched_positive": [],
+        "matched_warning": [
+          "restrukturisasi"
+        ]
+      }
+    ],
+    "UNVR": [
+      {
+        "date": "Thu, 04 Jun 2026",
+        "sentiment": "POSITIF",
+        "headline": "UNVR Bagikan Dividen Penuh, Tunjukkan Disiplin dan Ketangguhan Bisnis",
+        "source": "Unilever Indonesia",
+        "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxON2NWNmk2MDc4VWRuWVVUWHpjME1KSWVaUGozUHdjN3VpNHpGVVVKMFV2c1Q4ekowZkE3OHV6MU9TdG1mVnFWVVdNTXkyZ0ZPa2V3MnItU3Y1dXN1WGk5V2Z1Zjh5VzRmMjVRZ0ZIaExFenJiaE1xR0NBWjJFLVdGSWJyTzhabGRFWUQyVWUxQ2tLU0NRX3dxSDlzX0ZWVFl5TG5CR011SEhfLUIwZk9yQmctNFRSU21Pb29hU1pR?oc=5",
+        "matched_positive": [
+          "dividen"
+        ],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 19 Feb 2026",
+        "sentiment": "NETRAL",
+        "headline": "Prediksi Harga Saham: Studi Kasus Saham Unilever Indonesia",
+        "source": "Universitas Airlangga",
+        "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxNN3Z2dVFGX1ZKTnFLZUpCMGoya0JGejZGbVNrblZEUV8za2JUSnZtUWdTUWFqNU9lWHhIZUZLajdKei0ydnpkMTZyY25YNDliRF9WdVJMQ2psbzRzbWZnYWd1dDVrVGx0OGI3d181Y0VIU0lReGVpTkpOU2wzUWY0cnR3Y2Y?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      },
+      {
+        "date": "Thu, 25 Jun 2026",
+        "sentiment": "NETRAL",
+        "headline": "Proyeksi UNVR — Target Harga untuk 2027",
+        "source": "TradingView",
+        "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBQb2FBM2JUbFR3LUc0STEwOVFqaHdxU21ydmVBdnlZNzB3Szc4N1V4bm4tTl9XVTc2RlBsSXpvdGtVSGlVWWZCbDZRUFgzbEhkOS02WVNPTUM1NFdNcjBMaURHV2drdGdiSkxHb2Z2cU1xVXho?oc=5",
+        "matched_positive": [],
+        "matched_warning": []
+      }
+    ]
+  }
+}

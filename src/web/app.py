@@ -25,15 +25,25 @@ if str(ROOT_DIR) not in sys.path:
 
 from src.db.repository import FinancialRepository  # noqa: E402
 from src.engine.calk_extractor import CALKFootnoteExtractor  # noqa: E402
+from src.engine.daily_news_cron import (  # noqa: E402
+    load_daily_news,
+    refresh_daily_news,
+)
 from src.engine.knowledge_ingestor import (  # noqa: E402
     ingest_structured_issuer,
     ingest_xbrl_file_bytes,
+)
+from src.engine.market_quotes import (  # noqa: E402
+    fetch_batch_quotes,
+    fetch_price_history,
+    fetch_single_quote,
 )
 from src.engine.ml_models import FinancialMLSuite  # noqa: E402
 from src.engine.news_radar import NewsRadar  # noqa: E402
 from src.engine.rag_chat import RAGFinancialChatbot  # noqa: E402
 from src.engine.realtime_news_analyzer import (  # noqa: E402
     analyze_sentiment_deterministic,
+    detect_all_tickers_in_article,
     detect_ticker_in_article,
     extract_key_highlights,
     fetch_article_from_url,
@@ -711,6 +721,20 @@ def get_calk_breakdown(ticker: str) -> dict[str, Any]:
     return extraction.model_dump()
 
 
+@app.get("/api/news/daily")
+def get_daily_news_snapshot() -> dict[str, Any]:
+    """Returns latest daily news sentiment snapshot produced by the cron job."""
+    return load_daily_news()
+
+
+@app.get("/api/cron/daily-news")
+@app.post("/api/news/daily/refresh")
+def run_daily_news_cron() -> dict[str, Any]:
+    """Executes daily RSS news sentiment refresh across all covered IDX issuers."""
+    issuers = get_issuers()
+    return refresh_daily_news(issuers, max_per_ticker=3, max_workers=8)
+
+
 @app.get("/api/news/{ticker}")
 def get_issuer_news_sentiment(ticker: str) -> list[dict[str, Any]]:
     """
@@ -760,9 +784,14 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
 
     issuers = get_issuers()
     selected_ticker = (req.ticker or "").strip().upper()
+    detected_tickers = detect_all_tickers_in_article(
+        f"{headline}\n{body_text}", issuers, url=url
+    )
     detected_ticker = selected_ticker or detect_ticker_in_article(
         f"{headline}\n{body_text}", issuers, url=url
     )
+    if detected_ticker and detected_ticker not in detected_tickers:
+        detected_tickers.insert(0, detected_ticker)
 
     sentiment_res = analyze_sentiment_deterministic(headline, body_text)
 
@@ -809,6 +838,7 @@ def analyze_realtime_news_link(req: NewsAnalyzeRequest) -> dict[str, Any]:
         "matched_positive": sentiment_res["matched_positive"],
         "matched_warning": sentiment_res["matched_warning"],
         "detected_ticker": detected_ticker,
+        "detected_tickers": detected_tickers,
         "company_name": company_name,
         "sub_industry": sub_industry,
         "fundamentals": fundamentals,
@@ -839,6 +869,40 @@ def post_chat(req: ChatRequest) -> dict[str, Any]:
         "query": query,
         "response": answer,
     }
+
+
+@app.get("/api/market/quotes")
+def get_market_quotes(tickers: str | None = None) -> dict[str, Any]:
+    """
+    Returns near-real-time IDX stock quotes (.JK via Yahoo Finance) with 5-minute cache.
+    Strictly descriptive market context (no buy/sell signals or price targets).
+    """
+    if tickers:
+        target_list = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+    else:
+        target_list = [r["ticker"] for r in get_issuers()]
+    quotes = fetch_batch_quotes(target_list)
+    return {"status": "ok", "count": len(quotes), "quotes": quotes}
+
+
+@app.get("/api/market/quote/{ticker}")
+def get_market_quote_single(ticker: str) -> dict[str, Any]:
+    """Returns near-real-time IDX stock quote for a single ticker."""
+    t = ticker.strip().upper()
+    q = fetch_single_quote(t)
+    if not q:
+        raise HTTPException(status_code=404, detail=f"Live quote unavailable for {t}")
+    return q
+
+
+@app.get("/api/market/history/{ticker}")
+def get_market_history(ticker: str, range: str = "3mo") -> dict[str, Any]:
+    """Returns historical price series for Stockbit-style interactive stock chart."""
+    t = ticker.strip().upper()
+    hist = fetch_price_history(t, range_str=range)
+    if not hist:
+        raise HTTPException(status_code=404, detail=f"Price history unavailable for {t}")
+    return hist
 
 
 @app.get("/", response_class=HTMLResponse)

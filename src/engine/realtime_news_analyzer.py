@@ -461,6 +461,44 @@ def detect_ticker_in_article(
     )
 
 
+def detect_all_tickers_in_article(
+    text: str,
+    issuers: list[dict[str, Any]],
+    url: str = "",
+    max_tickers: int = 5,
+) -> list[str]:
+    """Returns ordered unique list of covered BEI tickers mentioned in headline/URL/body."""
+    known_tickers = {i["ticker"].upper() for i in issuers}
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    headline = lines[0] if lines else ""
+    body = "\n".join(lines[1:]) if len(lines) > 1 else ""
+    url_norm = url.replace("-", " ").replace("_", " ")
+    head_and_url = f"{headline}\n{url_norm}".lower()
+    body_low = body.lower()
+
+    found: list[tuple[int, int, str]] = []  # (section_rank, pos, ticker)
+    seen: set[str] = set()
+
+    def _scan(haystack_raw: str, haystack_low: str, sec_rank: int) -> None:
+        for m in re.finditer(r"\(([A-Z]{4})\)|\b([A-Z]{4})\b", haystack_raw):
+            t = m.group(1) or m.group(2)
+            if t in known_tickers and t not in seen:
+                seen.add(t)
+                found.append((sec_rank, m.start(), t))
+        for ticker, aliases in ISSUER_NAME_ALIASES.items():
+            if ticker not in known_tickers or ticker in seen:
+                continue
+            positions = [haystack_low.find(a) for a in aliases if haystack_low.find(a) != -1]
+            if positions:
+                seen.add(ticker)
+                found.append((sec_rank, min(positions), ticker))
+
+    _scan(f"{headline}\n{url_norm}", head_and_url, 0)
+    _scan(body, body_low, 1)
+    found.sort(key=lambda x: (x[0], x[1]))
+    return [t for _, _, t in found[:max_tickers]]
+
+
 def analyze_sentiment_deterministic(headline: str, body_text: str) -> dict[str, Any]:
     """Classifies news article sentiment deterministically and extracts keyword evidence."""
     full_text = f"{headline} {body_text}".lower()
