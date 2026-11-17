@@ -3757,6 +3757,12 @@
         const liqFlagTriggered = Boolean(f.flag_acute_liquidity || (!isFree && covVal < 0.20 && cfoVal < 0));
         const accFlagTriggered = Boolean(f.flag_accrual_divergence || (netVal > 0 && cfoVal < 0 && sloanVal > 10));
         const convPct = netVal > 0 ? ((cfoVal / netVal) * 100).toFixed(1) + '%' : 'N/A (Net Loss)';
+        const cashIdr = Number(f.cash_idr || 0);
+        const stDebtIdr = Number(f.st_debt_idr || 0);
+        const netSurplusIdr = cashIdr - stDebtIdr;
+        const cfoProfitGapIdr = cfoVal - netVal;
+        const runwayMo = (cfoVal < 0 && cashIdr > 0) ? (cashIdr / (Math.abs(cfoVal) / 12)).toFixed(1) + ' months' : 'Positive CFO (No Burn)';
+        const modelAuc = (f.model_telemetry && f.model_telemetry.cv_roc_auc) ? Number(f.model_telemetry.cv_roc_auc).toFixed(3) : '0.989';
 
         fundHtml = `
           <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px;" class="radar-pulse-grid">
@@ -3796,11 +3802,15 @@
                 </div>
 
                 <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 11.5px; line-height: 1.5; color: #cbd5e1;">
-                  <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8;">DETERMINISTIC SAFEGUARD DIAGNOSTIC</div>
-                  <div>&bull; <strong>Quadrant:</strong> <span style="color: ${quadTag.color}; font-weight: 700;">${quadTag.name}</span> (${quadTag.desc})</div>
-                  <div>&bull; <strong>Cash Conversion (CFO / Net Profit):</strong> <span class="font-num" style="color: #f8fafc; font-weight: 700;">${convPct}</span></div>
-                  <div>&bull; <strong>Acute Liquidity Flag (&lt;0.20x &amp; CFO&lt;0):</strong> <span style="color: ${liqFlagTriggered ? '#fb7185' : '#34d399'}; font-weight: 700;">${liqFlagTriggered ? 'TRIGGERED' : 'PASS'}</span></div>
-                  <div>&bull; <strong>Accrual Divergence Flag (Sloan&gt;10% &amp; CFO&lt;0):</strong> <span style="color: ${accFlagTriggered ? '#fbbf24' : '#34d399'}; font-weight: 700;">${accFlagTriggered ? 'TRIGGERED' : 'PASS'}</span></div>
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8;">MONEY &amp; SAFEGUARD DIAGNOSTIC</span>
+                    <span class="font-num" style="font-size: 10px; color: #94a3b8;">Self-Trained Logit (AUC ${modelAuc})</span>
+                  </div>
+                  <div>&bull; <strong>Net Cash Surplus / Shortfall:</strong> <span class="font-num" style="color: ${netSurplusIdr >= 0 ? '#34d399' : '#fb7185'}; font-weight: 700;">${netSurplusIdr >= 0 ? '+' : ''}${fmtRupiah(netSurplusIdr)}</span></div>
+                  <div>&bull; <strong>CFO vs Profit Gap:</strong> <span class="font-num" style="color: ${cfoProfitGapIdr >= 0 ? '#34d399' : '#fbbf24'}; font-weight: 700;">${cfoProfitGapIdr >= 0 ? '+' : ''}${fmtRupiah(cfoProfitGapIdr)}</span> (${convPct})</div>
+                  <div>&bull; <strong>Cash Burn Runway:</strong> <span class="font-num" style="color: #f8fafc; font-weight: 700;">${runwayMo}</span></div>
+                  <div>&bull; <strong>Quadrant:</strong> <span style="color: ${quadTag.color}; font-weight: 700;">${quadTag.name}</span></div>
+                  <div>&bull; <strong>Flags:</strong> Liquidity <span style="color: ${liqFlagTriggered ? '#fb7185' : '#34d399'}; font-weight: 700;">${liqFlagTriggered ? 'TRIGGERED' : 'PASS'}</span> | Accrual <span style="color: ${accFlagTriggered ? '#fbbf24' : '#34d399'}; font-weight: 700;">${accFlagTriggered ? 'TRIGGERED' : 'PASS'}</span></div>
                 </div>
               </div>
               <button onclick="inspectFiling('${data.detected_ticker}')" class="btn-detail" style="width: 100%; padding: 8px; font-weight: 700;">
@@ -4103,23 +4113,27 @@
               ? { name: 'Q3: Cash Stress', color: '#fb923c' }
               : { name: 'Q2: Double Stress', color: '#fb7185' };
 
-        const liquidityAnalysis = tri.isFree
-          ? `Zero short-term interest-bearing debt reported alongside ${fmtRupiah(cashVal)} in cash reserves.`
-          : covNum >= 1.0
-            ? `Cash reserves (${fmtRupiah(cashVal)}) cover ${tri.covVal.toFixed(2)}x of short-term debt (${fmtRupiah(debtVal)}), sitting above the 1.0x safety threshold.`
-            : `Cash reserves (${fmtRupiah(cashVal)}) cover only ${tri.covVal.toFixed(2)}x of short-term debt (${fmtRupiah(debtVal)}), below the 1.0x safety threshold.`;
+        const cashSurplus = cashVal - debtVal;
+        const surplusStr = tri.isFree
+          ? `+${fmtRupiah(cashVal)} (Debt-Free)`
+          : `${cashSurplus >= 0 ? '+' : ''}${fmtRupiah(cashSurplus)}`;
+        const runwayMonths = (cfoVal < 0 && cashVal > 0) ? (cashVal / (Math.abs(cfoVal) / 12)).toFixed(1) : null;
+        const cfoProfitGap = cfoVal - niVal;
 
-        const conversionAnalysis = cfoVal >= 0 && cfoVal >= niVal
-          ? `Operating cash (${fmtRupiah(cfoVal)}) exceeds net income (${fmtRupiah(niVal)}) with Sloan Accrual at ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%, showing profits convert into real cash.`
-          : cfoVal >= 0
-            ? `Operating cash is positive (${fmtRupiah(cfoVal)}) vs. net income (${fmtRupiah(niVal)}), with Sloan Accrual at ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%.`
-            : `Operating cash is negative (${fmtRupiah(cfoVal)}) vs. net income (${fmtRupiah(niVal)}), signaling operating cash burn or uncollected receivables.`;
+        const liquidityAnalysis = tri.isFree
+          ? `Net Cash Surplus: +${fmtRupiah(cashVal)} (IDR 0 short-term debt).`
+          : covNum >= 1.0
+            ? `Net Cash Surplus: ${surplusStr} (${fmtRupiah(cashVal)} cash vs ${fmtRupiah(debtVal)} ST debt, ${tri.covVal.toFixed(2)}x).`
+            : `Cash Shortfall: ${surplusStr} (${fmtRupiah(cashVal)} cash vs ${fmtRupiah(debtVal)} ST debt; needs +${fmtRupiah(Math.abs(cashSurplus))} to reach 1.0x).`;
+
+        const conversionAnalysis = `CFO vs Profit Gap: ${cfoProfitGap >= 0 ? '+' : ''}${fmtRupiah(cfoProfitGap)} (${fmtRupiah(cfoVal)} CFO vs ${fmtRupiah(niVal)} Net Income; Sloan ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%).`
+          + (runwayMonths ? ` Est. Cash Runway at current burn: ${runwayMonths} months.` : '');
 
         const sentLabel = tri.sent === 'POSITIF' ? 'POSITIVE' : (tri.sent === 'PERHATIAN' ? 'CAUTION' : 'NEUTRAL');
         const sentColor = tri.sent === 'POSITIF' ? '#34d399' : (tri.sent === 'PERHATIAN' ? '#fb7185' : '#fbbf24');
         const newsContrastAnalysis = (tri.sent === 'POSITIF' && (row.flag_acute_liquidity || covNum < 0.50))
-          ? `Headline tone is POSITIVE, but balance-sheet safeguards remain flagged due to thin cash coverage and operating cash pressure.`
-          : `Latest news tone is ${sentLabel}. Audited XBRL metrics place this issuer in ${quadLabel.name}.`;
+          ? `News tone is POSITIVE, but balance-sheet safeguards remain flagged (${tri.covVal.toFixed(2)}x coverage, ${fmtRupiah(cfoVal)} CFO).`
+          : `News tone: ${sentLabel}. Quadrant: ${quadLabel.name}.`;
 
         triCard.innerHTML = `
           <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -4820,10 +4834,6 @@
     });
 
     setTimeout(() => {
-      if (!getByokKey() && !window.location.search.includes('notour=1')) {
-        openByokModal(true);
-        return;
-      }
       if (window.location.search.includes('tour=1')) {
         startLiveTour(true);
       } else if (getTourCookie(TOUR_COOKIE_NAME) !== '1') {

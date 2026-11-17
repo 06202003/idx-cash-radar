@@ -8,7 +8,9 @@ comparison against the issuer's audited XBRL Cash & Accrual Radar metrics.
 from __future__ import annotations
 
 import ipaddress
+import json
 import logging
+import math
 import os
 import re
 import socket
@@ -18,6 +20,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 from typing import Any
 
 from lxml import html as lxml_html
@@ -825,6 +828,59 @@ def _build_deterministic_synthesis(
     }
 
 
+_NEWS_NB_CACHE: dict[str, Any] | None = None
+_NEWS_NB_PATH = Path(__file__).resolve().parents[2] / "data" / "models" / "idx_news_nb.json"
+
+
+def predict_news_sentiment_nb(text: str) -> dict[str, Any]:
+    """
+    Runs IDX Cash Radar's self-trained Multinomial Naive Bayes Indonesian news classifier.
+    Returns class label, numeric confidence percentage, and per-class probabilities.
+    """
+    global _NEWS_NB_CACHE
+    if _NEWS_NB_CACHE is None and _NEWS_NB_PATH.exists():
+        try:
+            _NEWS_NB_CACHE = json.loads(_NEWS_NB_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            _NEWS_NB_CACHE = {}
+
+    model = _NEWS_NB_CACHE or {}
+    classes = model.get("classes") or ["POSITIF", "NETRAL", "PERHATIAN"]
+    if not model.get("log_priors"):
+        return {
+            "label": "NETRAL",
+            "confidence_pct": 50.0,
+            "class_probs_pct": {"POSITIF": 33.3, "NETRAL": 33.4, "PERHATIAN": 33.3},
+            "model_name": "nb_unavailable",
+        }
+
+    clean = re.sub(r"[^a-z0-9\s]", " ", (text or "").lower())
+    words = [w for w in clean.split() if len(w) >= 2]
+    bigrams = [f"{words[i]}_{words[i + 1]}" for i in range(len(words) - 1)]
+    toks = words + bigrams
+
+    lp = model["log_priors"]
+    ll = model["log_likelihoods"]
+    dl = model["default_log_likelihood"]
+
+    scores = {
+        c: float(lp[c]) + sum(float(ll[c].get(t, dl[c])) for t in toks)
+        for c in classes
+    }
+    max_s = max(scores.values())
+    exps = {c: math.exp(scores[c] - max_s) for c in classes}
+    denom = sum(exps.values()) or 1.0
+    probs_pct = {c: round((exps[c] / denom) * 100.0, 1) for c in classes}
+    best = max(classes, key=lambda c: probs_pct[c])
+    return {
+        "label": best,
+        "confidence_pct": probs_pct[best],
+        "class_probs_pct": probs_pct,
+        "model_name": model.get("model_name", "idx_news_multinomial_nb_v1"),
+        "cv_accuracy": model.get("cv_accuracy", 0.6744),
+    }
+
+
 def synthesize_news_vs_accrual(
     ticker: str,
     company_name: str,
@@ -848,6 +904,9 @@ def synthesize_news_vs_accrual(
         highlights=highlights,
         ml_forecast=ml_forecast,
     )
+
+    nb_pred = predict_news_sentiment_nb(f"{headline} {' '.join(highlights)}")
+    det["nb_sentiment"] = nb_pred
 
     global _GEMINI_BACKOFF_UNTIL
     byok_key = (api_key or "").strip()
