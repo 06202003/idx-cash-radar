@@ -3780,25 +3780,64 @@
           </div>
         ` : '';
 
+        const quadTag = (isFree || covVal >= 1.0) && sloanVal <= 0
+          ? { name: 'Q4: Cash Fortress', color: '#34d399', desc: 'Strong cash buffer (>=1.0x) and real CFO-backed earnings.' }
+          : (isFree || covVal >= 1.0) && sloanVal > 0
+            ? { name: 'Q1: High Accrual', color: '#fbbf24', desc: 'Cash buffer >=1.0x is adequate, but part of profit sits in accruals.' }
+            : !(isFree || covVal >= 1.0) && sloanVal <= 0
+              ? { name: 'Q3: Cash Stress', color: '#fb923c', desc: 'Cash buffer is below 1.0x maturing short-term debt.' }
+              : { name: 'Q2: Double Stress', color: '#fb7185', desc: 'Thin cash (<1.0x) combined with positive paper accruals.' };
+
+        const liqFlagTriggered = Boolean(f.flag_acute_liquidity || (!isFree && covVal < 0.20 && cfoVal < 0));
+        const accFlagTriggered = Boolean(f.flag_accrual_divergence || (netVal > 0 && cfoVal < 0 && sloanVal > 10));
+        const convPct = netVal > 0 ? ((cfoVal / netVal) * 100).toFixed(1) + '%' : 'N/A (Net Loss)';
+
         fundHtml = `
           <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px;" class="radar-pulse-grid">
-            <!-- Left: IDX Accrual Radar Facts -->
-            <div class="card-panel" style="padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;">
-              <div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 10px;">
+            <!-- Left: IDX Accrual Radar Facts + Safeguard Breakdown -->
+            <div class="card-panel" style="padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px;">
                   <strong style="color: #38bdf8; font-size: 13px;">ACCRUAL RADAR: ${data.detected_ticker}</strong>
                   <span class="badge-bei">Rating ${f.synthetic_rating || '-'} | P(Distress) ${f.distress_probability_pct}%</span>
                 </div>
-                <div style="font-size: 12px; line-height: 1.7;" class="font-num">
-                  <div>&bull; ${isAwam ? 'Cash in Bank' : 'Cash &amp; Equivalents'}: <strong style="color: #ffffff;">${fmtRupiah(f.cash_idr)}</strong></div>
-                  <div>&bull; ${isAwam ? 'Maturing Debt' : 'ST Interest-Bearing Debt'}: <strong style="color: ${isFree ? '#34d399' : '#fbbf24'};">${isFree ? 'IDR 0 (Debt-Free)' : fmtRupiah(f.st_debt_idr)}</strong></div>
-                  <div>&bull; ${isAwam ? 'Cash Buffer' : 'Cash Coverage Ratio'}: <strong>${isFree ? 'Debt-Free' : covVal.toFixed(2) + 'x'}</strong></div>
-                  <div>&bull; ${isAwam ? 'Operating Cash (CFO)' : 'CFO TTM'}: <strong style="color: ${cfoVal >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(cfoVal)}</strong></div>
-                  <div>&bull; ${isAwam ? 'Net Profit / Loss' : 'Net Income TTM'}: <strong style="color: ${netVal >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(netVal)}</strong></div>
-                  <div>&bull; ${isAwam ? 'Earnings Quality' : 'Sloan Accrual Ratio'}: <strong style="color: ${sloanVal > 10 ? '#fbbf24' : '#cbd5e1'};">${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%</strong></div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" class="font-num">
+                  <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8;">${isAwam ? 'CASH IN BANK' : 'CASH & EQUIVALENTS'}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: #ffffff;">${fmtRupiah(f.cash_idr)}</div>
+                  </div>
+                  <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8;">${isAwam ? 'MATURING DEBT' : 'ST INTEREST DEBT'}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: ${isFree ? '#34d399' : '#fbbf24'};">${isFree ? 'IDR 0 (Debt-Free)' : fmtRupiah(f.st_debt_idr)}</div>
+                  </div>
+                  <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8;">${isAwam ? 'CASH BUFFER' : 'CASH COVERAGE'}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: ${(isFree || covVal >= 1.0) ? '#34d399' : '#fb7185'};">${isFree ? 'Debt-Free' : covVal.toFixed(2) + 'x'}</div>
+                  </div>
+                  <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8;">${isAwam ? 'OPERATING CASH' : 'CFO TTM'}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: ${cfoVal >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(cfoVal)}</div>
+                  </div>
+                  <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8;">${isAwam ? 'NET PROFIT / LOSS' : 'NET INCOME TTM'}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: ${netVal >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(netVal)}</div>
+                  </div>
+                  <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 8px 10px;">
+                    <div style="font-size: 10px; color: #94a3b8;">${isAwam ? 'EARNINGS QUALITY' : 'SLOAN ACCRUAL'}</div>
+                    <div style="font-size: 13px; font-weight: 700; color: ${sloanVal > 10 ? '#fbbf24' : '#cbd5e1'};">${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%</div>
+                  </div>
+                </div>
+
+                <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; font-size: 11.5px; line-height: 1.5; color: #cbd5e1;">
+                  <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8;">DETERMINISTIC SAFEGUARD DIAGNOSTIC</div>
+                  <div>&bull; <strong>Quadrant:</strong> <span style="color: ${quadTag.color}; font-weight: 700;">${quadTag.name}</span> (${quadTag.desc})</div>
+                  <div>&bull; <strong>Cash Conversion (CFO / Net Profit):</strong> <span class="font-num" style="color: #f8fafc; font-weight: 700;">${convPct}</span></div>
+                  <div>&bull; <strong>Acute Liquidity Flag (&lt;0.20x &amp; CFO&lt;0):</strong> <span style="color: ${liqFlagTriggered ? '#fb7185' : '#34d399'}; font-weight: 700;">${liqFlagTriggered ? 'TRIGGERED' : 'PASS'}</span></div>
+                  <div>&bull; <strong>Accrual Divergence Flag (Sloan&gt;10% &amp; CFO&lt;0):</strong> <span style="color: ${accFlagTriggered ? '#fbbf24' : '#34d399'}; font-weight: 700;">${accFlagTriggered ? 'TRIGGERED' : 'PASS'}</span></div>
                 </div>
               </div>
-              <button onclick="inspectFiling('${data.detected_ticker}')" class="btn-detail" style="width: 100%; padding: 7px; font-weight: 700;">
+              <button onclick="inspectFiling('${data.detected_ticker}')" class="btn-detail" style="width: 100%; padding: 8px; font-weight: 700;">
                 Open Full Balance Sheet &amp; CALK Notes for ${data.detected_ticker}
               </button>
             </div>
