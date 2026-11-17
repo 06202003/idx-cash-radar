@@ -71,10 +71,16 @@ def capture_live_screenshots(base_url: str = "http://127.0.0.1:8000/") -> dict[s
     with sync_playwright() as p:
         browser = launch_browser(p)
 
-        # Session A: Clean cookie-set context for Screener, Quadrant zoom, Stock Detail, CALK zoom, News, AI Chat
+        # Session A: Clean cookie + BYOK key context for Screener, Quadrant zoom, Stock Detail, CALK zoom, News, AI Chat
         context = browser.new_context(viewport={"width": 1366, "height": 768})
-        context.add_cookies([{"name": "idx_radar_tour_done", "value": "1", "url": base_url}])
+        context.add_cookies([
+            {"name": "idx_radar_tour_done", "value": "1", "url": base_url},
+            {"name": "idx_radar_tour_calk", "value": "1", "url": base_url},
+            {"name": "idx_radar_tour_news", "value": "1", "url": base_url},
+            {"name": "idx_radar_tour_chat", "value": "1", "url": base_url},
+        ])
         page = context.new_page()
+        page.add_init_script("localStorage.setItem('idx_radar_gemini_key', 'AIzaSyPitchDeckPreviewKey123');")
         page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
         page.wait_for_function(
             "() => document.querySelectorAll('#dailyNewsFeedGrid button').length > 0",
@@ -121,12 +127,12 @@ def capture_live_screenshots(base_url: str = "http://127.0.0.1:8000/") -> dict[s
         page.screenshot(path=str(paths["chat"]), full_page=False)
         context.close()
 
-        # Session B: Fresh first-visit context (no cookie) to capture Live Onboarding Tour
+        # Session B: Capture Live Flying Spotlight Tour
         fresh_ctx = browser.new_context(viewport={"width": 1366, "height": 768})
         fresh_page = fresh_ctx.new_page()
+        fresh_page.add_init_script("localStorage.setItem('idx_radar_gemini_key', 'AIzaSyPitchDeckPreviewKey123');")
         fresh_page.goto(base_url, wait_until="domcontentloaded", timeout=30000)
         fresh_page.wait_for_selector("#liveTourCard", state="visible", timeout=15000)
-        fresh_page.click("#tourNextBtn")  # Show Step 2 spotlighting the 4-Quadrant Map
         fresh_page.wait_for_timeout(450)
         fresh_page.screenshot(path=str(paths["tour"]), full_page=False)
         fresh_ctx.close()
@@ -533,8 +539,8 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
           <div class="muted">First-time users leave financial tools within 10 seconds when greeted by raw accounting tables, while returning users hate repetitive onboarding popups.</div>
         </div>
         <div class="card card-green" style="padding: 13px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Cookie-Tracked Live Tutorial (No Login Needed)</div>
-          <div class="muted">On first visit, a 5-step spotlight tour walks users through Mode Switcher, Quadrant Map, Live Charts, News, and AI Analyst, then sets <code>idx_radar_tour_done=1</code> so repeat visits stay clean.</div>
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Per-Tab Cookie-Tracked Flying Tour</div>
+          <div class="muted">On first visit to any tab, a flying spotlight tour highlights key cards, then sets tab cookies (<code>idx_radar_tour_*</code>) so repeat visits stay clean, with a header <strong>Guide</strong> button anytime.</div>
         </div>
         <div class="card card-amber" style="padding: 13px 16px;">
           <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Function for Users: Simple Mode vs. Expert Mode</div>
@@ -682,8 +688,8 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
           <div class="muted">Users paste any viral stock article URL; the parser detects all mentioned IDX tickers (even multi-ticker news like <em>PTPP &amp; ADHI</em>) and contrasts PR hype against real bank cash.</div>
         </div>
         <div class="card card-green" style="padding: 13px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">AI Analyst = Translator Only (0% Math)</div>
-          <div class="muted">Users ask plain-Indonesian questions; Gemini reads pre-computed Python <code>Decimal</code> facts and explains them in 2–3 clear sentences without inventing numbers.</div>
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">BYOK AI Analyst = Translator Only (0% Math)</div>
+          <div class="muted">Users bring their own free Gemini Key (<code>localStorage</code> BYOK, zero server token burn); Gemini translates pre-computed Python <code>Decimal</code> XBRL facts without inventing numbers.</div>
         </div>
       </div>
     </div>
@@ -839,7 +845,7 @@ def build_html(s: dict[str, int], shots: dict[str, str]) -> str:
       <div class="card">
         <div class="kpi-label" style="color: #34d399;">GITHUB REPOSITORY</div>
         <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">github.com/06202003/idx-cash-radar</div>
-        <div class="muted" style="margin-top: 4px;">Commit <code>3de8038</code> &bull; FastAPI + Supabase + Daily News Cron</div>
+        <div class="muted" style="margin-top: 4px;">Commit <code>c1899f5</code> &bull; FastAPI + Supabase + BYOK Gemini + News Cron</div>
       </div>
       <div class="card">
         <div class="kpi-label" style="color: #fbbf24;">NEXT STEP</div>

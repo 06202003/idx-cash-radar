@@ -393,8 +393,8 @@
           <div class="muted">First-time users leave financial tools within 10 seconds when greeted by raw accounting tables, while returning users hate repetitive onboarding popups.</div>
         </div>
         <div class="card card-green" style="padding: 13px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Cookie-Tracked Live Tutorial (No Login Needed)</div>
-          <div class="muted">On first visit, a 5-step spotlight tour walks users through Mode Switcher, Quadrant Map, Live Charts, News, and AI Analyst, then sets <code>idx_radar_tour_done=1</code> so repeat visits stay clean.</div>
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Per-Tab Cookie-Tracked Flying Tour</div>
+          <div class="muted">On first visit to any tab, a flying spotlight tour highlights key cards, then sets tab cookies (<code>idx_radar_tour_*</code>) so repeat visits stay clean, with a header <strong>Guide</strong> button anytime.</div>
         </div>
         <div class="card card-amber" style="padding: 13px 16px;">
           <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Function for Users: Simple Mode vs. Expert Mode</div>
@@ -542,8 +542,8 @@
           <div class="muted">Users paste any viral stock article URL; the parser detects all mentioned IDX tickers (even multi-ticker news like <em>PTPP &amp; ADHI</em>) and contrasts PR hype against real bank cash.</div>
         </div>
         <div class="card card-green" style="padding: 13px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">AI Analyst = Translator Only (0% Math)</div>
-          <div class="muted">Users ask plain-Indonesian questions; Gemini reads pre-computed Python <code>Decimal</code> facts and explains them in 2–3 clear sentences without inventing numbers.</div>
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">BYOK AI Analyst = Translator Only (0% Math)</div>
+          <div class="muted">Users bring their own free Gemini Key (<code>localStorage</code> BYOK, zero server token burn); Gemini translates pre-computed Python <code>Decimal</code> XBRL facts without inventing numbers.</div>
         </div>
       </div>
     </div>
@@ -699,7 +699,7 @@
       <div class="card">
         <div class="kpi-label" style="color: #34d399;">GITHUB REPOSITORY</div>
         <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">github.com/06202003/idx-cash-radar</div>
-        <div class="muted" style="margin-top: 4px;">Commit <code>3de8038</code> &bull; FastAPI + Supabase + Daily News Cron</div>
+        <div class="muted" style="margin-top: 4px;">Commit <code>c1899f5</code> &bull; FastAPI + Supabase + BYOK Gemini + News Cron</div>
       </div>
       <div class="card">
         <div class="kpi-label" style="color: #fbbf24;">NEXT STEP</div>
