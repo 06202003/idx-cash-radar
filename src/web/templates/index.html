@@ -610,6 +610,106 @@
       color: #ffffff !important;
       box-shadow: 0 2px 10px rgba(2, 132, 199, 0.45);
     }
+
+    /* 4-Quadrant Interactive Tooltips */
+    .quad-guide-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+    .quad-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #1e293b;
+      cursor: help;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+    .quad-pill:hover, .quad-pill:focus {
+      border-color: #38bdf8;
+      color: #ffffff;
+      outline: none;
+    }
+    .quad-pill .quad-tip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      width: 245px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      background: #090e1a;
+      border: 1px solid #334155;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.65);
+      color: #e2e8f0;
+      font-size: 11px;
+      font-weight: 400;
+      line-height: 1.45;
+      z-index: 60;
+      pointer-events: none;
+      text-align: left;
+    }
+    .quad-pill:last-child .quad-tip {
+      left: auto;
+      right: 0;
+    }
+    .quad-pill:hover .quad-tip, .quad-pill:focus .quad-tip {
+      display: block;
+    }
+
+    /* Live Cookie-Based Onboarding Tour */
+    .tour-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.68);
+      z-index: 9990;
+      display: none;
+    }
+    .tour-spotlight {
+      position: fixed;
+      border-radius: 10px;
+      box-shadow: 0 0 0 9999px rgba(2, 6, 23, 0.72), 0 0 0 2px #38bdf8, 0 0 24px rgba(56, 189, 248, 0.45);
+      z-index: 9995;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      display: none;
+    }
+    .tour-card {
+      position: fixed;
+      width: 340px;
+      max-width: calc(100vw - 24px);
+      background: #0f172a;
+      border: 1px solid #38bdf8;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.75);
+      z-index: 9999;
+      color: #f8fafc;
+      display: none;
+    }
+    .tour-btn {
+      padding: 6px 12px;
+      border-radius: 7px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+    .tour-btn-primary {
+      background: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -654,6 +754,9 @@
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
           AI Analyst
         </button>
+        <button onclick="startLiveTour(true)" id="btnReplayTour" class="nav-tab-btn" title="Buka Panduan Singkat (Live Tutorial)" style="border-color: #1e3a8a; color: #38bdf8;">
+          ? Guide
+        </button>
       </nav>
     </header>
 
@@ -686,21 +789,34 @@
       <!-- 4-Quadrant Cartesian Radar + Sector Heatmap & Signal Feed -->
       <section style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: stretch;" class="radar-pulse-grid">
         <!-- Left: 4-Quadrant Cartesian Scatter Plot -->
-        <div class="card-panel" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+        <div id="quadrantCardPanel" class="card-panel" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
             <strong style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">4-QUADRANT CARTESIAN MAP: CASH COVERAGE VS ACCRUALS</strong>
-            <div style="display: flex; gap: 10px; font-size: 10px; color: #94a3b8; align-items: center;">
-              <span style="display: inline-flex; align-items: center; gap: 4px;"><span class="status-dot dot-green"></span>Cash Fortress</span>
-              <span style="display: inline-flex; align-items: center; gap: 4px;"><span class="status-dot dot-amber"></span>Accrual Watch</span>
-              <span style="display: inline-flex; align-items: center; gap: 4px;"><span class="status-dot dot-red"></span>Cash Stress</span>
+            <div class="quad-guide-bar">
+              <span class="quad-pill" tabindex="0">
+                <span class="status-dot dot-green"></span>Q4: Cash Fortress <span style="color:#38bdf8;">ⓘ</span>
+                <span class="quad-tip"><strong style="color:#34d399;">Q4: Cash Fortress (Kanan Bawah)</strong><br>Kas &ge; 1.0x utang jangka pendek &amp; Akrual &le; 0%. Laba benar-benar masuk menjadi uang tunai riil dan utang aman tertutup kas.</span>
+              </span>
+              <span class="quad-pill" tabindex="0">
+                <span class="status-dot dot-amber"></span>Q1: High Accrual <span style="color:#38bdf8;">ⓘ</span>
+                <span class="quad-tip"><strong style="color:#fbbf24;">Q1: High Accrual (Kanan Atas)</strong><br>Kas cukup (&ge; 1.0x), tapi Akrual &gt; 0%. Laba akuntansi lebih tinggi dari arus kas masuk — sebagian laba masih tertahan di piutang/proyek.</span>
+              </span>
+              <span class="quad-pill" tabindex="0">
+                <span class="status-dot" style="background:#f97316;"></span>Q3: Cash Stress <span style="color:#38bdf8;">ⓘ</span>
+                <span class="quad-tip"><strong style="color:#fb923c;">Q3: Cash Stress (Kiri Bawah)</strong><br>Kas &lt; 1.0x utang jangka pendek, meski akrual rendah. Cadangan uang tunai perusahaan tipis untuk menutup utang jatuh tempo.</span>
+              </span>
+              <span class="quad-pill" tabindex="0">
+                <span class="status-dot dot-red"></span>Q2: Double Stress <span style="color:#38bdf8;">ⓘ</span>
+                <span class="quad-tip"><strong style="color:#fb7185;">Q2: Double Stress (Kiri Atas)</strong><br>Zona paling rawan: Kas &lt; 1.0x utang jangka pendek DAN Akrual &gt; 0%. Kas tipis sekaligus laba tidak didukung arus kas tunai.</span>
+              </span>
             </div>
           </div>
           <div style="position: relative; height: 225px; width: 100%;">
             <canvas id="screenerQuadrantChart"></canvas>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
-            <span>X-Axis: Cash Coverage (1.0x threshold) | Y-Axis: Sloan Accrual (0% threshold)</span>
-            <span>Click any dot to audit balance sheet</span>
+            <span>Hover label Q1–Q4 di atas untuk arti kuadran | X: Cash Coverage (1.0x) | Y: Sloan Accrual (0%)</span>
+            <span>Klik titik saham untuk audit</span>
           </div>
         </div>
 
@@ -1903,6 +2019,13 @@
                 label: ctx => {
                   const r = ctx.raw;
                   return `${r.ticker}: Coverage ${r.real_x} | Sloan ${(r.y * 100).toFixed(1)}% | CFO ${r.cfo_str}`;
+                },
+                afterLabel: ctx => {
+                  const r = ctx.raw;
+                  if (r.x >= 1.0 && r.y <= 0) return 'Q4 Cash Fortress: Kas kuat >=1x & laba didukung uang tunai riil.';
+                  if (r.x >= 1.0 && r.y > 0) return 'Q1 High Accrual: Kas >=1x cukup, tapi laba masih tertahan di piutang/akrual.';
+                  if (r.x < 1.0 && r.y <= 0) return 'Q3 Cash Stress: Cadangan kas <1x utang jangka pendek.';
+                  return 'Q2 Double Stress: Kas tipis <1x DAN laba akrual >0% (perlu perhatian ekstra).';
                 }
               }
             }
@@ -4387,6 +4510,150 @@
       initDashboard();
       renderChatHistorySidebar();
     }
+
+    // --- Cookie-Based First-Visit Live Tutorial ---
+    const TOUR_COOKIE_NAME = 'idx_radar_tour_done';
+    const TOUR_STEPS = [
+      {
+        selector: () => document.getElementById('btnModeAwam')?.parentElement,
+        title: '1. Pilih Gaya Bahasa (Simple vs Expert)',
+        body: 'Baru belajar saham? Gunakan <strong>Simple Mode (Retail)</strong> agar semua istilah akuntansi diterjemahkan ke bahasa sehari-hari. Pindah ke <strong>Expert Mode</strong> kapan saja untuk metrik XBRL lengkap.'
+      },
+      {
+        selector: () => document.getElementById('quadrantCardPanel'),
+        title: '2. Peta 4-Kuadran: Kas vs Laba Kertas',
+        body: 'Cek posisi saham dalam 3 detik: zona hijau <strong>Q4 Cash Fortress</strong> berarti kas aman &amp; laba benar-benar cair. Arahkan kursor ke label <strong>Q1–Q4 ⓘ</strong> atau klik titik saham untuk audit instan.'
+      },
+      {
+        selector: () => document.getElementById('tabBtnCalk'),
+        title: '3. Stock Detail (Live Chart + XBRL)',
+        body: 'Klik tab ini (atau klik saham mana pun) untuk melihat <strong>grafik candlestick ala TradingView</strong>, berita harian emiten, dan laporan keuangan tahunan resmi BEI dalam satu layar.'
+      },
+      {
+        selector: () => document.getElementById('tabBtnNews'),
+        title: '4. News & URL Analyzer (Anti-FOMO)',
+        body: 'Pantau sentimen berita harian otomatis atau tempel link berita saham incaran Anda untuk melihat apakah berita positif bertabrakan dengan kondisi kas riil perusahaan.'
+      },
+      {
+        selector: () => document.getElementById('tabBtnChat'),
+        title: '5. AI Financial Analyst (0% Halusinasi)',
+        body: 'Bingung baca neraca? Tanya AI di sini. AI hanya membaca angka XBRL yang sudah dihitung Python secara deterministik—tanpa mengarang angka.'
+      }
+    ];
+    let currentTourIdx = 0;
+
+    function getTourCookie(name) {
+      const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+      return m ? decodeURIComponent(m[1]) : null;
+    }
+
+    function setTourCookie(name, val) {
+      document.cookie = `${name}=${encodeURIComponent(val)}; max-age=31536000; path=/; SameSite=Lax`;
+    }
+
+    function renderTourStep() {
+      const backdrop = document.getElementById('liveTourBackdrop');
+      const spotlight = document.getElementById('liveTourSpotlight');
+      const card = document.getElementById('liveTourCard');
+      if (!backdrop || !spotlight || !card) return;
+
+      const step = TOUR_STEPS[currentTourIdx];
+      const target = step && step.selector ? step.selector() : null;
+      if (!target) { endLiveTour(); return; }
+
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const rect = target.getBoundingClientRect();
+      const pad = 6;
+
+      backdrop.style.display = 'block';
+      spotlight.style.display = 'block';
+      spotlight.style.top = `${Math.max(4, rect.top - pad)}px`;
+      spotlight.style.left = `${Math.max(4, rect.left - pad)}px`;
+      spotlight.style.width = `${rect.width + pad * 2}px`;
+      spotlight.style.height = `${rect.height + pad * 2}px`;
+
+      document.getElementById('tourStepCounter').textContent = `LANGKAH ${currentTourIdx + 1} DARI ${TOUR_STEPS.length}`;
+      document.getElementById('tourStepTitle').textContent = step.title;
+      document.getElementById('tourStepBody').innerHTML = step.body;
+
+      const prevBtn = document.getElementById('tourPrevBtn');
+      const nextBtn = document.getElementById('tourNextBtn');
+      if (prevBtn) prevBtn.style.display = currentTourIdx === 0 ? 'none' : 'inline-block';
+      if (nextBtn) nextBtn.textContent = currentTourIdx === TOUR_STEPS.length - 1 ? 'Selesai & Mulai!' : 'Lanjut →';
+
+      card.style.display = 'block';
+      const cardW = 340;
+      const leftPos = Math.min(Math.max(12, rect.left), window.innerWidth - cardW - 12);
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const topPos = spaceBelow > 210 ? rect.bottom + 14 : Math.max(12, rect.top - 195);
+      card.style.left = `${leftPos}px`;
+      card.style.top = `${topPos}px`;
+    }
+
+    function startLiveTour(force = false) {
+      if (!force && getTourCookie(TOUR_COOKIE_NAME) === '1') return;
+      if (window.location.search.includes('notour=1')) return;
+      currentTourIdx = 0;
+      renderTourStep();
+    }
+
+    function nextTourStep() {
+      if (currentTourIdx < TOUR_STEPS.length - 1) {
+        currentTourIdx++;
+        renderTourStep();
+      } else {
+        endLiveTour();
+      }
+    }
+
+    function prevTourStep() {
+      if (currentTourIdx > 0) {
+        currentTourIdx--;
+        renderTourStep();
+      }
+    }
+
+    function endLiveTour() {
+      setTourCookie(TOUR_COOKIE_NAME, '1');
+      const backdrop = document.getElementById('liveTourBackdrop');
+      const spotlight = document.getElementById('liveTourSpotlight');
+      const card = document.getElementById('liveTourCard');
+      if (backdrop) backdrop.style.display = 'none';
+      if (spotlight) spotlight.style.display = 'none';
+      if (card) card.style.display = 'none';
+    }
+
+    window.addEventListener('resize', () => {
+      const card = document.getElementById('liveTourCard');
+      if (card && card.style.display === 'block') renderTourStep();
+    });
+
+    setTimeout(() => {
+      if (window.location.search.includes('tour=1')) {
+        startLiveTour(true);
+      } else if (getTourCookie(TOUR_COOKIE_NAME) !== '1') {
+        startLiveTour(false);
+      }
+    }, 1100);
   </script>
+
+  <!-- Live First-Visit Tour Overlay -->
+  <div id="liveTourBackdrop" class="tour-backdrop" onclick="endLiveTour()"></div>
+  <div id="liveTourSpotlight" class="tour-spotlight"></div>
+  <div id="liveTourCard" class="tour-card" role="dialog" aria-modal="true">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <span id="tourStepCounter" style="font-size: 10px; font-weight: 800; letter-spacing: 0.8px; color: #38bdf8;">LANGKAH 1 DARI 5</span>
+      <button onclick="endLiveTour()" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer; line-height: 1;" title="Tutup">×</button>
+    </div>
+    <div id="tourStepTitle" style="font-size: 14px; font-weight: 800; margin-bottom: 6px; color: #ffffff;"></div>
+    <div id="tourStepBody" style="font-size: 12px; line-height: 1.5; color: #cbd5e1; margin-bottom: 14px;"></div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <button onclick="endLiveTour()" style="background: none; border: none; color: #94a3b8; font-size: 11px; cursor: pointer; text-decoration: underline;">Lewati Tur</button>
+      <div style="display: flex; gap: 8px;">
+        <button id="tourPrevBtn" onclick="prevTourStep()" class="tour-btn" style="display: none;">← Kembali</button>
+        <button id="tourNextBtn" onclick="nextTourStep()" class="tour-btn tour-btn-primary">Lanjut →</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
