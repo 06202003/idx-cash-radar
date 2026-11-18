@@ -44,6 +44,7 @@ from src.engine.news_radar import NewsRadar  # noqa: E402
 from src.engine.rag_chat import RAGFinancialChatbot  # noqa: E402
 from src.engine.realtime_news_analyzer import (  # noqa: E402
     analyze_sentiment_deterministic,
+    compute_hype_vs_cash_reality,
     detect_all_tickers_in_article,
     detect_ticker_in_article,
     extract_key_highlights,
@@ -834,6 +835,12 @@ def analyze_realtime_news_link(
                 ml_forecast=ml_forecast,
             )
 
+    hype_vs_cash = (
+        synthesis.get("hype_vs_cash")
+        if synthesis and synthesis.get("hype_vs_cash")
+        else compute_hype_vs_cash_reality(sentiment_res, fundamentals)
+    )
+
     return {
         "status": "success",
         "url": url or None,
@@ -843,6 +850,10 @@ def analyze_realtime_news_link(
         "sentiment": sentiment_res["sentiment"],
         "matched_positive": sentiment_res["matched_positive"],
         "matched_warning": sentiment_res["matched_warning"],
+        "catalysts": sentiment_res.get("catalysts", []),
+        "catalyst_labels": sentiment_res.get("catalyst_labels", []),
+        "volatility_alert": bool(sentiment_res.get("volatility_alert")),
+        "hype_vs_cash": hype_vs_cash,
         "detected_ticker": detected_ticker,
         "detected_tickers": detected_tickers,
         "company_name": company_name,
@@ -1154,6 +1165,98 @@ def post_portfolio_xray(req: PortfolioXRayRequest) -> dict[str, Any]:
         "peer_benchmark": peer_bench,
         "holdings": evaluated,
     }
+
+
+@app.get("/metodologi", response_class=HTMLResponse)
+def get_metodologi() -> str:
+    """Renders transparent methodology, deterministic thresholds, and Phase 1 model audit."""
+    return """<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metodologi &amp; Audit Model — IDX Cash &amp; Accrual Radar</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 24px 16px; line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    .card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+    .alert-red { background: #1f0d16; border: 1px solid #e11d48; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; }
+    h1 { color: #ffffff; font-size: 22px; margin: 0 0 6px 0; }
+    h2 { color: #38bdf8; font-size: 16px; margin: 0 0 10px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+    th, td { border-bottom: 1px solid #1f2937; padding: 8px 10px; text-align: left; }
+    th { color: #94a3b8; font-size: 11.5px; text-transform: uppercase; }
+    code { background: #1e293b; padding: 2px 5px; border-radius: 4px; color: #38bdf8; font-size: 12px; }
+    a { color: #38bdf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="margin-bottom: 14px;"><a href="/">&larr; Kembali ke Dashboard Utama</a></div>
+    <h1>Metodologi, Ambang Deterministik &amp; Audit Model</h1>
+    <p style="color: #94a3b8; font-size: 13px;">Transparansi penuh atas rumus akuntansi XBRL, pencabutan klaim AUC lama, hasil uji berbasis waktu, dan keterbatasan data.</p>
+
+    <div class="alert-red">
+      <strong style="color: #fb7185; font-size: 14px;">Pencabutan Klaim AUC Lama (0.9989 / 0.9685)</strong>
+      <p style="margin: 8px 0 0 0; font-size: 13px; color: #fecdd3;">
+        Klaim AUC model solvabilitas sebelumnya (<code>0.9989</code> pada L2 Logistic dan <code>0.9685</code> pada MLP) <strong>dicabut dan tidak lagi digunakan</strong> pada tampilan utama.
+        Audit Fase 1 membuktikan adanya <em>label leakage</em> (target sirkular) pada <code>scripts/train_idx_models.py</code>: label <code>is_distress</code> diturunkan dari <code>cash_coverage_ratio</code>, <code>cfo_ttm_idr</code>, dan <code>flag_acute_liquidity</code> di periode yang sama, lalu dimasukkan kembali sebagai fitur input.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>1. Aturan Deterministik Utama (Tanpa ML)</h2>
+      <p style="font-size: 13px;">Skor utama platform ini murni menggunakan aturan deterministik berbasis data XBRL resmi BEI (<code>Decimal</code>):</p>
+      <table>
+        <thead><tr><th>Metrik / Penanda</th><th>Bahasa Ritel</th><th>Definisi &amp; Ambang Terkunci</th></tr></thead>
+        <tbody>
+          <tr><td><code>cash_coverage_ratio</code></td><td>Kas dibanding utang jangka pendek</td><td>Kas &amp; setara kas dibagi utang berbunga jangka pendek. <code>&lt; 1.0x</code> = di bawah 1x utang JP; <code>&lt; 0.20x</code> = ketat.</td></tr>
+          <tr><td><code>sloan_ratio_ttm</code></td><td>Laba di atas kertas vs kas yang benar-benar masuk</td><td><code>(Laba Bersih TTM - CFO TTM) / Rata-rata Total Aset</code>. Ambang perhatian: <code>&gt; +10%</code>.</td></tr>
+          <tr><td><code>FLAG_ACCRUAL_DIVERGENCE</code></td><td>Penanda: Laba kertas, kas operasi negatif</td><td>Aktif jika Laba TTM &gt; 0, CFO TTM &lt; 0, CFO kuartal tunggal &lt; 0, dan Sloan &gt; 10%.</td></tr>
+          <tr><td><code>FLAG_ACUTE_LIQUIDITY</code></td><td>Penanda: Tekanan likuiditas kas jangka pendek</td><td>Aktif jika CFO TTM &lt; 0, ada utang jangka pendek berbunga (&gt; 0), dan <code>cash_coverage &lt; 0.20x</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>2. Hasil Audit Fase 1: Split Waktu &amp; Perbandingan Baseline Sederhana</h2>
+      <p style="font-size: 13px;">
+        Dataset audit (<code>idx_cash_radar.db</code>): <strong>122 observasi</strong> dari 49 emiten (2022: n=12 Pos=0; 2023: n=12 Pos=3; 2024: n=49 Pos=7; 2025: n=49 Pos=8). Tahun 2020–2021 tidak tersedia di tabel <code>computed_metrics</code>.
+      </p>
+      <table>
+        <thead><tr><th>Skenario Split Waktu</th><th>Model / Baseline</th><th>AUC (95% CI Bootstrap)</th><th>Akurasi (95% CI)</th><th>Precision / Recall</th><th>Confusion Matrix</th></tr></thead>
+        <tbody>
+          <tr>
+            <td rowspan="3"><strong>Train 2022–2023</strong> (n=24, Pos=3)<br/><strong>Test 2024–2025</strong> (n=98, Pos=15)</td>
+            <td>L2 Logistic (thr 0.50)</td><td>0.9992 [0.9952, 1.0000]</td><td>0.8469 [0.7755, 0.9184]</td><td>0.0000 / 0.0000</td><td>TP=0, FP=0, TN=83, FN=15</td>
+          </tr>
+          <tr><td>Baseline <code>cash_coverage &lt; 1.0</code></td><td>0.9398 [0.9026, 0.9740]</td><td>0.8980 [0.8367, 0.9592]</td><td>0.6000 / 1.0000</td><td>TP=15, FP=10, TN=73, FN=0</td></tr>
+          <tr><td>Baseline <code>cash_coverage &lt; 0.25</code></td><td>0.9667 [0.8750, 1.0000]</td><td>0.9898 [0.9694, 1.0000]</td><td>1.0000 / 0.9333</td><td>TP=14, FP=0, TN=83, FN=1</td></tr>
+          <tr>
+            <td rowspan="3"><strong>Forward t &rarr; t+1</strong><br/>Train 2022–2023 (n=24, Pos=4)<br/>Test 2024&rarr;2025 (n=49, Pos=8)</td>
+            <td>L2 Logistic (thr 0.50)</td><td>0.9909 [0.9592, 1.0000]</td><td>0.8367 [0.7347, 0.9388]</td><td>0.0000 / 0.0000</td><td>TP=0, FP=0, TN=41, FN=8</td>
+          </tr>
+          <tr><td>Baseline <code>cash_coverage &lt; 1.0</code></td><td>0.9390 [0.8856, 0.9857]</td><td>0.8980 [0.7959, 0.9796]</td><td>0.6154 / 1.0000</td><td>TP=8, FP=5, TN=36, FN=0</td></tr>
+          <tr><td>Baseline <code>cash_coverage &lt; 0.25</code></td><td>0.8750 [0.7083, 1.0000]</td><td>0.9592 [0.8980, 1.0000]</td><td>1.0000 / 0.7500</td><td>TP=6, FP=0, TN=41, FN=2</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size: 12.5px; color: #94a3b8; margin-top: 10px;">
+        <strong>Kesimpulan Audit:</strong> Pada threshold 0.50, model L2 Logistic gagal mendeteksi satu pun kasus (Recall = 0.0000) sementara aturan tunggal <code>cash_coverage &lt; 1.0</code> mencapai Recall 1.0000. Simulator stres MLP di bagian Pro/Lanjutan hanya berstatus <em>simulasi what-if, bukan prediksi</em>.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>3. Keterbatasan Data &amp; Penafian</h2>
+      <ul style="font-size: 13px; margin: 0; padding-left: 18px;">
+        <li>Setiap metrik akuntansi XBRL dapat ditelusuri ke tabel <code>canonical_facts</code> (49 dari 49 emiten memiliki jejak tag XBRL). Kutipan harga pasar dan berita RSS berasal dari sumber eksternal, bukan tag XBRL.</li>
+        <li>Data keuangan bersifat <strong>historis dan tertinggal</strong> (mengikuti tanggal laporan kuartalan/tahunan resmi BEI).</li>
+        <li><strong>Bukan rekomendasi investasi:</strong> Platform ini tidak memberikan saran beli, jual, atau target harga saham.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>"""
 
 
 @app.get("/", response_class=HTMLResponse)

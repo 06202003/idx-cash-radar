@@ -726,7 +726,7 @@
             <span class="badge-bei">FY 2025 Audited</span>
           </div>
           <div id="headerSubtitle" style="font-size: 11px; color: #94a3b8;">
-            Monitor Cash Health &amp; Earnings Quality Across 49 IDX Listed Companies
+            Setiap angka akuntansi dapat ditelusuri ke tag XBRL resmi BEI &bull; Data historis kuartalan/tahunan
           </div>
         </div>
       </div>
@@ -750,7 +750,7 @@
           Stock Detail (Live)
         </button>
         <button onclick="switchTab('news')" id="tabBtnNews" class="nav-tab-btn">
-          News &amp; URL Analyzer
+          News &amp; Catalyst Radar
         </button>
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
           AI Analyst
@@ -758,14 +758,31 @@
         <button onclick="switchTab('portfolio')" id="tabBtnPortfolio" class="nav-tab-btn">
           Portfolio X-Ray
         </button>
-        <button onclick="startActiveTabTour()" id="btnReplayTour" class="nav-tab-btn" title="Start Interactive Guide for Current Tab" style="border-color: #1e3a8a; color: #38bdf8;">
+        <a href="/metodologi" class="nav-tab-btn" style="text-decoration: none; border-color: #1e3a8a; color: #38bdf8;">
+          Metodologi &amp; Audit
+        </a>
+        <button onclick="startActiveTabTour()" id="btnReplayTour" class="nav-tab-btn" title="Start Interactive Guide for Current Tab" style="border-color: #334155; color: #94a3b8;">
           Guide
-        </button>
-        <button onclick="openByokModal()" id="btnByokKey" class="nav-tab-btn" title="Bring Your Own Gemini API Key (stored locally in your browser)" style="border-color: #334155; color: #94a3b8;">
-          BYOK: Off
         </button>
       </nav>
     </header>
+
+    <!-- Regulatory & Historical Lag Disclaimer + Pro/Lanjutan Drawer -->
+    <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 8px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11.5px; color: #94a3b8;">
+      <div>
+        <strong style="color: #fbbf24;">Penafian:</strong> Bukan rekomendasi investasi atau ajakan beli/jual. Data akuntansi bersifat <strong>historis dan tertinggal</strong> (laporan kuartalan/tahunan BEI per tanggal pelaporan masing-masing).
+        <a href="/metodologi" style="color: #38bdf8; text-decoration: underline;">Lihat Metodologi &amp; Pencabutan AUC Lama &rarr;</a>
+      </div>
+      <details style="display: inline-block;">
+        <summary style="cursor: pointer; color: #38bdf8; font-weight: 700; font-size: 11px;">Pro / Lanjutan</summary>
+        <div style="margin-top: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button onclick="openByokModal()" id="btnByokKey" class="nav-tab-btn" title="Bring Your Own Gemini API Key (stored locally in your browser)" style="border-color: #334155; color: #94a3b8; padding: 3px 9px; font-size: 11px;">
+            BYOK Gemini: Off
+          </button>
+          <span style="font-size: 10.5px; color: #64748b;">Simulator MLP &amp; Naive Bayes tersedia di tab Stock Detail (berlabel simulasi, bukan prediksi).</span>
+        </div>
+      </details>
+    </div>
 
     <!-- Top Market Snapshot Ribbon -->
     <section class="stats-ribbon">
@@ -1107,15 +1124,18 @@
         </div>
       </div>
 
-      <!-- Main Detailed Diagnostic (Full-Width col-12) -->
-      <!-- Neural Cash-Safety & Money Stress Simulator -->
-      <div id="neuralStressPanel" class="card-panel" style="padding: 16px; border-left: 4px solid #38bdf8;">
+      <!-- Pro / Lanjutan: Neural Cash-Safety & Money Stress Simulator (What-If Only) -->
+      <details id="proAdvancedPanel" class="card-panel" style="padding: 12px 16px; border-left: 4px solid #38bdf8;">
+        <summary style="cursor: pointer; font-weight: 700; color: #38bdf8; font-size: 13px; list-style: revert;">
+          Pro / Lanjutan: Simulator Stres Modal What-If (MLP &mdash; Simulasi, bukan prediksi)
+        </summary>
+      <div id="neuralStressPanel" style="padding-top: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 12px;">
           <div>
-            <strong style="color: #ffffff; font-size: 13.5px;">Neural Cash-Safety &amp; Money Stress Simulator</strong>
-            <div style="color: #94a3b8; font-size: 11px;">Enter your modal in IDR and pick a scenario below to see how much capital is exposed to balance-sheet liquidity risk vs. the safest sector peer.</div>
+            <strong style="color: #ffffff; font-size: 13.5px;">Simulator Stres Modal What-If (MLP)</strong>
+            <div style="color: #94a3b8; font-size: 11px;">Simulasi sensitivitas skenario kas turun / utang naik pada modal Anda. Hanya simulasi what-if, bukan prediksi harga atau kepastian gagal bayar.</div>
           </div>
-          <span class="badge badge-green">Self-Trained Neural Model</span>
+          <span class="badge badge-yellow">Simulasi, Bukan Prediksi</span>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1.45fr; gap: 14px; align-items: stretch;" class="radar-pulse-grid">
@@ -1162,10 +1182,11 @@
 
           <!-- Output Metrics in Rupiah -->
           <div id="neuralStressOutput" style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-            <div style="color: #64748b; font-size: 12px;">Select an issuer to run the Neural Capital Stress Simulator...</div>
+            <div style="color: #64748b; font-size: 12px;">Select an issuer to run the What-If Stress Simulator...</div>
           </div>
         </div>
       </div>
+      </details>
 
       <div id="tabCalkDiagnostic" style="display: flex; flex-direction: column; gap: 14px;">
         <!-- Rendered by JS -->
@@ -1807,16 +1828,16 @@
       if (thDebt) thDebt.innerHTML = isAwam ? 'Short-Term Debt &#x25B4;&#x25BE;' : 'ST Interest-Bearing Debt &#x25B4;&#x25BE;';
 
       const thCov = document.getElementById('thColCoverage');
-      if (thCov) thCov.innerHTML = isAwam ? 'Cash Buffer &#x25B4;&#x25BE;' : 'Cash Coverage Ratio &#x25B4;&#x25BE;';
+      if (thCov) thCov.innerHTML = isAwam ? 'Kas vs Utang JP &#x25B4;&#x25BE;' : 'Cash Coverage Ratio &#x25B4;&#x25BE;';
 
       const thCfo = document.getElementById('thColCfo');
-      if (thCfo) thCfo.innerHTML = isAwam ? 'Operating Cash Inflow &#x25B4;&#x25BE;' : 'CFO TTM (Cash Flow) &#x25B4;&#x25BE;';
+      if (thCfo) thCfo.innerHTML = isAwam ? 'Kas Masuk Operasional &#x25B4;&#x25BE;' : 'CFO TTM (Cash Flow) &#x25B4;&#x25BE;';
 
       const thNet = document.getElementById('thColNetIncome');
-      if (thNet) thNet.innerHTML = isAwam ? 'Net Profit &#x25B4;&#x25BE;' : 'Net Income TTM &#x25B4;&#x25BE;';
+      if (thNet) thNet.innerHTML = isAwam ? 'Laba Bersih (Akrual) &#x25B4;&#x25BE;' : 'Net Income TTM &#x25B4;&#x25BE;';
 
       const thSloan = document.getElementById('thColSloan');
-      if (thSloan) thSloan.innerHTML = isAwam ? 'Earnings Quality &#x25B4;&#x25BE;' : 'Sloan Accrual Ratio &#x25B4;&#x25BE;';
+      if (thSloan) thSloan.innerHTML = isAwam ? 'Laba Kertas vs Kas &#x25B4;&#x25BE;' : 'Sloan Accrual Ratio &#x25B4;&#x25BE;';
 
       const thSent = document.getElementById('thColSentiment');
       if (thSent) thSent.innerHTML = isAwam ? 'News Sentiment' : 'IDX Sentiment';
@@ -2687,23 +2708,29 @@
 
     function getDeepAnalysisHTML(ticker, data, isAwam) {
       const { r, isFree, covVal, cashVal, debtVal, cfoVal, netVal, sloanVal } = data;
-      const dMap = (window.EMBEDDED_DISTRESS_MAP && window.EMBEDDED_DISTRESS_MAP[ticker]) || null;
-
-      const pDistress = dMap ? dMap.distress_probability_pct : (covVal < 0.2 ? 65.0 : (covVal >= 1.0 ? 5.0 : 25.0));
-      const rating = dMap ? dMap.synthetic_rating : (covVal < 0.2 ? 'C' : (isFree ? 'AAA' : (covVal >= 1.0 ? 'A' : 'BBB')));
-      const ratingColor = rating === 'AAA' || rating === 'A' ? '#34d399' : (rating === 'BBB' || rating === 'BB' ? '#fbbf24' : '#fb7185');
+      const liqFlag = Boolean(r.flag_acute_liquidity || (!isFree && covVal < 0.20 && cfoVal < 0));
+      const accFlag = Boolean(r.flag_accrual_divergence || (netVal > 0 && cfoVal < 0 && sloanVal > 10));
+      const detStatus = liqFlag
+        ? 'Tekanan Likuiditas Kas (< 0.20x)'
+        : (!isFree && covVal < 1.0)
+          ? 'Kas di Bawah 1.0x Utang JP'
+          : accFlag
+            ? 'Laba Kertas, Kas Operasi Negatif'
+            : 'Kas Memadai (>= 1.0x / Bebas Utang JP)';
+      const statusColor = liqFlag ? '#fb7185' : ((!isFree && covVal < 1.0) || accFlag) ? '#fbbf24' : '#34d399';
+      const reportPeriod = r.period_end_date || 'FY 2025 (XBRL BEI)';
 
       if (isAwam) {
         // Retail-Friendly Analysis
         let kesimpulanAwam = '';
-        if (pDistress > 50) {
-          kesimpulanAwam = 'The company is in a high-caution zone. Real cash in bank accounts is very thin relative to maturing debt obligations. Investors should closely watch debt restructuring progress or project receivable collections.';
+        if (liqFlag) {
+          kesimpulanAwam = 'Kas di bank tercatat kurang dari 20% utang jangka pendek berbunga disertai arus kas operasi negatif. Pantau keterbukaan informasi restrukturisasi atau penagihan piutang.';
         } else if (sloanVal > 10.0) {
-          kesimpulanAwam = 'The company reported paper profit, yet real cash has not entered bank accounts because it remains tied up in customer receivables. Monitor receivable collection delays carefully.';
+          kesimpulanAwam = 'Perusahaan mencatat laba di atas kertas, namun kas operasional belum masuk sepadan karena tertahan di piutang/aset kontrak.';
         } else if (isFree || covVal >= 1.0) {
-          kesimpulanAwam = 'Financial health is strong. Cash reserves are ample with no immediate short-term debt default pressure. Real operating cash inflow supports ongoing business operations.';
+          kesimpulanAwam = 'Kas yang tersedia lebih besar dari utang jangka pendek berbunga (atau bebas utang jangka pendek) pada tanggal laporan ini.';
         } else {
-          kesimpulanAwam = 'Cash position is moderate and within normal bounds. Reserves are adequate for day-to-day operations with moderate reliance on ongoing business collections.';
+          kesimpulanAwam = 'Kas tersedia di bawah 1.0x utang jangka pendek berbunga, sehingga ketahanan kas bergantung pada kelancaran arus kas operasi.';
         }
 
         return `
@@ -2711,19 +2738,19 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 15px;"></span>
-                <strong style="color: #38bdf8; font-size: 13.5px;">DEEP CASH HEALTH &amp; EARNINGS QUALITY ANALYSIS (${ticker})</strong>
+                <strong style="color: #38bdf8; font-size: 13.5px;">DIAGNOSTIK KAS DETERMINISTIK (${ticker} &bull; ${reportPeriod})</strong>
               </div>
-              <span class="badge" style="background: #1e293b; color: ${ratingColor}; font-size: 11px; padding: 3px 8px; border: 1px solid ${ratingColor};">
-                Solvency Rating: ${rating}
+              <span class="badge" style="background: #1e293b; color: ${statusColor}; font-size: 11px; padding: 3px 8px; border: 1px solid ${statusColor};">
+                ${detStatus}
               </span>
             </div>
 
             <!-- Visual Cash Risk Score -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
-                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Cash Stress Risk Level:</span>
-                <strong class="font-num" style="font-size: 18px; color: ${pDistress > 50 ? '#fb7185' : (pDistress > 20 ? '#fbbf24' : '#34d399')};">
-                  ${pDistress.toFixed(1)}% (${pDistress > 50 ? 'High Risk' : (pDistress > 20 ? 'Moderate Risk' : 'Very Low')})
+                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Penanda Deterministik (${reportPeriod}):</span>
+                <strong class="font-num" style="font-size: 15px; color: ${statusColor};">
+                  ${detStatus}
                 </strong>
               </div>
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
@@ -3917,6 +3944,29 @@
 
       const posChips = (data.matched_positive || []).map(k => `<span class="badge badge-green">+ ${k}</span>`).join(' ');
       const warnChips = (data.matched_warning || []).map(k => `<span class="badge badge-red">! ${k}</span>`).join(' ');
+      const catalystChips = (data.catalyst_labels || []).map(c => `<span class="badge" style="background: rgba(245, 158, 11, 0.16); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.45);">&#9889; ${c}</span>`).join(' ');
+      const hvc = data.hype_vs_cash || null;
+      let hvcHtml = '';
+      if (hvc && hvc.hype_reality_label) {
+        const st = hvc.hype_reality_status || 'NEUTRAL_MONITORING';
+        const hvcStyle = st === 'ALIGNED_FUNDAMENTAL'
+          ? { border: '#10b981', bg: 'rgba(16, 185, 129, 0.08)', title: '#34d399' }
+          : (st === 'HYPE_VS_CASH_DIVERGENCE' || st === 'VOLATILITY_CATALYST_ALERT')
+            ? { border: '#f59e0b', bg: 'rgba(245, 158, 11, 0.09)', title: '#fbbf24' }
+            : st === 'FUNDAMENTAL_PRESSURE_CONFIRMED'
+              ? { border: '#e11d48', bg: 'rgba(225, 29, 72, 0.09)', title: '#fb7185' }
+              : { border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.07)', title: '#38bdf8' };
+        hvcHtml = `
+          <div style="padding: 10px 12px; border-radius: 8px; border: 1px solid ${hvcStyle.border}; background: ${hvcStyle.bg};">
+            <div style="font-size: 11px; font-weight: 700; color: ${hvcStyle.title}; text-transform: uppercase; letter-spacing: 0.3px;">
+              Hype vs Cash Reality: ${hvc.hype_reality_label}
+            </div>
+            <div style="font-size: 12px; color: #e2e8f0; margin-top: 3px; line-height: 1.45;">
+              ${hvc.hype_reality_summary || ''}
+            </div>
+          </div>
+        `;
+      }
       const hlHtml = (data.highlights || []).map(h => `<li style="margin-bottom: 4px;">${h}</li>`).join('');
       const multiTickerChips = (Array.isArray(data.detected_tickers) && data.detected_tickers.length > 1)
         ? `<div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 11px; margin-top: 2px;">
@@ -3969,7 +4019,6 @@
         const netSurplusIdr = cashIdr - stDebtIdr;
         const cfoProfitGapIdr = cfoVal - netVal;
         const runwayMo = (cfoVal < 0 && cashIdr > 0) ? (cashIdr / (Math.abs(cfoVal) / 12)).toFixed(1) + ' months' : 'Positive CFO (No Burn)';
-        const modelAuc = (f.model_telemetry && f.model_telemetry.cv_roc_auc) ? Number(f.model_telemetry.cv_roc_auc).toFixed(3) : '0.989';
 
         fundHtml = `
           <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px;" class="radar-pulse-grid">
@@ -3978,7 +4027,7 @@
               <div style="display: flex; flex-direction: column; gap: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px;">
                   <strong style="color: #38bdf8; font-size: 13px;">ACCRUAL RADAR: ${data.detected_ticker}</strong>
-                  <span class="badge-bei">Rating ${f.synthetic_rating || '-'} | P(Distress) ${f.distress_probability_pct}%</span>
+                  <span class="badge-bei">XBRL ${f.period_end_date || 'FY 2025'} | ${isFree ? 'Bebas Utang JP' : 'Kas/Utang JP ' + covVal.toFixed(2) + 'x'}</span>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" class="font-num">
@@ -4074,12 +4123,15 @@
             <div style="flex: 1;">
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;">
                 ${sentBadge}
+                ${catalystChips}
                 <span class="badge-bei">${data.source || 'Web News'}</span>
                 ${data.detected_ticker ? `<span class="badge" style="background: #0284c7; color: #ffffff;">Detected: ${data.detected_ticker} | ${data.company_name}</span>` : ''}
               </div>
               <strong style="color: #ffffff; font-size: 15px; line-height: 1.4; display: block;">${data.headline}</strong>
             </div>
           </div>
+
+          ${hvcHtml}
 
           <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 11px;">
             <span style="color: #94a3b8;">Keyword Signals:</span>
