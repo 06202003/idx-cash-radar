@@ -243,7 +243,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
     </div>
 
     <div style="max-width: 980px;">
-      <div class="eyebrow">ANTI-HYPE STOCK INTELLIGENCE PLATFORM UNTUK PASAR INDONESIA</div>
+      <div class="eyebrow">Alat cek fakta kas emiten BEI untuk investor ritel Indonesia</div>
       <h1>Membantu Investor Ritel Membedakan Real Cash vs. Paper Profits.</h1>
       <p class="lead" style="margin-top: 16px;">
         Kami sudah build dan ship platform live yang menggabungkan <strong>Official IDX XBRL Financials</strong>,
@@ -277,7 +277,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom</span>
+      <span>IDX Cash &amp; Accrual Radar, &copy; Yehezkiel David Setiawan, S.Kom, M.Kom</span>
       <span>Slide 1 / 13</span>
     </div>
   </section>
@@ -285,7 +285,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 2: EXECUTIVE SUMMARY -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">01 / EXECUTIVE SUMMARY</div>
+      <div class="eyebrow">EXECUTIVE SUMMARY</div>
       <h2>Satu Radar yang Menghubungkan Price Action, Daily News, &amp; Real Cash Flow.</h2>
       <p class="lead">Dibuat untuk investor pemula dan retail trader yang butuh cash check setara institusi tanpa harus baca PDF 200 halaman.</p>
     </div>
@@ -317,7 +317,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Executive Summary</span>
+      <span>IDX Cash &amp; Accrual Radar, Executive Summary</span>
       <span>Slide 2 / 13</span>
     </div>
   </section>
@@ -325,7 +325,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 3: THE PROBLEM -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">02 / THE PROBLEM</div>
+      <div class="eyebrow">THE PROBLEM</div>
       <h2>Kenapa Investor Awam &amp; Trader Pemula Sering Nyangkut di BEI.</h2>
       <p class="lead">12M+ investor ritel SID Indonesia (KSEI, 2024) sudah punya aplikasi charting, tapi tetap sering kena kasus gagal bayar utang dan saham "paper profit".</p>
     </div>
@@ -358,7 +358,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Problem Statement</span>
+      <span>IDX Cash &amp; Accrual Radar, Problem Statement</span>
       <span>Slide 3 / 13</span>
     </div>
   </section>
@@ -366,7 +366,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 4: TARGET USERS & DAILY WORKFLOW -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">03 / TARGET USERS &amp; DAILY WORKFLOW</div>
+      <div class="eyebrow">TARGET USERS &amp; DAILY WORKFLOW</div>
       <h2>Cara Orang Awam &amp; Trader Pemula Memakai Aplikasi Ini.</h2>
       <p class="lead">Dipakai sebagai 10-second fundamental safety check untuk cek kondisi kas sebelum memutuskan.</p>
     </div>
@@ -408,7 +408,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; User Workflow</span>
+      <span>IDX Cash &amp; Accrual Radar, User Workflow</span>
       <span>Slide 4 / 13</span>
     </div>
   </section>
@@ -416,7 +416,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 5: PENDALAMAN FITUR 1 -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">04 / FEATURE DEEP-DIVE 1: SCREENER &amp; GUIDED TOUR</div>
+      <div class="eyebrow">FEATURE DEEP-DIVE 1: SCREENER &amp; GUIDED TOUR</div>
       <h2>Kenapa Kami Build Screener Dual-Mode + Cookie-Based Flying Tour.</h2>
     </div>
 
@@ -447,7 +447,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Pendalaman Fitur: Screener &amp; Onboarding</span>
+      <span>IDX Cash &amp; Accrual Radar, Pendalaman Fitur: Screener &amp; Onboarding</span>
       <span>Slide 5 / 13</span>
     </div>
   </section>
@@ -455,7 +455,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 6: PENDALAMAN FITUR 2 -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">05 / FEATURE DEEP-DIVE 2: 4-QUADRANT CARTESIAN MAP</div>
+      <div class="eyebrow">FEATURE DEEP-DIVE 2: 4-QUADRANT CARTESIAN MAP</div>
       <h2>Mengubah Rasio Balance Sheet Jadi Visual Safety Map dalam 3 Detik.</h2>
     </div>
 
@@ -485,7 +485,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Pendalaman Fitur: Peta 4-Kuadran</span>
+      <span>IDX Cash &amp; Accrual Radar, Pendalaman Fitur: Peta 4-Kuadran</span>
       <span>Slide 6 / 13</span>
     </div>
   </section>
@@ -493,7 +493,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 7: PENDALAMAN FITUR 3 -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">06 / FEATURE DEEP-DIVE 3: LIVE STOCK DETAIL</div>
+      <div class="eyebrow">FEATURE DEEP-DIVE 3: LIVE STOCK DETAIL</div>
       <h2>Kenapa Candlestick Chart Digabung dengan Audited Cash Triangulation.</h2>
     </div>
 
@@ -519,7 +519,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Pendalaman Fitur: Detail Saham (BBRI.JK)</span>
+      <span>IDX Cash &amp; Accrual Radar, Pendalaman Fitur: Detail Saham (BBRI.JK)</span>
       <span>Slide 7 / 13</span>
     </div>
   </section>
@@ -527,7 +527,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 8: PENDALAMAN FITUR 4 -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">07 / FEATURE DEEP-DIVE 4: MULTI-YEAR XBRL &amp; CALK</div>
+      <div class="eyebrow">FEATURE DEEP-DIVE 4: MULTI-YEAR XBRL &amp; CALK</div>
       <h2>Membongkar Piutang Pihak Berelasi &amp; Exact XBRL Source Tags.</h2>
     </div>
 
@@ -553,7 +553,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Pendalaman Fitur: XBRL Tahunan &amp; CALK</span>
+      <span>IDX Cash &amp; Accrual Radar, Pendalaman Fitur: XBRL Tahunan &amp; CALK</span>
       <span>Slide 8 / 13</span>
     </div>
   </section>
@@ -561,7 +561,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 9: PENDALAMAN FITUR 5 -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">08 / FEATURE DEEP-DIVE 5: NEWS RADAR &amp; BYOK AI</div>
+      <div class="eyebrow">FEATURE DEEP-DIVE 5: NEWS RADAR &amp; BYOK AI</div>
       <h2>Daily RSS Sentiment Cron + Paste-Any-URL + BYOK AI Analyst.</h2>
     </div>
 
@@ -592,7 +592,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Pendalaman Fitur: Berita &amp; Analis AI</span>
+      <span>IDX Cash &amp; Accrual Radar, Pendalaman Fitur: Berita &amp; Analis AI</span>
       <span>Slide 9 / 13</span>
     </div>
   </section>
@@ -600,7 +600,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 10: ILUSTRASI KASUS HISTORIS (BUKAN BUKTI STATISTIK) -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">09 / ILUSTRASI (BUKAN BUKTI STATISTIK)</div>
+      <div class="eyebrow">ILUSTRASI (BUKAN BUKTI STATISTIK)</div>
       <h2>Ilustrasi Kasus Historis (Bukan Bukti Statistik): Flag Kas vs Kejadian Publik.</h2>
       <p class="lead">Ilustrasi deskriptif dari 3 emiten di database kami (<strong>bukan uji statistik</strong>). Uji backtest formal Fase 5 berstatus <strong>BUKTI TIDAK CUKUP</strong> (N=1 uji, N=1 kontrol).</p>
     </div>
@@ -649,7 +649,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Ilustrasi Kasus Historis (Bukan Bukti Statistik)</span>
+      <span>IDX Cash &amp; Accrual Radar, Ilustrasi Kasus Historis (Bukan Bukti Statistik)</span>
       <span>Slide 10 / 14</span>
     </div>
   </section>
@@ -657,7 +657,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 11: HASIL AUDIT JUJUR MODEL & BASELINE (FASE 1) -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">10 / HASIL AUDIT JUJUR MODEL &amp; BASELINE (FASE 1)</div>
+      <div class="eyebrow">HASIL AUDIT JUJUR MODEL &amp; BASELINE (FASE 1)</div>
       <h2>Klaim AUC Lama Dicabut: Aturan Deterministik Sederhana Mengalahkan ML.</h2>
       <p class="lead">Audit independen berbasis split waktu (<code>Train 2022-2023</code> &rarr; <code>Test 2024-2025</code>, tanpa random split) menemukan <em>label leakage</em> pada skrip pelatihan lama.</p>
     </div>
@@ -686,7 +686,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Audit Jujur Model &amp; Baseline (Fase 1)</span>
+      <span>IDX Cash &amp; Accrual Radar, Audit Jujur Model &amp; Baseline (Fase 1)</span>
       <span>Slide 11 / 14</span>
     </div>
   </section>
@@ -694,7 +694,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 11: DATA EMPIRIS, ARSITEKTUR & LEGAL DUE DILIGENCE -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">10 / DATA EMPIRIS, ARSITEKTUR &amp; LEGAL DUE DILIGENCE</div>
+      <div class="eyebrow">DATA EMPIRIS, ARSITEKTUR &amp; LEGAL DUE DILIGENCE</div>
       <h2>Angka Terverifikasi FY 2025, Model Mandiri, &amp; Roadmap Lisensi Data.</h2>
     </div>
 
@@ -724,7 +724,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
           <td><strong>Debt-Free</strong></td>
           <td style="color: #047857; font-weight: 700;">+IDR 434.9 B</td>
           <td>-0.5%</td>
-          <td><span class="tag tag-green">CASH FORTRESS</span> (Nol Utang JP + Dividen Interim)</td>
+          <td><span class="tag tag-green">BEBAS UTANG JP</span> (Nol Utang JP + Dividen Interim)</td>
         </tr>
         <tr>
           <td><strong>BBRI</strong></td>
@@ -762,7 +762,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Data Empiris &amp; Legal Due Diligence</span>
+      <span>IDX Cash &amp; Accrual Radar, Data Empiris &amp; Legal Due Diligence</span>
       <span>Slide 12 / 14</span>
     </div>
   </section>
@@ -770,7 +770,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 12: ROADMAP 90 HARI & STRUKTUR EKUITAS -->
   <section class="slide slide-dark">
     <div>
-      <div class="eyebrow">11 / 90-DAY ROADMAP &amp; STRUKTUR EKUITAS</div>
+      <div class="eyebrow">90-DAY ROADMAP &amp; STRUKTUR EKUITAS</div>
       <h2>Yang Bakal Kita Build Bareng dalam 90 Hari ke Depan.</h2>
       <p class="lead">Core engine sudah live. Join sebagai co-builder untuk scale coverage emiten, validasi retensi user, dan mengurus lisensi komersial.</p>
     </div>
@@ -809,7 +809,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Roadmap &amp; Peran Co-Builder</span>
+      <span>IDX Cash &amp; Accrual Radar, Roadmap &amp; Peran Co-Builder</span>
       <span>Slide 13 / 14</span>
     </div>
   </section>
@@ -817,8 +817,8 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
   <!-- SLIDE 13: KREDIT FOUNDER & LANGKAH SELANJUTNYA -->
   <section class="slide slide-dark" style="justify-content: space-between;">
     <div>
-      <div class="eyebrow">12 / FOUNDER CREDIT &amp; NEXT STEP</div>
-      <h1 style="font-size: 42px;">Coba Live App Hari Ini. Let's Ship v3 Together.</h1>
+      <div class="eyebrow">FOUNDER CREDIT &amp; NEXT STEP</div>
+      <h1 style="font-size: 42px;">Coba Live App Hari Ini. Mari kembangkan bersama.</h1>
       <p class="lead" style="margin-top: 10px;">
         Test live screener-nya, hover 4-quadrant tooltips, inspect candlestick <code>BBRI.JK</code>, dan yuk ngobrol soal next phase-nya bareng.
       </p>
@@ -841,7 +841,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
         <div style="font-size: 14px; font-weight: 700; margin-top: 4px;">
           <a href="https://idx-cash-radar.vercel.app/" target="_blank" style="color: #38bdf8; text-decoration: underline;">https://idx-cash-radar.vercel.app/</a>
         </div>
-        <div class="muted" style="margin-top: 4px;">{s['issuers']} Emiten BEI &bull; {s['facts']:,} Fakta XBRL Teraudit &bull; Grafik Live</div>
+        <div class="muted" style="margin-top: 4px;">{s['issuers']} Emiten BEI, {s['facts']:,} Fakta XBRL Teraudit, Grafik Live</div>
       </div>
       <div class="card">
         <div class="kpi-label" style="color: #34d399;">REPOSITORI GITHUB</div>
@@ -857,7 +857,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom &bull; yehezkiel.netlify.app</span>
+      <span>IDX Cash &amp; Accrual Radar, &copy; Yehezkiel David Setiawan, S.Kom, M.Kom, yehezkiel.netlify.app</span>
       <span>Slide 14 / 14</span>
     </div>
   </section>

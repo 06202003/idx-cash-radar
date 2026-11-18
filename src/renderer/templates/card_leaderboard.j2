@@ -1,18 +1,18 @@
-🏆 KLASEMEN SOLVABILITAS KAS SEKTOR KONSTRUKSI (FY {{ fiscal_year }})
+ KLASEMEN SOLVABILITAS KAS SEKTOR KONSTRUKSI (FY {{ fiscal_year }})
 {{ '━' * 42 }}
 Cakupan: {{ total_emitens }} Emiten Sub-Industri Konstruksi Bangunan BEI
-💡 Cara Baca: Peringkat teratas memiliki cadangan kas paling tebal dan beban utang jatuh tempo paling ringan.
+ Cara Baca: Peringkat teratas memiliki cadangan kas paling tebal dan beban utang jatuh tempo paling ringan.
 
 {% for item in items %}
 {{ item.rank_icon }} {{ item.rank }}. {{ item.ticker }} — {{ item.company_name }}
-   🛡️ Cakupan Kas (Daya Bayar Utang): {{ item.coverage_display }}
-   📊 Kualitas Laba (Sloan Ratio)  : {{ item.sloan_display }}
-   🏷️ Status Kas                    : {{ item.status_badge }}
+    Cakupan Kas (Daya Bayar Utang): {{ item.coverage_display }}
+    Kualitas Laba (Sloan Ratio)  : {{ item.sloan_display }}
+    Status Kas                    : {{ item.status_badge }}
 {% if not loop.last %}
 
 {% endif %}
 {% endfor %}
 {{ '━' * 42 }}
-💡 Tips & Perintah Analisis:
+ Tips & Perintah Analisis:
 • Ketik /compare <KODE1> <KODE2> untuk perbandingan kas (contoh: /compare WIKA TOTL)
 • Ketik /trend <KODE> untuk melihat evolusi 4 tahun (contoh: /trend WIKA)

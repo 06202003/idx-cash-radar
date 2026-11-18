@@ -1,10 +1,10 @@
-📈 EVOLUSI TREN KEUANGAN: {{ ticker }}
+ EVOLUSI TREN KEUANGAN: {{ ticker }}
 {{ company_name }} (2022 – 2025)
 {{ '━' * 42 }}
-💡 Cara Baca: Perhatikan apakah arus kas (CFO) membaik dan apakah rasio kas mampu menutup utang jangka pendek.
+ Cara Baca: Perhatikan apakah arus kas (CFO) membaik dan apakah rasio kas mampu menutup utang jangka pendek.
 
 {% for row in history %}
-📅 FY {{ row.fiscal_year }}:
+ FY {{ row.fiscal_year }}:
    • Arus Kas Operasi (CFO): Rp {{ row.cfo_str }}
    • Solvabilitas Kas (Cov): {{ row.cov_str }}
    • Sloan Accrual Ratio   : {{ row.sloan_str }}
@@ -14,7 +14,7 @@
 {% endif %}
 {% endfor %}
 {{ '━' * 42 }}
-🤖 ANALISIS TREN HISTORIS (AI RADAR):
+ ANALISIS TREN HISTORIS (AI RADAR):
 {{ ai_narrative }}
 {{ '━' * 42 }}
-ℹ️ Verifikasi retrospektif berbasis laporan keuangan audited & interim BEI.
+ℹ Verifikasi retrospektif berbasis laporan keuangan audited & interim BEI.
