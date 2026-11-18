@@ -16,7 +16,7 @@ from typing import Any
 
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 from pydantic import BaseModel
 
 # Ensure root directory on sys.path
@@ -42,6 +42,10 @@ from src.engine.market_quotes import (  # noqa: E402
 from src.engine.ml_models import FinancialMLSuite  # noqa: E402
 from src.engine.news_radar import NewsRadar  # noqa: E402
 from src.engine.rag_chat import RAGFinancialChatbot  # noqa: E402
+from src.renderer.share_card import (  # noqa: E402
+    build_share_card_payload,
+    render_share_card_png,
+)
 from src.engine.realtime_news_analyzer import (  # noqa: E402
     analyze_sentiment_deterministic,
     compute_hype_vs_cash_reality,
@@ -1165,6 +1169,35 @@ def post_portfolio_xray(req: PortfolioXRayRequest) -> dict[str, Any]:
         "peer_benchmark": peer_bench,
         "holdings": evaluated,
     }
+
+
+@app.get("/api/card/{ticker}.png")
+def get_share_card_png(ticker: str, ratio: str = "1:1") -> Response:
+    """Generates a shareable PNG fact card (1:1 or 9:16) for an issuer."""
+    t = ticker.strip().upper()
+    rows = get_screener_data(2025)
+    matched = next((r for r in rows if r["ticker"] == t), None)
+    if not matched:
+        raise HTTPException(status_code=404, detail=f"Ticker {t} not found")
+    payload = build_share_card_payload(matched)
+    clean_ratio = "9:16" if ratio.strip() == "9:16" else "1:1"
+    png_bytes = render_share_card_png(payload, ratio=clean_ratio)
+    return Response(
+        content=png_bytes,
+        media_type="image/png",
+        headers={"Content-Disposition": f'inline; filename="{t}_fact_card_{clean_ratio.replace(":", "x")}.png"'},
+    )
+
+
+@app.get("/api/card/{ticker}")
+def get_share_card_json(ticker: str) -> dict[str, Any]:
+    """Returns deterministic retail-language fact card payload for a ticker."""
+    t = ticker.strip().upper()
+    rows = get_screener_data(2025)
+    matched = next((r for r in rows if r["ticker"] == t), None)
+    if not matched:
+        raise HTTPException(status_code=404, detail=f"Ticker {t} not found")
+    return build_share_card_payload(matched)
 
 
 @app.get("/metodologi", response_class=HTMLResponse)
