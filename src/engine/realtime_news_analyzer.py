@@ -29,7 +29,7 @@ from src.engine.llm_explainer import (
     DEFAULT_GEMINI_MODEL,
     check_language_compliance,
 )
-from src.engine.news_radar import PERHATIAN_KEYWORDS, POSITIF_KEYWORDS
+from src.engine.news_radar import PERHATIAN_KEYWORDS, POSITIF_KEYWORDS, detect_news_catalysts
 
 logger = logging.getLogger(__name__)
 _GEMINI_BACKOFF_UNTIL: float = 0.0
@@ -526,12 +526,109 @@ def analyze_sentiment_deterministic(headline: str, body_text: str) -> dict[str, 
     else:
         sentiment = "NETRAL"
 
+    catalyst_info = detect_news_catalysts(f"{headline} {body_text}")
+
     return {
         "sentiment": sentiment,
         "positive_score": pos_score,
         "warning_score": warn_score,
         "matched_positive": matched_pos[:6],
         "matched_warning": matched_warn[:6],
+        **catalyst_info,
+    }
+
+
+def compute_hype_vs_cash_reality(
+    sentiment_res: dict[str, Any],
+    fundamentals: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """
+    Deterministic cross-check comparing news hype/catalysts against audited XBRL cash reality.
+    Strictly adheres to Section 7 legal compliance (descriptive, non-accusatory language).
+    """
+    sentiment = sentiment_res.get("sentiment", "NETRAL")
+    volatility_alert = bool(sentiment_res.get("volatility_alert"))
+    catalyst_labels = sentiment_res.get("catalyst_labels", [])
+
+    if not fundamentals:
+        if volatility_alert:
+            return {
+                "hype_reality_status": "VOLATILITY_CATALYST_ALERT",
+                "hype_reality_label": "Katalis Volatilitas Tinggi — Cek Likuiditas",
+                "hype_reality_summary": (
+                    f"Terdeteksi katalis penggerak pasar ({', '.join(catalyst_labels)}). "
+                    "Belum ada data audit XBRL untuk emiten ini di basis data lokal."
+                ),
+            }
+        return {
+            "hype_reality_status": "NEUTRAL_MONITORING",
+            "hype_reality_label": "Pantauan Berita",
+            "hype_reality_summary": "Sentimen berita dipantau secara independen.",
+        }
+
+    cfo = float(fundamentals.get("cfo_ttm_idr") or 0.0)
+    cov = float(fundamentals.get("cash_coverage_ratio") or 0.0)
+    debt_free = bool(fundamentals.get("debt_free_short_term"))
+    flag_liq = bool(fundamentals.get("flag_acute_liquidity"))
+    flag_acc = bool(fundamentals.get("flag_accrual_divergence"))
+    cash_strained = (cfo < 0) or flag_liq or (not debt_free and cov < 0.25)
+
+    if volatility_alert:
+        cat_txt = ", ".join(catalyst_labels)
+        if cash_strained:
+            return {
+                "hype_reality_status": "VOLATILITY_CATALYST_ALERT",
+                "hype_reality_label": "Katalis Volatilitas + Kas Tertekan",
+                "hype_reality_summary": (
+                    f"Berita memuat katalis volatilitas ({cat_txt}), sementara arus kas "
+                    "operasi atau daya tutup kas jangka pendek masih tertekan di laporan XBRL."
+                ),
+            }
+        return {
+            "hype_reality_status": "VOLATILITY_CATALYST_ALERT",
+            "hype_reality_label": "Katalis Volatilitas — Kas Relatif Terjaga",
+            "hype_reality_summary": (
+                f"Berita memuat katalis penggerak pasar ({cat_txt}) yang berpotensi memicu "
+                "fluktuasi jangka pendek; posisi kas dasar tercatat relatif terjaga."
+            ),
+        }
+
+    if sentiment == "POSITIF" and cash_strained:
+        return {
+            "hype_reality_status": "HYPE_VS_CASH_DIVERGENCE",
+            "hype_reality_label": "Divergensi: Berita Positif vs Kas Tertekan",
+            "hype_reality_summary": (
+                "Narasi berita bernada positif, namun data audit XBRL menunjukkan arus kas "
+                "operasi negatif atau rasio cakupan kas jangka pendek yang sempit."
+            ),
+        }
+
+    if sentiment == "PERHATIAN" and (cash_strained or flag_acc):
+        return {
+            "hype_reality_status": "FUNDAMENTAL_PRESSURE_CONFIRMED",
+            "hype_reality_label": "Tekanan Berita & Kas Terkonfirmasi",
+            "hype_reality_summary": (
+                "Nada perhatian pada berita sejalan dengan tekanan arus kas atau divergensi "
+                "akrual yang tercatat pada laporan keuangan XBRL."
+            ),
+        }
+
+    if sentiment == "POSITIF" and not cash_strained:
+        return {
+            "hype_reality_status": "ALIGNED_FUNDAMENTAL",
+            "hype_reality_label": "Berita Positif Selaras Kas Riil",
+            "hype_reality_summary": (
+                "Sentimen berita positif selaras dengan arus kas operasi positif dan "
+                "likuiditas jangka pendek yang memadai."
+            ),
+        }
+
+    return {
+        "hype_reality_status": "NEUTRAL_MONITORING",
+        "hype_reality_label": "Pantauan Netral",
+        "hype_reality_summary": (
+            "Tidak terdapat divergensi ekstrem antara nada berita dan profil kas XBRL."
+        ),
     }
 
 
@@ -907,6 +1004,7 @@ def synthesize_news_vs_accrual(
 
     nb_pred = predict_news_sentiment_nb(f"{headline} {' '.join(highlights)}")
     det["nb_sentiment"] = nb_pred
+    det["hype_vs_cash"] = compute_hype_vs_cash_reality(sentiment_res, fundamentals)
 
     global _GEMINI_BACKOFF_UNTIL
     byok_key = (api_key or "").strip()

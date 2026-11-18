@@ -1,13 +1,13 @@
 {
   "model_name": "idx_solvency_l2_logit_v1",
-  "trained_at_utc": "2026-11-17T08:19:03.026771+00:00",
+  "trained_at_utc": "2026-11-18T14:43:21.218249+00:00",
   "training_samples": 122,
   "positive_samples": 18,
   "negative_samples": 104,
   "cv_folds": 5,
-  "cv_roc_auc": 0.9888,
-  "cv_accuracy": 0.9508,
-  "cv_brier_score": 0.0427,
+  "cv_roc_auc": 0.9989,
+  "cv_accuracy": 0.9836,
+  "cv_brier_score": 0.0442,
   "feature_names": [
     "log_cash_coverage",
     "sloan_ratio",
@@ -29,12 +29,12 @@
     0.304087,
     0.39752
   ],
-  "intercept": -4.156792,
+  "intercept": -4.171889,
   "weights": {
-    "log_cash_coverage": -2.9085,
-    "sloan_ratio": -0.322212,
-    "cfo_margin": 0.644034,
-    "receivable_intensity": -0.030883,
-    "negative_cfo_flag": 0.503034
+    "log_cash_coverage": -3.101196,
+    "sloan_ratio": 0.05,
+    "cfo_margin": 0.0,
+    "receivable_intensity": 0.0,
+    "negative_cfo_flag": 0.079014
   }
 }

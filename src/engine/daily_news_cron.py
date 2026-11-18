@@ -82,6 +82,9 @@ def fetch_ticker_rss_news(
                 "url": link or None,
                 "matched_positive": sent_res["matched_positive"],
                 "matched_warning": sent_res["matched_warning"],
+                "catalysts": sent_res.get("catalysts", []),
+                "catalyst_labels": sent_res.get("catalyst_labels", []),
+                "volatility_alert": bool(sent_res.get("volatility_alert")),
             })
     except Exception:
         return []

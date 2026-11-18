@@ -1,6 +1,6 @@
 {
   "model_name": "idx_news_multinomial_nb_v1",
-  "trained_at_utc": "2026-11-17T08:19:03.036897+00:00",
+  "trained_at_utc": "2026-11-18T14:43:21.230208+00:00",
   "training_samples": 129,
   "vocab_size": 1627,
   "cv_accuracy": 0.6744,

@@ -153,3 +153,45 @@ def test_wika_whoosh_debt_news_classifies_warning_with_forward_forecast() -> Non
     assert data["ml_forecast"] is not None
     assert check_language_compliance(data["forecast_awam"]) is True
     assert check_language_compliance(data["forecast_expert"]) is True
+
+
+def test_catalyst_detection_and_hype_vs_cash_reality() -> None:
+    from src.engine.news_radar import detect_news_catalysts
+    from src.engine.realtime_news_analyzer import compute_hype_vs_cash_reality
+
+    # False-positive guard: "rumah", "cara", "kabar" must NOT match short tokens uma/ara/arb
+    benign = detect_news_catalysts("Kabar pembangunan rumah dengan cara efisien")
+    assert benign["volatility_alert"] is False
+    assert benign["catalysts"] == []
+
+    # Real IDX volatility catalysts: Index exclusion + UMA/FCA + Corporate Action
+    hot = detect_news_catalysts(
+        "Saham XYZ Dikeluarkan dari IHSG, Masuk Papan Pemantauan Khusus FCA dan Rencana Right Issue"
+    )
+    assert hot["volatility_alert"] is True
+    assert "INDEX_REBALANCING" in hot["catalysts"]
+    assert "UMA_SUSPENSION_FCA" in hot["catalysts"]
+    assert "CORPORATE_ACTION_CONTROL" in hot["catalysts"]
+
+    # Hype vs Cash Divergence: positive news but negative CFO / tight cash
+    sent_pos = {"sentiment": "POSITIF", "volatility_alert": False, "catalyst_labels": []}
+    strained_fund = {
+        "cfo_ttm_idr": -500_000_000_000,
+        "cash_coverage_ratio": 0.12,
+        "debt_free_short_term": False,
+        "flag_acute_liquidity": True,
+        "flag_accrual_divergence": False,
+    }
+    hvc_div = compute_hype_vs_cash_reality(sent_pos, strained_fund)
+    assert hvc_div["hype_reality_status"] == "HYPE_VS_CASH_DIVERGENCE"
+    assert check_language_compliance(hvc_div["hype_reality_summary"]) is True
+
+    # Volatility catalyst alert
+    sent_vol = {
+        "sentiment": "NETRAL",
+        "volatility_alert": True,
+        "catalyst_labels": ["Rebalancing / Eksklusi Indeks"],
+    }
+    hvc_vol = compute_hype_vs_cash_reality(sent_vol, strained_fund)
+    assert hvc_vol["hype_reality_status"] == "VOLATILITY_CATALYST_ALERT"
+    assert check_language_compliance(hvc_vol["hype_reality_summary"]) is True

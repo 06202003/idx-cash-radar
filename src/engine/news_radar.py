@@ -8,9 +8,11 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import urllib.parse
 import urllib.request
 from datetime import datetime
+from typing import Any
 
 from lxml import etree
 from pydantic import BaseModel, Field
@@ -58,6 +60,90 @@ POSITIF_KEYWORDS = [
     "kinerja positif",
     "peningkatan pendapatan",
 ]
+
+# High-volatility market-mover catalyst keywords (Index rebalancing, UMA/FCA, Corp Action)
+CATALYST_KEYWORDS: dict[str, list[str]] = {
+    "INDEX_REBALANCING": [
+        "keluar dari ihsg",
+        "dikeluarkan dari ihsg",
+        "dikeluarkan dari indeks",
+        "keluar dari indeks",
+        "rebalancing",
+        "rekomposisi indeks",
+        "penghapusan indeks",
+        "konstituen",
+        "lq45",
+        "idx30",
+        "idx80",
+        "msci",
+        "ftse",
+    ],
+    "UMA_SUSPENSION_FCA": [
+        "unusual market activity",
+        "uma",
+        "papan pemantauan khusus",
+        "full call auction",
+        "fca",
+        "suspensi",
+        "suspend",
+        "penghentian sementara",
+        "auto rejection",
+        "ara",
+        "arb",
+        "lonjakan harga",
+        "volatilitas tinggi",
+        "bergerak liar",
+    ],
+    "CORPORATE_ACTION_CONTROL": [
+        "right issue",
+        "rights issue",
+        "hmetd",
+        "private placement",
+        "pmthmetd",
+        "stock split",
+        "reverse stock",
+        "tender offer",
+        "akuisisi",
+        "backdoor listing",
+        "pengendali baru",
+        "perubahan pengendali",
+        "divestasi",
+        "buyback",
+        "merger",
+    ],
+}
+
+CATALYST_LABELS: dict[str, str] = {
+    "INDEX_REBALANCING": "Rebalancing / Eksklusi Indeks",
+    "UMA_SUSPENSION_FCA": "UMA / Suspensi / Papan FCA",
+    "CORPORATE_ACTION_CONTROL": "Aksi Korporasi & Pengendali",
+}
+
+
+def detect_news_catalysts(text: str) -> dict[str, Any]:
+    """Detects high-volatility IDX market-mover catalysts deterministically."""
+    text_low = (text or "").lower()
+    catalysts: list[str] = []
+    matched_keywords: dict[str, list[str]] = {}
+
+    for cat, keywords in CATALYST_KEYWORDS.items():
+        hits: list[str] = []
+        for kw in keywords:
+            if len(kw) <= 4:
+                if re.search(rf"\b{re.escape(kw)}\b", text_low):
+                    hits.append(kw)
+            elif kw in text_low:
+                hits.append(kw)
+        if hits:
+            catalysts.append(cat)
+            matched_keywords[cat] = hits[:5]
+
+    return {
+        "catalysts": catalysts,
+        "catalyst_labels": [CATALYST_LABELS[c] for c in catalysts],
+        "matched_catalyst_keywords": matched_keywords,
+        "volatility_alert": bool(catalysts),
+    }
 
 
 class NewsSentimentItem(BaseModel):
