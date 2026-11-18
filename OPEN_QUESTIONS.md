@@ -8,4 +8,6 @@
    - **Pekerjaan Masa Depan:** Pelatihan ulang model solvabilitas menggunakan label eksternal independen (misalnya tanggal suspensi BEI, PKPU, atau gagal bayar obligasi) dengan *time-split* ketat tanpa *label leakage*.
 
 2. **Q2 — Sumber Data Historis Harga & Berita (Fase 5):**
-   - **Keputusan:** Harga menggunakan Yahoo Finance (`.JK` dan `^JKSE`, *adjusted close*). Berita memprioritaskan arsip Keterbukaan Informasi BEI; sumber lain hanya jika tanggal publikasinya dapat diverifikasi. Jika data berita historis tidak memadai, laporkan `"BUKTI TIDAK CUKUP"` tanpa membuat data sintetis, serta catat batasan *survivorship bias*.
+   - **Keputusan:** Harga menggunakan Yahoo Finance (`.JK` dan `^JKSE`, *adjusted close*). Berita memprioritaskan arsip Keterbukaan Informasi BEI; sumber lain hanya jika tanggal publikasinya dapat diverifikasi.
+   - **Temuan Fase 5 (`BUKTI TIDAK CUKUP`):** `data/daily_news_sentiment.json` hanya berisi snapshot RSS terbaru (belum memiliki horizon +5/+20/+60 hari bursa), sehingga hanya ditemukan 1 kejadian Treatment dan 1 kejadian Control dengan N valid = 0 untuk horizon 5/20/60 hari.
+   - **Kebutuhan Data Lanjutan (Butuh Keputusan):** Apakah kita perlu mengimpor arsip pengumuman Keterbukaan Informasi BEI historis (2022–2025) terlebih dahulu, atau langsung lanjut ke **Fase 3 -> 4 -> 6**?
