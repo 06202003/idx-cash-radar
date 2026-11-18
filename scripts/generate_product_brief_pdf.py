@@ -1,8 +1,8 @@
 """
 Generates a comprehensive Indonesian Product Discussion Brief (HTML + A4 PDF via Playwright)
 covering the entire IDX Cash & Accrual Radar platform, including the latest News & Catalyst
-Radar (Hype vs Cash Reality), XBRL Audit Engine, Self-Trained ML/MLP, Portfolio X-Ray,
-AI Analyst, and Strategic Positioning for co-founder/peer discussion.
+Radar (Hype vs Cash Reality), XBRL Audit Engine, Deterministic Rules & What-If Simulator,
+Portfolio X-Ray, AI Analyst, and Strategic Positioning for co-founder/peer discussion.
 """
 
 from __future__ import annotations
@@ -236,13 +236,13 @@ def build_brief_html() -> str:
     <p>
       <strong>Radar Fakta Berita, Katalis Pasar &amp; Audit Kas Riil BEI</strong> — Platform intelijen
       deterministik untuk membedah <em>hype</em> berita dan pergerakan saham liar dengan data kas
-      auditan XBRL resmi Bursa Efek Indonesia (tanpa halusinasi, tanpa rekomendasi beli/jual).
+      auditan XBRL resmi Bursa Efek Indonesia (tanpa klaim prediktif, bukan saran transaksi saham).
     </p>
     <div class="hero-meta">
       <div><strong>Live App:</strong> idx-cash-radar.vercel.app</div>
       <div><strong>Universe:</strong> 49 Emiten (5 Sektor Inti BEI)</div>
-      <div><strong>Rezim Data:</strong> XBRL BEI 2020&ndash;2025 (PSAK 72)</div>
-      <div><strong>Status QA:</strong> 131 Automated Tests Pass</div>
+      <div><strong>Runtime:</strong> Python 3.12 &bull; XBRL 2020&ndash;2025</div>
+      <div><strong>Status QA:</strong> 135 Automated Tests Pass</div>
     </div>
   </div>
 
@@ -252,8 +252,8 @@ def build_brief_html() -> str:
       <div class="stat-label">Konstruksi, Perbankan, Consumer/FMCG, Tambang &amp; Energi, Telco/Infra</div>
     </div>
     <div class="card">
-      <div class="stat-num">100% Terlacak</div>
-      <div class="stat-label">Setiap angka akuntansi dapat ditelusuri ke tag XML XBRL resmi BEI (<code>canonical_facts</code>)</div>
+      <div class="stat-num">36 / 36 Lolos</div>
+      <div class="stat-label">Angka akuntansi di screener ditelusuri ke tag XBRL (uji sampel 36 angka)</div>
     </div>
     <div class="card">
       <div class="stat-num">Aturan Deterministik</div>
@@ -282,7 +282,7 @@ def build_brief_html() -> str:
       <h3>Posisi Produk Kita (Bukan "Guru Saham")</h3>
       <ul>
         <li><strong>Bukan pemberi sinyal cuan / target harga.</strong> Kita tidak memposisikan diri sebagai pihak yang "paling jago cuan di pasar".</li>
-        <li><strong>Alat Forensik &amp; Fact-Checker:</strong> Seperti alat telemetri atau <em>lie detector</em> antara narasi berita vs kas riil di bank.</li>
+        <li><strong>Alat Forensik &amp; Fact-Checker:</strong> Pengecek silang faktual antara narasi berita vs kas riil di bank.</li>
         <li>Membantu trader/investor cepat sadar: apakah berita panas ini didukung kas nyata, atau murni volatilitas katalis?</li>
       </ul>
     </div>
@@ -374,7 +374,7 @@ def build_brief_html() -> str:
       <h3>Pilar C &mdash; Portfolio Cash-Safety X-Ray &amp; Market Quotes</h3>
       <ul>
         <li><strong>Portfolio X-Ray:</strong> Pengguna memasukkan alokasi modal (Rp) per saham; sistem menghitung berapa rupiah modal yang benar-benar didukung kas vs utang jangka pendek berdasarkan <em>Book Equity Cash Backing</em>.</li>
-        <li><strong>Benchmark Rekomendasi Sektor:</strong> Menunjukkan selisih <em>Capital-at-Risk</em> jika posisi terlemah dibandingkan dengan emiten se-subsektor yang lebih sehat kasnya.</li>
+        <li><strong>Perbandingan Sektor Sejenis:</strong> Menunjukkan selisih <em>Capital-at-Risk</em> jika posisi terlemah dibandingkan dengan emiten se-subsektor yang lebih sehat kasnya.</li>
         <li><strong>Live Market Quotes &amp; Intraday WIB:</strong> Grafik harga dan kutipan pasar real-time disesuaikan ke jam bursa BEI (09:00&ndash;16:00 WIB).</li>
       </ul>
     </div>
@@ -388,7 +388,7 @@ def build_brief_html() -> str:
     </div>
   </div>
 
-  <h2>4. Pagar Kepatuhan Hukum &amp; Anti-Halusinasi (Guardrails)</h2>
+  <h2>4. Pagar Kepatuhan Hukum &amp; Bahasa Faktual (Guardrails)</h2>
   <div class="card-dark avoid-break">
     <h3>Kenapa Sistem Ini Aman untuk Dipublikasikan ke Publik Ritel?</h3>
     <p>
@@ -396,7 +396,7 @@ def build_brief_html() -> str:
       <code>tests/test_language_compliance.py</code> sebelum tampil ke pengguna:
     </p>
     <ul>
-      <li><strong>Blacklist Kata Terlarang:</strong> Sistem memblokir keras kata tuduhan atau ajakan ilegal seperti <em>"Manipulasi", "Window Dressing", "Saham Gorengan", "Penipuan", "Fraud", "Bangkrut", "Rekomendasi Beli", "Rekomendasi Jual"</em>.</li>
+      <li><strong>Filter Kata Terlarang:</strong> Sistem memblokir keras kata tuduhan hukum, tudingan rekayasa, atau ajakan transaksi saham (daftar kata terkunci di <code>BLACKLISTED_WORDS</code> pada modul kepatuhan).</li>
       <li><strong>Bahasa Deskriptif Faktual:</strong> Diganti dengan frasa objektif yang bisa diaudit, misal: <em>"Arus kas operasi bernilai negatif", "Divergensi antara sentimen berita positif dan arus kas riil", "Katalis volatilitas tinggi (UMA/FCA/Indeks)"</em>.</li>
       <li><strong>Pemisahan Tegas Matematika vs LLM:</strong> AI tidak pernah menghitung rasio atau skor risiko; semua angka berasal dari Python deterministik.</li>
     </ul>
@@ -478,7 +478,7 @@ def build_brief_html() -> str:
       Fondasi teknisnya sudah jadi dan berjalan (49 emiten, XBRL audit, ML/MLP, Portfolio X-Ray, hingga
       News &amp; Catalyst Radar terbaru). Tantangan sekarang bukan lagi di kode dasar, melainkan
       <strong>mengemas sudut pandang produk</strong> agar langsung menjawab kebutuhan nyata pelaku pasar
-      di Indonesia: cepat membaca arah berita/katalis saham liar sambil tetap punya pegangan fakta kas riil.
+      di Indonesia: cepat membaca konteks berita/katalis saham sambil tetap punya pegangan fakta kas riil.
     </p>
   </div>
 

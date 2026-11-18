@@ -271,7 +271,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
       <div class="card">
         <div class="kpi-num">0</div>
         <div class="kpi-label">Angka Dihitung oleh LLM</div>
-        <div class="muted">100% Python Decimal math + self-trained ML/NLP models</div>
+        <div class="muted">100% Python 3.12 Decimal math + aturan deterministik (tanpa klaim prediktif)</div>
       </div>
     </div>
 
@@ -344,7 +344,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
         </div>
       </div>
       <div class="card card-accent">
-        <div style="font-weight: 800; font-size: 14px; color: #0369a1; margin-bottom: 8px;">3. PDF TEBAL &amp; AI HALUSINASI</div>
+        <div style="font-weight: 800; font-size: 14px; color: #0369a1; margin-bottom: 8px;">3. PDF TEBAL &amp; ANGKA TANPA JEJAK</div>
         <div class="muted" style="font-size: 13px;">
           Laporan keuangan BEI tebalnya 150+ halaman, sementara chatbot AI generik sering ngarang angka keuangan saat disuruh merangkum.
         </div>
@@ -511,7 +511,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
           <div class="muted">Mendukung rentang <strong>1D (15m), 1W (1h), 1M, 3M, &amp; 1Y</strong> dengan legend OHLCV interaktif dan feed kuotasi <code>.JK</code> (Yahoo Finance, 5-min cache).</div>
         </div>
         <div class="card card-amber" style="padding: 13px 16px;">
-          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Kartu Triangulasi 3-Arah + Neural Stress</div>
+          <div style="font-weight: 800; font-size: 13.5px; margin-bottom: 4px;">Kartu Triangulasi 3-Arah (Harga + Berita + Kas XBRL)</div>
           <div class="muted">Menyatukan <strong>Harga Near-Real-Time</strong> + <strong>Berita RSS Terbaru</strong> + <strong>Analisis Diagnostik Kas FY 2025</strong> agar divergensi terlihat saat meninjau emiten.</div>
         </div>
       </div>
@@ -597,12 +597,12 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
     </div>
   </section>
 
-  <!-- SLIDE 10: STUDI KASUS RETROSPEKTIF (2022-2025) -->
+  <!-- SLIDE 10: ILUSTRASI KASUS HISTORIS (BUKAN BUKTI STATISTIK) -->
   <section class="slide slide-light">
     <div>
-      <div class="eyebrow">09 / STUDI KASUS RETROSPEKTIF (2022-2025)</div>
-      <h2>Bagaimana Flag Kas 2022-2023 Sejalan dengan Kejadian Distres Utang di 2025.</h2>
-      <p class="lead">Angka XBRL teraudit dari database kami vs. dokumentasi suspensi BEI, penundaan kupon, dan restrukturisasi (Keterbukaan Informasi BEI / RUPO 2024-2025).</p>
+      <div class="eyebrow">09 / ILUSTRASI (BUKAN BUKTI STATISTIK)</div>
+      <h2>Ilustrasi Kasus Historis (Bukan Bukti Statistik): Flag Kas vs Kejadian Publik.</h2>
+      <p class="lead">Ilustrasi deskriptif dari 3 emiten di database kami (<strong>bukan uji statistik</strong>). Uji backtest formal Fase 5 berstatus <strong>BUKTI TIDAK CUKUP</strong> (N=1 uji, N=1 kontrol).</p>
     </div>
 
     <div class="grid-3">
@@ -649,8 +649,45 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
-      <span>IDX Cash &amp; Accrual Radar &bull; Studi Kasus Retrospektif (2022-2025)</span>
-      <span>Slide 10 / 13</span>
+      <span>IDX Cash &amp; Accrual Radar &bull; Ilustrasi Kasus Historis (Bukan Bukti Statistik)</span>
+      <span>Slide 10 / 14</span>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: HASIL AUDIT JUJUR MODEL & BASELINE (FASE 1) -->
+  <section class="slide slide-light">
+    <div>
+      <div class="eyebrow">10 / HASIL AUDIT JUJUR MODEL &amp; BASELINE (FASE 1)</div>
+      <h2>Klaim AUC Lama Dicabut: Aturan Deterministik Sederhana Mengalahkan ML.</h2>
+      <p class="lead">Audit independen berbasis split waktu (<code>Train 2022-2023</code> &rarr; <code>Test 2024-2025</code>, tanpa random split) menemukan <em>label leakage</em> pada skrip pelatihan lama.</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card card-red">
+        <span class="tag tag-red" style="margin-bottom: 6px;">KLAIM LAMA DICABUT</span>
+        <div style="font-weight: 800; font-size: 14px; margin-bottom: 6px;">Label Leakage di Model ML</div>
+        <p style="font-size: 12px; color: #334155;">Label target diturunkan dari rasio input periode yang sama. Pada uji waktu <code>n=98</code> (Pos=15), L2 Logistic (thr 0.50) hanya mencatat <strong>0/15 terdeteksi</strong> (Recall 0%).</p>
+      </div>
+      <div class="card card-green">
+        <span class="tag tag-green" style="margin-bottom: 6px;">HASIL BASELINE SEDERHANA</span>
+        <div style="font-weight: 800; font-size: 14px; margin-bottom: 6px;"><code>cash_coverage &lt; 0.25</code></div>
+        <p style="font-size: 12px; color: #334155;">Pada split waktu yang sama (<code>n=98</code>, Pos=15, Neg=83): <strong>14/15 terdeteksi</strong> (Recall 93,3%) dengan <strong>0 false positive</strong> (Precision 100%, Akurasi 98,98%).</p>
+      </div>
+      <div class="card card-amber">
+        <span class="tag tag-amber" style="margin-bottom: 6px;">KETERBATASAN JUJUR</span>
+        <div style="font-weight: 800; font-size: 14px; margin-bottom: 6px;">Sampel Kecil &amp; Rentang 2022-2025</div>
+        <p style="font-size: 12px; color: #334155;">Data <code>computed_metrics</code> hanya mencakup 2022-2025 (2022-2023 n=24, 2024-2025 n=98) dan belum memakai label eksternal (suspensi/PKPU). Verifikasi: <strong>135 automated tests</strong> (Python 3.12).</p>
+      </div>
+    </div>
+
+    <div class="card" style="background: #0f172a; color: #f8fafc; padding: 12px 18px; font-size: 12.5px;">
+      <strong style="color: #38bdf8;">Prinsip Produk:</strong> Seluruh skor utama kini murni aturan deterministik XBRL (<code>/metodologi</code>); simulator MLP hanya ada di menu Pro sebagai simulasi <em>what-if</em>, bukan prediksi.
+    </div>
+
+    <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
+    <div class="footer">
+      <span>IDX Cash &amp; Accrual Radar &bull; Audit Jujur Model &amp; Baseline (Fase 1)</span>
+      <span>Slide 11 / 14</span>
     </div>
   </section>
 
@@ -719,14 +756,14 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
       </div>
       <div class="card" style="padding: 12px 15px;">
         <strong style="font-size: 12px; color: #b45309;">OJK &amp; KEPATUHAN</strong>
-        <div class="muted" style="margin-top: 4px; font-size: 11.5px;">Murni intelijen deskriptif (nol rekomendasi beli/jual atau target harga); BYOK Gemini hanya opsional untuk chat percakapan.</div>
+        <div class="muted" style="margin-top: 4px; font-size: 11.5px;">Murni intelijen deskriptif (tanpa saran transaksi saham atau target harga); BYOK Gemini hanya opsional untuk chat percakapan.</div>
       </div>
     </div>
 
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Data Empiris &amp; Legal Due Diligence</span>
-      <span>Slide 11 / 13</span>
+      <span>Slide 12 / 14</span>
     </div>
   </section>
 
@@ -773,7 +810,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; Roadmap &amp; Peran Co-Builder</span>
-      <span>Slide 12 / 13</span>
+      <span>Slide 13 / 14</span>
     </div>
   </section>
 
@@ -821,7 +858,7 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
     <div class="watermark">Yehezkiel David Setiawan, S.Kom, M.Kom</div>
     <div class="footer">
       <span>IDX Cash &amp; Accrual Radar &bull; &copy; Yehezkiel David Setiawan, S.Kom, M.Kom &bull; yehezkiel.netlify.app</span>
-      <span>Slide 13 / 13</span>
+      <span>Slide 14 / 14</span>
     </div>
   </section>
 
