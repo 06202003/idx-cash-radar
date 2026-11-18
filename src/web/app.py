@@ -694,11 +694,34 @@ def get_issuer_metrics(ticker: str) -> dict[str, Any]:
     """
     with repo.get_connection() as conn:
         rows = [dict(r) for r in conn.execute(query, (t,)).fetchall()]
+        xbrl_sources: dict[str, dict[str, Any]] = {}
+        if rows:
+            latest_fid = rows[-1].get("filing_id")
+            if latest_fid is not None:
+                try:
+                    cf_rows = conn.execute(
+                        """
+                        SELECT canonical_key, value_idr, raw_xbrl_tag, raw_context_ref
+                        FROM canonical_facts
+                        WHERE filing_id = ?
+                        """,
+                        (latest_fid,),
+                    ).fetchall()
+                    for cf in cf_rows:
+                        d_cf = dict(cf)
+                        xbrl_sources[d_cf["canonical_key"]] = {
+                            "raw_xbrl_tag": d_cf.get("raw_xbrl_tag"),
+                            "raw_context_ref": d_cf.get("raw_context_ref"),
+                            "value_idr": d_cf.get("value_idr"),
+                        }
+                except Exception:
+                    pass
 
     return {
         "ticker": t,
         "company_name": issuer.company_name,
         "history": rows,
+        "xbrl_sources": xbrl_sources,
     }
 
 
@@ -1202,6 +1225,7 @@ def get_share_card_json(ticker: str) -> dict[str, Any]:
 
 ALLOWED_ANALYTICS_EVENTS = {
     "ticker_dicek",
+    "ticker_tidak_ditemukan",
     "link_berita_ditempel",
     "kartu_dibuat",
     "kartu_dibagikan",
@@ -1321,48 +1345,60 @@ def get_analytics_summary() -> dict[str, Any]:
 
 @app.get("/analytics", response_class=HTMLResponse)
 def get_analytics_dashboard() -> str:
-    """Simple anonymous analytics dashboard showing Top 5 most-checked tickers & key events."""
+    """Simple anonymous analytics dashboard in light-first ledger style."""
     summary = get_analytics_summary()
     counts = summary["counts"]
     top5 = summary["top_5_tickers"]
     top_rows = (
         "".join(
-            f"<tr><td><strong>{r['ticker']}</strong></td><td>{r['checks']}</td></tr>"
+            f"<tr><td><strong>{r['ticker']}</strong></td><td class='num'>{r['checks']}</td></tr>"
             for r in top5
         )
-        or "<tr><td colspan='2' style='color:#94a3b8;'>Belum ada data ticker_dicek.</td></tr>"
+        or "<tr><td colspan='2' class='muted'>Belum ada emiten yang dicek.</td></tr>"
     )
     ev_rows = "".join(
-        f"<tr><td><code>{k}</code></td><td>{v}</td></tr>" for k, v in counts.items()
+        f"<tr><td>{k}</td><td class='num'>{v}</td></tr>" for k, v in counts.items()
     )
     return f"""<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Analytics Dashboard — IDX Cash &amp; Accrual Radar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ringkasan penggunaan, IDX Cash Radar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {{ font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; background: #0b0f19; color: #e2e8f0; padding: 24px 16px; }}
+    :root {{ --kertas:#FAF8F5; --lembar:#FFFFFF; --tinta:#18181B; --catatan:#52525B; --garis:#E4E0D8; --aksi:#1D4ED8; }}
+    @media (prefers-color-scheme: dark) {{ :root[data-theme="auto"] {{ --kertas:#141413; --lembar:#1C1C1A; --tinta:#F4F3EF; --catatan:#A1A1AA; --garis:#2E2E2A; --aksi:#60A5FA; }} }}
+    :root[data-theme="dark"] {{ --kertas:#141413; --lembar:#1C1C1A; --tinta:#F4F3EF; --catatan:#A1A1AA; --garis:#2E2E2A; --aksi:#60A5FA; }}
+    * {{ box-sizing: border-box; }}
+    body {{ font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--kertas); color: var(--tinta); margin: 0; padding: 24px 16px; font-size: 16px; line-height: 1.6; }}
     .wrap {{ max-width: 820px; margin: 0 auto; }}
-    .card {{ background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }}
-    table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
-    th, td {{ border-bottom: 1px solid #1f2937; padding: 8px 10px; text-align: left; }}
-    th {{ color: #94a3b8; font-size: 11px; text-transform: uppercase; }}
-    code {{ background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; }}
-    a {{ color: #38bdf8; text-decoration: none; }}
+    .panel {{ background: var(--lembar); border: 1px solid var(--garis); padding: 20px; margin-bottom: 20px; overflow-x: auto; }}
+    h1 {{ font-size: 22px; font-weight: 700; margin: 0 0 6px 0; }}
+    h2 {{ font-size: 18px; font-weight: 600; margin: 0 0 12px 0; }}
+    p {{ color: var(--catatan); font-size: 14px; margin: 0 0 16px 0; }}
+    table {{ width: 100%; border-collapse: collapse; font-size: 15px; }}
+    th, td {{ border-bottom: 1px solid var(--garis); padding: 10px 8px; text-align: left; }}
+    th {{ color: var(--catatan); font-size: 13px; font-weight: 600; }}
+    .num {{ text-align: right; font-variant-numeric: tabular-nums; }}
+    a {{ color: var(--aksi); text-decoration: none; font-weight: 600; font-size: 14px; }}
+    a:hover, a:focus-visible {{ text-decoration: underline; outline: 2px solid var(--aksi); outline-offset: 2px; }}
   </style>
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('idx_theme') || 'light');</script>
 </head>
 <body>
   <div class="wrap">
-    <div style="margin-bottom: 12px;"><a href="/">&larr; Kembali ke Dashboard</a></div>
-    <h1 style="margin:0 0 6px 0; font-size:20px;">Analytics Ringkas (Anonim / Tanpa PII)</h1>
-    <p style="color:#94a3b8; font-size:12.5px;">Prioritas metrik: <code>ticker_dicek</code> dan <code>kartu_dibagikan</code>. Tanpa cookie identitas, IP, atau API key (lihat <code>docs/privacy.md</code>).</p>
-    <div class="card">
-      <h2 style="margin:0 0 10px 0; font-size:15px; color:#38bdf8;">Top 5 Ticker Paling Sering Dicek (<code>ticker_dicek</code>)</h2>
-      <table><thead><tr><th>Ticker</th><th>Jumlah Cek</th></tr></thead><tbody>{top_rows}</tbody></table>
+    <div style="margin-bottom: 16px;"><a href="/">Kembali ke daftar emiten</a></div>
+    <h1>Ringkasan penggunaan anonim</h1>
+    <p>Pencatatan tanpa data pribadi, tanpa cookie identitas, dan tanpa kunci API (rincian di docs/privacy.md).</p>
+    <div class="panel">
+      <h2>Top 5 Ticker Paling Sering Dicek</h2>
+      <table><thead><tr><th>Kode emiten</th><th class="num">Jumlah pengecekan</th></tr></thead><tbody>{top_rows}</tbody></table>
     </div>
-    <div class="card">
-      <h2 style="margin:0 0 10px 0; font-size:15px; color:#38bdf8;">Ringkasan Seluruh Event</h2>
-      <table><thead><tr><th>Event</th><th>Total</th></tr></thead><tbody>{ev_rows}</tbody></table>
+    <div class="panel">
+      <h2>Jumlah kejadian per aktivitas</h2>
+      <table><thead><tr><th>Aktivitas</th><th class="num">Total</th></tr></thead><tbody>{ev_rows}</tbody></table>
     </div>
   </div>
 </body>
@@ -1371,91 +1407,82 @@ def get_analytics_dashboard() -> str:
 
 @app.get("/metodologi", response_class=HTMLResponse)
 def get_metodologi() -> str:
-    """Renders clean, user-facing methodology, deterministic thresholds, and data limitations."""
+    """Renders clean, user-facing methodology in light-first ledger style."""
     return """<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Metodologi — IDX Cash &amp; Accrual Radar</title>
+  <title>Metodologi perhitungan, IDX Cash Radar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif; background: #0b0f19; color: #e2e8f0; margin: 0; padding: 28px 16px; line-height: 1.6; }
-    .wrap { max-width: 960px; margin: 0 auto; }
-    .card { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 20px 22px; margin-bottom: 16px; }
-    .hero-note { background: linear-gradient(135deg, #0f172a 0%, #0b192e 100%); border: 1px solid #1e3a8a; border-left: 4px solid #38bdf8; border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; }
-    h1 { color: #ffffff; font-size: 23px; margin: 0 0 6px 0; letter-spacing: -0.3px; }
-    h2 { color: #38bdf8; font-size: 16px; margin: 0 0 10px 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
-    th, td { border-bottom: 1px solid #1f2937; padding: 9px 10px; text-align: left; vertical-align: top; }
-    th { color: #94a3b8; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; }
-    code { background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; font-size: 12px; }
-    a { color: #38bdf8; text-decoration: none; font-weight: 600; }
-    a:hover { text-decoration: underline; }
-    .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(56,189,248,0.14); color: #38bdf8; border: 1px solid rgba(56,189,248,0.35); margin-bottom: 8px; }
+    :root { --kertas:#FAF8F5; --lembar:#FFFFFF; --tinta:#18181B; --catatan:#52525B; --garis:#E4E0D8; --aksi:#1D4ED8; }
+    :root[data-theme="dark"] { --kertas:#141413; --lembar:#1C1C1A; --tinta:#F4F3EF; --catatan:#A1A1AA; --garis:#2E2E2A; --aksi:#60A5FA; }
+    * { box-sizing: border-box; }
+    body { font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--kertas); color: var(--tinta); margin: 0; padding: 24px 16px; font-size: 16px; line-height: 1.6; }
+    .wrap { max-width: 920px; margin: 0 auto; }
+    .panel { background: var(--lembar); border: 1px solid var(--garis); padding: 20px; margin-bottom: 20px; overflow-x: auto; }
+    h1 { font-size: 22px; font-weight: 700; margin: 0 0 8px 0; }
+    h2 { font-size: 18px; font-weight: 600; margin: 0 0 10px 0; }
+    p, li { font-size: 15px; color: var(--tinta); }
+    .note { color: var(--catatan); font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; min-width: 560px; }
+    th, td { border-bottom: 1px solid var(--garis); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--catatan); font-size: 13px; font-weight: 600; }
+    .num { font-variant-numeric: tabular-nums; }
+    .tag { font-family: ui-monospace, Consolas, monospace; font-size: 13px; }
+    a { color: var(--aksi); text-decoration: none; font-weight: 600; font-size: 14px; }
+    a:hover, a:focus-visible { text-decoration: underline; outline: 2px solid var(--aksi); outline-offset: 2px; }
   </style>
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('idx_theme') || 'light');</script>
 </head>
 <body>
   <div class="wrap">
-    <div style="margin-bottom: 14px;"><a href="/">&larr; Kembali ke Dashboard Utama</a></div>
-    <span class="pill">TRANSPARANSI METODOLOGI</span>
-    <h1>Metodologi Audit Kas &amp; Akrual XBRL</h1>
-    <p style="color: #94a3b8; font-size: 13.5px; margin-top: 4px;">
-      Penjelasan terbuka mengenai rumus akuntansi deterministik, ambang penanda likuiditas, sumber tag XBRL BEI, dan batasan data.
-    </p>
+    <div style="margin-bottom: 16px;"><a href="/">Kembali ke daftar emiten</a></div>
+    <h1>Metodologi perhitungan dan sumber data</h1>
+    <p class="note">Seluruh penanda status dihitung memakai aturan akuntansi deterministik dari laporan XBRL resmi BEI. Tidak ada skor kotak hitam dan tidak ada prediksi harga saham.</p>
 
-    <div class="hero-note">
-      <strong style="color: #38bdf8; font-size: 14px;">Mengapa Kami Memakai Aturan Deterministik (Bukan Skor Kotak Hitam)?</strong>
-      <p style="margin: 6px 0 0 0; font-size: 13px; color: #cbd5e1;">
-        Seluruh status utama di platform ini dihitung menggunakan aturan akuntansi deterministik berbasis Python <code>Decimal</code> dari laporan XBRL resmi BEI.
-        Kami sengaja <strong>tidak</strong> menggunakan probabilitas model ML sebagai skor utama karena jumlah sampel historis BEI masih terbatas dan aturan kas sederhana jauh lebih transparan, mudah diaudit, serta bebas dari efek kotak hitam.
-      </p>
-    </div>
-
-    <div class="card">
-      <h2>1. Aturan &amp; Ambang Deterministik Utama</h2>
+    <div class="panel">
+      <h2>Aturan dan ambang deterministik</h2>
       <table>
-        <thead><tr><th>Metrik / Penanda</th><th>Bahasa Ritel</th><th>Definisi &amp; Ambang Terkunci</th></tr></thead>
+        <thead><tr><th>Ukuran</th><th>Bahasa sehari-hari</th><th>Rumus dan batas</th></tr></thead>
         <tbody>
-          <tr><td><code>cash_coverage_ratio</code></td><td>Kas dibanding utang jangka pendek</td><td>Kas &amp; setara kas dibagi utang berbunga jangka pendek. <code>&lt; 1.0x</code> menandakan kas di bawah utang jatuh tempo 12 bulan; <code>&lt; 0.20x</code> memicu penanda ketat.</td></tr>
-          <tr><td><code>sloan_ratio_ttm</code></td><td>Laba di atas kertas vs kas yang benar-benar masuk</td><td><code>(Laba Bersih TTM - CFO TTM) / Rata-rata Total Aset</code>. Nilai <code>&gt; +10%</code> menandakan porsi laba akrual yang belum masuk sebagai kas.</td></tr>
-          <tr><td><code>FLAG_ACCRUAL_DIVERGENCE</code></td><td>Penanda: Laba kertas, kas operasi negatif</td><td>Aktif jika Laba TTM &gt; 0, CFO TTM &lt; 0, CFO kuartal tunggal &lt; 0, dan Sloan &gt; 10%.</td></tr>
-          <tr><td><code>FLAG_ACUTE_LIQUIDITY</code></td><td>Penanda: Tekanan likuiditas kas jangka pendek</td><td>Aktif jika CFO TTM &lt; 0, terdapat utang jangka pendek berbunga (&gt; 0), dan <code>cash_coverage &lt; 0.20x</code>.</td></tr>
+          <tr><td class="tag">cash_coverage_ratio</td><td>Kas dibanding utang jangka pendek</td><td>Kas dan setara kas dibagi utang berbunga jangka pendek. Kurang dari 1,0x berarti kas lebih kecil dari utang jatuh tempo 12 bulan.</td></tr>
+          <tr><td class="tag">sloan_ratio_ttm</td><td>Laba di atas kertas vs kas masuk</td><td>(Laba bersih 12 bulan dikurangi kas operasional 12 bulan) dibagi rata-rata total aset. Batas perhatian: di atas +10%.</td></tr>
+          <tr><td class="tag">FLAG_ACCRUAL_DIVERGENCE</td><td>Laba tercatat positif, kas operasional negatif</td><td>Aktif jika laba 12 bulan di atas nol, kas operasional 12 bulan di bawah nol, kas operasional kuartal terakhir di bawah nol, dan rasio akrual di atas 10%.</td></tr>
+          <tr><td class="tag">FLAG_ACUTE_LIQUIDITY</td><td>Kas di bawah 20% utang jangka pendek</td><td>Aktif jika kas operasional 12 bulan di bawah nol, ada utang jangka pendek berbunga, dan rasio kas dibanding utang di bawah 0,20x.</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="card">
-      <h2>2. Evaluasi Uji Waktu Aturan Deterministik (2022–2025)</h2>
-      <p style="font-size: 13px; color: #cbd5e1;">
-        Dataset XBRL saat ini mencakup <strong>122 observasi</strong> dari 49 emiten (2022: n=12, 2023: n=12, 2024: n=49, 2025: n=49). Berikut kinerja aturan ambang sederhana pada pengujian berbasis waktu (tanpa <em>random split</em>):
-      </p>
+    <div class="panel">
+      <h2>Evaluasi uji waktu aturan deterministik (2022 sampai 2025)</h2>
+      <p class="note">Data XBRL yang tersedia mencakup 122 laporan dari 49 emiten (2022: 12 laporan, 2023: 12 laporan, 2024: 49 laporan, 2025: 49 laporan). Pengujian dilakukan berbasis urutan waktu tanpa pengacakan.</p>
       <table>
-        <thead><tr><th>Skenario Uji Waktu</th><th>Aturan Deterministik</th><th>Akurasi (95% CI Bootstrap)</th><th>Precision / Recall</th><th>Confusion Matrix</th></tr></thead>
+        <thead><tr><th>Skenario uji waktu</th><th>Aturan</th><th>Akurasi (95% CI)</th><th>Precision / Recall</th><th>Matriks hasil</th></tr></thead>
         <tbody>
           <tr>
-            <td rowspan="2"><strong>Out-of-Sample 2024–2025</strong><br/>(n=98; Pos=15, Neg=83)</td>
-            <td><code>cash_coverage &lt; 1.0x</code></td><td>0.8980 [0.8367, 0.9592]</td><td>0.6000 / 1.0000</td><td>TP=15, FP=10, TN=73, FN=0</td>
+            <td rowspan="2">Uji keluar sampel 2024 sampai 2025 (n=98; positif=15, negatif=83)</td>
+            <td class="tag">cash_coverage &lt; 1.0x</td><td class="num">0,8980 [0,8367, 0,9592]</td><td class="num">0,6000 / 1,0000</td><td class="num">TP=15, FP=10, TN=73, FN=0</td>
           </tr>
-          <tr><td><code>cash_coverage &lt; 0.25x</code></td><td>0.9898 [0.9694, 1.0000]</td><td>1.0000 / 0.9333</td><td>TP=14, FP=0, TN=83, FN=1</td></tr>
+          <tr><td class="tag">cash_coverage &lt; 0.25x</td><td class="num">0,9898 [0,9694, 1,0000]</td><td class="num">1,0000 / 0,9333</td><td class="num">TP=14, FP=0, TN=83, FN=1</td></tr>
           <tr>
-            <td rowspan="2"><strong>Forward t &rarr; t+1 (2024&rarr;2025)</strong><br/>(n=49; Pos=8, Neg=41)</td>
-            <td><code>cash_coverage &lt; 1.0x</code></td><td>0.8980 [0.7959, 0.9796]</td><td>0.6154 / 1.0000</td><td>TP=8, FP=5, TN=36, FN=0</td>
+            <td rowspan="2">Uji periode berikutnya 2024 ke 2025 (n=49; positif=8, negatif=41)</td>
+            <td class="tag">cash_coverage &lt; 1.0x</td><td class="num">0,8980 [0,7959, 0,9796]</td><td class="num">0,6154 / 1,0000</td><td class="num">TP=8, FP=5, TN=36, FN=0</td>
           </tr>
-          <tr><td><code>cash_coverage &lt; 0.25x</code></td><td>0.9592 [0.8980, 1.0000]</td><td>1.0000 / 0.7500</td><td>TP=6, FP=0, TN=41, FN=2</td></tr>
+          <tr><td class="tag">cash_coverage &lt; 0.25x</td><td class="num">0,9592 [0,8980, 1,0000]</td><td class="num">1,0000 / 0,7500</td><td class="num">TP=6, FP=0, TN=41, FN=2</td></tr>
         </tbody>
       </table>
-      <p style="font-size: 12.5px; color: #94a3b8; margin-top: 10px;">
-        <strong>Keterbatasan Uji:</strong> Sampel historis pra-2024 masih kecil (n=24) dan evaluasi di atas menggunakan definisi kondisi kas internal XBRL, belum menggunakan label eksternal seperti tanggal suspensi atau PKPU. Simulator stres MLP di menu <em>Pro / Lanjutan</em> hanya berfungsi sebagai simulasi <em>what-if</em>, bukan prediksi.
-      </p>
+      <p class="note" style="margin-top: 12px;">Keterbatasan: jumlah sampel sebelum 2024 masih kecil (24 laporan) dan uji ini memakai definisi kondisi kas XBRL internal, belum memakai tanggal suspensi atau PKPU eksternal. Simulator di menu lanjutan hanya berfungsi sebagai simulasi skenario, bukan prediksi.</p>
     </div>
 
-    <div class="card">
-      <h2>3. Jejak Tag XBRL, Berita &amp; Penafian</h2>
-      <ul style="font-size: 13px; margin: 0; padding-left: 18px; color: #cbd5e1;">
-        <li><strong>Jejak Tag XBRL:</strong> Pengujian otomatis acak pada 36 angka akuntansi di screener menunjukkan <strong>36 / 36</strong> dapat ditelusuri ke <code>raw_xbrl_tag</code> dan <code>raw_context_ref</code> pada tabel <code>canonical_facts</code>. Kutipan harga pasar dan berita RSS berasal dari sumber eksternal (bukan tag XBRL).</li>
-        <li><strong>Isolasi Konteks Berita:</strong> Sentimen berita dan deteksi katalis (rebalancing indeks, UMA/FCA, aksi korporasi) bersifat informasi tambahan dan tidak mengubah penanda kas deterministik.</li>
-        <li><strong>Data Historis &amp; Tertinggal:</strong> Laporan keuangan mengikuti tanggal pelaporan resmi BEI (kuartalan/tahunan).</li>
-        <li><strong>Bukan Saran Investasi:</strong> Platform ini adalah alat audit fakta dan bukan ajakan beli/jual maupun target harga saham.</li>
+    <div class="panel">
+      <h2>Jejak sumber XBRL dan batasan</h2>
+      <ul style="margin: 0; padding-left: 20px;">
+        <li>Pengujian acak terhadap 36 angka akuntansi di daftar emiten menunjukkan seluruh 36 angka dapat ditelusuri ke tag XBRL dan konteks periode di basis data.</li>
+        <li>Harga saham dan berita berasal dari sumber luar (bukan tag XBRL), dan sentimen berita tidak mengubah penanda kas.</li>
+        <li>Data keuangan bersifat historis dan mengikuti tanggal pelaporan kuartalan atau tahunan BEI. Halaman ini bukan saran transaksi saham.</li>
       </ul>
     </div>
   </div>

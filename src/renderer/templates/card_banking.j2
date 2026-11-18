@@ -1,35 +1,35 @@
-🏦 DIAGNOSTIK LIKUIDITAS & KREDIT PERBANKAN
+ DIAGNOSTIK LIKUIDITAS & KREDIT PERBANKAN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏢 Emiten       : {{ company_name }} ({{ ticker }})
-🏷️ Sub-Industri : {{ sub_industry }}
-📅 Periode      : FY {{ fiscal_year }} (AUDITED)
-🚦 Status Kas   : 🟢 LIKUIDITAS KUAT & TERJAGA: Bantalan Kas & Giro BI Memadai
+ Emiten       : {{ company_name }} ({{ ticker }})
+ Sub-Industri : {{ sub_industry }}
+ Periode      : FY {{ fiscal_year }} (AUDITED)
+ Status Kas   :  LIKUIDITAS KUAT & TERJAGA: Bantalan Kas & Giro BI Memadai
 
-💡 KESIMPULAN KILAT UNTUK INVESTOR:
-🟢 KONDISI LIKUID: Cadangan likuiditas primer (Kas & Giro BI) sangat kokoh untuk melayani penarikan dana nasabah dan rasio kredit macet terkendali.
+ KESIMPULAN KILAT UNTUK INVESTOR:
+ KONDISI LIKUID: Cadangan likuiditas primer (Kas & Giro BI) sangat kokoh untuk melayani penarikan dana nasabah dan rasio kredit macet terkendali.
 
-📊 PILAR METRIK KUANTITATIF PERBANKAN:
+ PILAR METRIK KUANTITATIF PERBANKAN:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1️⃣ Cadangan Likuiditas Primer (Kas & Giro BI vs DPK):
+1 Cadangan Likuiditas Primer (Kas & Giro BI vs DPK):
    • Kas & Penempatan BI   : Rp {{ cash_str }}
    • Simpanan Nasabah (DPK): Rp {{ debt_str }}
-   • Rasio Likuiditas      : {{ cov_pct }}% dari total dana nasabah siap siaga 🟢
+   • Rasio Likuiditas      : {{ cov_pct }}% dari total dana nasabah siap siaga 
 
-2️⃣ Kualitas Portofolio Kredit & NPL:
+2 Kualitas Portofolio Kredit & NPL:
    • Total Penyaluran Kredit: Rp {{ loans_str }}
-   • Estimasi Rasio NPL Gross: {{ npl_pct }}% (Jauh di bawah batas aman regulator 5%) 🟢
+   • Estimasi Rasio NPL Gross: {{ npl_pct }}% (Jauh di bawah batas aman regulator 5%) 
    • Makna                  : Mayoritas debitur lancar mengangsur pokok dan bunga.
 
-3️⃣ Kinerja Operasional & Laba:
+3 Kinerja Operasional & Laba:
    • Pendapatan Bunga Bersih: Rp {{ rev_str }}
    • Laba Bersih Konsolidasi: Rp {{ net_income_str }}
    • Arus Kas Operasional   : Rp {{ cfo_str }} (Likuiditas kas masuk berkelanjutan)
 
-💡 RINGKASAN EKSEKUTIF (AI Interpretasi Sektor Perbankan):
+ RINGKASAN EKSEKUTIF (AI Interpretasi Sektor Perbankan):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {{ company_name }} ({{ ticker }}) menunjukkan profil solvabilitas perbankan yang sangat disiplin dengan total dana pihak ketiga Rp {{ debt_str }} yang ditopang cadangan kas primer Rp {{ cash_str }}. Tingkat kredit macet (NPL) berada di level terkendali ({{ npl_pct }}%), mencerminkan manajemen risiko kredit yang konservatif dan solid.
 
-🔗 AUDIT TRAIL DATA BEI (instance.xbrl):
+ AUDIT TRAIL DATA BEI (instance.xbrl):
 • Kas & Giro Bank Indonesia: [CashAndCashEquivalents]
 • Dana Pihak Ketiga (DPK)   : [DepositsFromCustomers]
 • Penyaluran Kredit (Gross) : [LoansGrossTotal]
