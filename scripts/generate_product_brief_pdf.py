@@ -441,9 +441,9 @@ def build_brief_html() -> str:
         <td><span class="badge b-green">Aktif (JSON Artifact)</span></td>
       </tr>
       <tr>
-        <td><strong>Frontend &amp; Bot</strong></td>
-        <td>Single-page Dashboard (<code>index.html</code>) + Telegram Bot (<code>aiogram 3.x</code>, Docker)</td>
-        <td><span class="badge b-green">Live &amp; Ready 24/7</span></td>
+        <td><strong>Frontend, Kartu &amp; Analytics</strong></td>
+        <td>Dashboard (<code>index.html</code>), Kartu PNG 1:1 &amp; 9:16 (<code>/api/card/{ticker}.png</code>), <code>/metodologi</code>, <code>/analytics</code>, Bot Telegram</td>
+        <td><span class="badge b-green">Live &amp; Teruji (135 Pytest)</span></td>
       </tr>
     </tbody>
   </table>
@@ -465,9 +465,9 @@ def build_brief_html() -> str:
     <div class="card">
       <h3>2. Ide Pengembangan Fase Berikutnya</h3>
       <ul>
-        <li><strong>Live Feed Katalis BEI:</strong> Notifikasi otomatis Telegram/Web setiap ada pengumuman UMA, Suspensi, Papan FCA, atau Rebalancing Indeks (IHSG/LQ45/MSCI).</li>
-        <li><strong>Watchlist Saham Liar:</strong> Menyandingkan berita viral harian dengan profil kas XBRL dalam 1 layar ringkas.</li>
-        <li><strong>Validasi Pasar:</strong> Uji coba ke 5&ndash;10 trader aktif: fitur mana yang paling sering mereka buka sebelum mengambil keputusan?</li>
+        <li><strong>Status Hook "Berita vs Kas":</strong> <em>Belum teruji, bukan terbantah</em> &mdash; backtest Fase 5 hanya menemukan 1 kejadian uji &amp; 1 kontrol (N=0 di horizon 5/20/60 hari); butuh arsip Keterbukaan Informasi BEI 2022&ndash;2025 untuk pengujian lanjut.</li>
+        <li><strong>Kandidat Universe Baru (Fase 6):</strong> 28 emiten UMA/FCA/suspensi terverifikasi sudah dipetakan di <code>reports/universe_candidates.csv</code> (belum dimasukkan ke produksi sebelum berkas XBRL-nya diverifikasi).</li>
+        <li><strong>Validasi Pasar:</strong> Uji coba ke 5&ndash;10 trader aktif dan pantau <code>/analytics</code> (prioritas <code>ticker_dicek</code> &amp; <code>kartu_dibagikan</code>).</li>
       </ul>
     </div>
   </div>

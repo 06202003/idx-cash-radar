@@ -710,8 +710,8 @@ def build_html_id(s: dict[str, int], shots: dict[str, str]) -> str:
 
     <div class="grid-3">
       <div class="card" style="padding: 12px 15px;">
-        <strong style="font-size: 12px; color: #0369a1;">SELF-TRAINED ENGINE</strong>
-        <div class="muted" style="margin-top: 4px; font-size: 11.5px;">Python 3.12, FastAPI, <code>lxml</code> XBRL, NumPy MLP (<code>5->16->8->1</code>, CV Acc 96.7%) &amp; L2 Logit (AUC 0.989). Tanpa wajib LLM key.</div>
+        <strong style="font-size: 12px; color: #0369a1;">DETERMINISTIC AUDIT ENGINE</strong>
+        <div class="muted" style="margin-top: 4px; font-size: 11.5px;">Python 3.12, FastAPI, <code>lxml</code> XBRL, aturan deterministik (<code>cash_coverage</code> &amp; <em>safeguard flags</em>), kartu PNG 1:1/9:16, serta simulator stres <em>what-if</em> di Pro.</div>
       </div>
       <div class="card" style="padding: 12px 15px;">
         <strong style="font-size: 12px; color: #047857;">PASAR &amp; LISENSI DATA</strong>
