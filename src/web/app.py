@@ -1215,21 +1215,34 @@ class AnalyticsEventRequest(BaseModel):
     ticker: str | None = None
 
 
-def _ensure_analytics_table() -> None:
+_ANALYTICS_MEM_EVENTS: list[tuple[str, str | None]] = []
+
+
+def _analytics_db_path() -> Path:
+    if os.getenv("VERCEL") or not (ROOT_DIR / "idx_cash_radar.db").exists():
+        return Path("/tmp/idx_radar_analytics.db")
+    return ROOT_DIR / "idx_cash_radar.db"
+
+
+def _ensure_analytics_table() -> Path | None:
     import sqlite3
 
-    db_path = ROOT_DIR / "idx_cash_radar.db"
-    with sqlite3.connect(str(db_path)) as conn:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS analytics_events (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                event_name TEXT NOT NULL,
-                ticker TEXT,
-                created_at_utc TEXT NOT NULL
+    db_path = _analytics_db_path()
+    try:
+        with sqlite3.connect(str(db_path)) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS analytics_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    event_name TEXT NOT NULL,
+                    ticker TEXT,
+                    created_at_utc TEXT NOT NULL
+                )
+                """
             )
-            """
-        )
+        return db_path
+    except Exception:
+        return None
 
 
 @app.post("/api/analytics/event")
@@ -1249,13 +1262,18 @@ def record_analytics_event(req: AnalyticsEventRequest) -> dict[str, Any]:
         if cand:
             clean_ticker = cand
 
-    _ensure_analytics_table()
-    db_path = ROOT_DIR / "idx_cash_radar.db"
-    with sqlite3.connect(str(db_path)) as conn:
-        conn.execute(
-            "INSERT INTO analytics_events (event_name, ticker, created_at_utc) VALUES (?, ?, ?)",
-            (ev, clean_ticker, datetime.now(UTC).isoformat()),
-        )
+    db_path = _ensure_analytics_table()
+    if db_path is not None:
+        try:
+            with sqlite3.connect(str(db_path)) as conn:
+                conn.execute(
+                    "INSERT INTO analytics_events (event_name, ticker, created_at_utc) VALUES (?, ?, ?)",
+                    (ev, clean_ticker, datetime.now(UTC).isoformat()),
+                )
+            return {"status": "recorded", "event_name": ev, "ticker": clean_ticker}
+        except Exception:
+            pass
+    _ANALYTICS_MEM_EVENTS.append((ev, clean_ticker))
     return {"status": "recorded", "event_name": ev, "ticker": clean_ticker}
 
 
@@ -1263,33 +1281,42 @@ def record_analytics_event(req: AnalyticsEventRequest) -> dict[str, Any]:
 def get_analytics_summary() -> dict[str, Any]:
     """Returns anonymous event counts and Top 5 most-checked tickers."""
     import sqlite3
-
-    _ensure_analytics_table()
-    db_path = ROOT_DIR / "idx_cash_radar.db"
-    with sqlite3.connect(str(db_path)) as conn:
-        conn.row_factory = sqlite3.Row
-        ev_rows = conn.execute(
-            "SELECT event_name, COUNT(*) AS cnt FROM analytics_events GROUP BY event_name"
-        ).fetchall()
-        top_tickers = conn.execute(
-            """
-            SELECT ticker, COUNT(*) AS cnt
-            FROM analytics_events
-            WHERE event_name = 'ticker_dicek' AND ticker IS NOT NULL
-            GROUP BY ticker
-            ORDER BY cnt DESC, ticker ASC
-            LIMIT 5
-            """
-        ).fetchall()
+    from collections import Counter
 
     counts = {ev: 0 for ev in sorted(ALLOWED_ANALYTICS_EVENTS)}
-    for r in ev_rows:
-        counts[r["event_name"]] = int(r["cnt"])
+    top5: list[dict[str, Any]] = []
 
-    return {
-        "counts": counts,
-        "top_5_tickers": [{"ticker": r["ticker"], "checks": int(r["cnt"])} for r in top_tickers],
-    }
+    db_path = _ensure_analytics_table()
+    if db_path is not None:
+        try:
+            with sqlite3.connect(str(db_path)) as conn:
+                conn.row_factory = sqlite3.Row
+                ev_rows = conn.execute(
+                    "SELECT event_name, COUNT(*) AS cnt FROM analytics_events GROUP BY event_name"
+                ).fetchall()
+                top_tickers = conn.execute(
+                    """
+                    SELECT ticker, COUNT(*) AS cnt
+                    FROM analytics_events
+                    WHERE event_name = 'ticker_dicek' AND ticker IS NOT NULL
+                    GROUP BY ticker
+                    ORDER BY cnt DESC, ticker ASC
+                    LIMIT 5
+                    """
+                ).fetchall()
+            for r in ev_rows:
+                counts[r["event_name"]] = int(r["cnt"])
+            top5 = [{"ticker": r["ticker"], "checks": int(r["cnt"])} for r in top_tickers]
+            return {"counts": counts, "top_5_tickers": top5}
+        except Exception:
+            pass
+
+    ev_cnt = Counter(e for e, _ in _ANALYTICS_MEM_EVENTS)
+    for k, v in ev_cnt.items():
+        counts[k] = v
+    t_cnt = Counter(t for e, t in _ANALYTICS_MEM_EVENTS if e == "ticker_dicek" and t)
+    top5 = [{"ticker": t, "checks": c} for t, c in sorted(t_cnt.items(), key=lambda x: (-x[1], x[0]))[:5]]
+    return {"counts": counts, "top_5_tickers": top5}
 
 
 @app.get("/analytics", response_class=HTMLResponse)

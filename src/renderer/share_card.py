@@ -11,8 +11,6 @@ import io
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageDraw, ImageFont
-
 from src.engine.llm_explainer import check_language_compliance
 
 
@@ -31,7 +29,9 @@ def _fmt_idr_compact(val: float | int | None) -> str:
     return f"{sign}Rp {av:,.0f}"
 
 
-def _load_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+def _load_font(size: int, bold: bool = False) -> Any:
+    from PIL import ImageFont
+
     candidates = (
         [
             "C:/Windows/Fonts/segoeuib.ttf",
@@ -113,7 +113,7 @@ def build_share_card_payload(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font: Any, max_width: int) -> list[str]:
+def _wrap_text(draw: Any, text: str, font: Any, max_width: int) -> list[str]:
     words = text.split()
     lines: list[str] = []
     cur = ""
@@ -132,6 +132,8 @@ def _wrap_text(draw: ImageDraw.ImageDraw, text: str, font: Any, max_width: int) 
 
 def render_share_card_png(payload: dict[str, Any], ratio: str = "1:1") -> bytes:
     """Renders the deterministic fact card into PNG bytes (1:1 or 9:16)."""
+    from PIL import Image, ImageDraw
+
     is_vertical = ratio.strip() == "9:16"
     width, height = (1080, 1920) if is_vertical else (1080, 1080)
 
