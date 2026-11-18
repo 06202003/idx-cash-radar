@@ -1200,6 +1200,148 @@ def get_share_card_json(ticker: str) -> dict[str, Any]:
     return build_share_card_payload(matched)
 
 
+ALLOWED_ANALYTICS_EVENTS = {
+    "ticker_dicek",
+    "link_berita_ditempel",
+    "kartu_dibuat",
+    "kartu_dibagikan",
+    "mode_expert_dibuka",
+    "fitur_pro_dibuka",
+}
+
+
+class AnalyticsEventRequest(BaseModel):
+    event_name: str
+    ticker: str | None = None
+
+
+def _ensure_analytics_table() -> None:
+    import sqlite3
+
+    db_path = ROOT_DIR / "idx_cash_radar.db"
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS analytics_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_name TEXT NOT NULL,
+                ticker TEXT,
+                created_at_utc TEXT NOT NULL
+            )
+            """
+        )
+
+
+@app.post("/api/analytics/event")
+def record_analytics_event(req: AnalyticsEventRequest) -> dict[str, Any]:
+    """Records strictly allowlisted anonymous product events (no PII, no API keys)."""
+    import re
+    import sqlite3
+    from datetime import UTC, datetime
+
+    ev = req.event_name.strip()
+    if ev not in ALLOWED_ANALYTICS_EVENTS:
+        raise HTTPException(status_code=400, detail="Unsupported analytics event")
+
+    clean_ticker = None
+    if req.ticker:
+        cand = re.sub(r"[^A-Za-z0-9]", "", req.ticker.strip().upper())[:10]
+        if cand:
+            clean_ticker = cand
+
+    _ensure_analytics_table()
+    db_path = ROOT_DIR / "idx_cash_radar.db"
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            "INSERT INTO analytics_events (event_name, ticker, created_at_utc) VALUES (?, ?, ?)",
+            (ev, clean_ticker, datetime.now(UTC).isoformat()),
+        )
+    return {"status": "recorded", "event_name": ev, "ticker": clean_ticker}
+
+
+@app.get("/api/analytics/summary")
+def get_analytics_summary() -> dict[str, Any]:
+    """Returns anonymous event counts and Top 5 most-checked tickers."""
+    import sqlite3
+
+    _ensure_analytics_table()
+    db_path = ROOT_DIR / "idx_cash_radar.db"
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        ev_rows = conn.execute(
+            "SELECT event_name, COUNT(*) AS cnt FROM analytics_events GROUP BY event_name"
+        ).fetchall()
+        top_tickers = conn.execute(
+            """
+            SELECT ticker, COUNT(*) AS cnt
+            FROM analytics_events
+            WHERE event_name = 'ticker_dicek' AND ticker IS NOT NULL
+            GROUP BY ticker
+            ORDER BY cnt DESC, ticker ASC
+            LIMIT 5
+            """
+        ).fetchall()
+
+    counts = {ev: 0 for ev in sorted(ALLOWED_ANALYTICS_EVENTS)}
+    for r in ev_rows:
+        counts[r["event_name"]] = int(r["cnt"])
+
+    return {
+        "counts": counts,
+        "top_5_tickers": [{"ticker": r["ticker"], "checks": int(r["cnt"])} for r in top_tickers],
+    }
+
+
+@app.get("/analytics", response_class=HTMLResponse)
+def get_analytics_dashboard() -> str:
+    """Simple anonymous analytics dashboard showing Top 5 most-checked tickers & key events."""
+    summary = get_analytics_summary()
+    counts = summary["counts"]
+    top5 = summary["top_5_tickers"]
+    top_rows = (
+        "".join(
+            f"<tr><td><strong>{r['ticker']}</strong></td><td>{r['checks']}</td></tr>"
+            for r in top5
+        )
+        or "<tr><td colspan='2' style='color:#94a3b8;'>Belum ada data ticker_dicek.</td></tr>"
+    )
+    ev_rows = "".join(
+        f"<tr><td><code>{k}</code></td><td>{v}</td></tr>" for k, v in counts.items()
+    )
+    return f"""<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Analytics Dashboard — IDX Cash &amp; Accrual Radar</title>
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif; background: #0b0f19; color: #e2e8f0; padding: 24px 16px; }}
+    .wrap {{ max-width: 820px; margin: 0 auto; }}
+    .card {{ background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }}
+    table {{ width: 100%; border-collapse: collapse; font-size: 13px; }}
+    th, td {{ border-bottom: 1px solid #1f2937; padding: 8px 10px; text-align: left; }}
+    th {{ color: #94a3b8; font-size: 11px; text-transform: uppercase; }}
+    code {{ background: #1e293b; padding: 2px 6px; border-radius: 4px; color: #38bdf8; }}
+    a {{ color: #38bdf8; text-decoration: none; }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div style="margin-bottom: 12px;"><a href="/">&larr; Kembali ke Dashboard</a></div>
+    <h1 style="margin:0 0 6px 0; font-size:20px;">Analytics Ringkas (Anonim / Tanpa PII)</h1>
+    <p style="color:#94a3b8; font-size:12.5px;">Prioritas metrik: <code>ticker_dicek</code> dan <code>kartu_dibagikan</code>. Tanpa cookie identitas, IP, atau API key (lihat <code>docs/privacy.md</code>).</p>
+    <div class="card">
+      <h2 style="margin:0 0 10px 0; font-size:15px; color:#38bdf8;">Top 5 Ticker Paling Sering Dicek (<code>ticker_dicek</code>)</h2>
+      <table><thead><tr><th>Ticker</th><th>Jumlah Cek</th></tr></thead><tbody>{top_rows}</tbody></table>
+    </div>
+    <div class="card">
+      <h2 style="margin:0 0 10px 0; font-size:15px; color:#38bdf8;">Ringkasan Seluruh Event</h2>
+      <table><thead><tr><th>Event</th><th>Total</th></tr></thead><tbody>{ev_rows}</tbody></table>
+    </div>
+  </div>
+</body>
+</html>"""
+
+
 @app.get("/metodologi", response_class=HTMLResponse)
 def get_metodologi() -> str:
     """Renders transparent methodology, deterministic thresholds, and Phase 1 model audit."""
