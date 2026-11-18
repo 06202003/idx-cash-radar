@@ -1,7 +1,8 @@
 """
-Shareable Fact Card Generator (Fase 7 Audit-Ledger Redesign).
+Shareable Fact Card Generator (Fase 3).
 Produces deterministic, compliance-checked retail fact cards (PNG 1:1 & 9:16)
-in light-first audit-ledger style (#FAF8F5 paper, #FFFFFF sheet, #18181B ink).
+using only audited XBRL data (cash_coverage, CFO TTM, deterministic safeguard flags).
+Zero ML probabilities, zero price predictions.
 """
 
 from __future__ import annotations
@@ -13,20 +14,19 @@ from typing import Any
 from src.engine.llm_explainer import check_language_compliance
 
 
-def _fmt_idr_id(val: float | int | None) -> str:
-    """Formats IDR amounts in Indonesian convention (comma decimal, minus sign)."""
+def _fmt_idr_compact(val: float | int | None) -> str:
     if val is None:
-        return "Tidak tersedia"
+        return "N/A"
     v = float(val)
     sign = "-" if v < 0 else ""
     av = abs(v)
     if av >= 1e12:
-        return f"{sign}Rp {av / 1e12:,.2f} T".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{sign}Rp {av / 1e12:,.2f} T"
     if av >= 1e9:
-        return f"{sign}Rp {av / 1e9:,.1f} M".replace(",", "X").replace(".", ",").replace("X", ".")
+        return f"{sign}Rp {av / 1e9:,.1f} M"
     if av >= 1e6:
-        return f"{sign}Rp {av / 1e6:,.1f} Jt".replace(",", "X").replace(".", ",").replace("X", ".")
-    return f"{sign}Rp {av:,.0f}".replace(",", ".")
+        return f"{sign}Rp {av / 1e6:,.1f} Jt"
+    return f"{sign}Rp {av:,.0f}"
 
 
 def _load_font(size: int, bold: bool = False) -> Any:
@@ -65,41 +65,30 @@ def build_share_card_payload(row: dict[str, Any]) -> dict[str, Any]:
     flag_liq = bool(row.get("flag_acute_liquidity"))
     flag_acc = bool(row.get("flag_accrual_divergence"))
 
-    cfo_label = "Kas masuk dari operasional (12 bulan terakhir)"
-    cfo_value = _fmt_idr_id(cfo_val)
+    cfo_label = "Kas masuk dari operasional (12 bln)"
+    cfo_value = _fmt_idr_compact(cfo_val)
 
     cov_label = "Kas dibanding utang jangka pendek"
-    cov_value = "Bebas utang jangka pendek" if is_free else f"{cov_val:.2f}x".replace(".", ",")
+    cov_value = "Bebas Utang JP" if is_free else f"{cov_val:.2f}x"
 
-    status_label = "Ringkasan kondisi kas"
-    if is_free:
-        status_value = f"Tidak ada utang jangka pendek berbunga (laporan {period_end_date})"
-        status_tone = "neutral"
+    status_label = "Status divergensi deterministik"
+    if flag_liq:
+        status_value = "Tekanan Likuiditas Kas (< 0.20x & CFO Negatif)"
+        status_tone = "red"
+    elif flag_acc:
+        status_value = "Laba Kertas, Kas Operasi Negatif (Sloan > 10%)"
+        status_tone = "amber"
+    elif not is_free and cov_val < 1.0:
+        status_value = "Kas di Bawah 1.0x Utang Jangka Pendek"
+        status_tone = "amber"
     else:
-        pct = round(cov_val * 100)
-        if flag_liq:
-            status_value = (
-                f"Kas menutup {pct}% utang jangka pendek, arus kas operasional negatif "
-                f"(laporan {period_end_date})"
-            )
-            status_tone = "warm"
-        elif flag_acc:
-            status_value = (
-                f"Laba tercatat positif, arus kas operasional negatif, kas menutup {pct}% "
-                f"utang jangka pendek (laporan {period_end_date})"
-            )
-            status_tone = "warm"
-        elif cov_val < 1.0:
-            status_value = f"Kas menutup {pct}% utang jangka pendek (laporan {period_end_date})"
-            status_tone = "warm"
-        else:
-            status_value = f"Kas menutup {pct}% utang jangka pendek (laporan {period_end_date})"
-            status_tone = "neutral"
+        status_value = "Kas >= 1.0x Utang Jangka Pendek / Bebas Utang"
+        status_tone = "green"
 
-    xbrl_source = "Sumber: laporan XBRL resmi BEI (tabel canonical_facts)"
+    xbrl_source = "Sumber: Laporan XBRL Resmi BEI (canonical_facts)"
     disclaimer = (
-        "Bukan rekomendasi investasi dan bukan saran transaksi saham. Data bersifat historis "
-        "dan mengikuti tanggal laporan keuangan berkala BEI di atas."
+        "Bukan rekomendasi investasi atau ajakan beli/jual. Data bersifat historis "
+        "dan tertinggal (laporan berkala BEI per tanggal laporan di atas)."
     )
 
     all_text = " ".join([
@@ -114,9 +103,9 @@ def build_share_card_payload(row: dict[str, Any]) -> dict[str, Any]:
         "company_name": company_name,
         "period_end_date": period_end_date,
         "metrics": [
-            {"label": cfo_label, "value": cfo_value, "is_negative": cfo_val < 0},
-            {"label": cov_label, "value": cov_value, "is_negative": False},
-            {"label": status_label, "value": status_value, "tone": status_tone, "is_negative": False},
+            {"label": cfo_label, "value": cfo_value},
+            {"label": cov_label, "value": cov_value},
+            {"label": status_label, "value": status_value, "tone": status_tone},
         ],
         "xbrl_source": xbrl_source,
         "disclaimer": disclaimer,
@@ -142,92 +131,90 @@ def _wrap_text(draw: Any, text: str, font: Any, max_width: int) -> list[str]:
 
 
 def render_share_card_png(payload: dict[str, Any], ratio: str = "1:1") -> bytes:
-    """Renders the deterministic fact card into light-first ledger PNG bytes (1:1 or 9:16)."""
+    """Renders the deterministic fact card into PNG bytes (1:1 or 9:16)."""
     from PIL import Image, ImageDraw
 
     is_vertical = ratio.strip() == "9:16"
     width, height = (1080, 1920) if is_vertical else (1080, 1080)
 
-    paper = (250, 248, 245)      # #FAF8F5
-    sheet = (255, 255, 255)      # #FFFFFF
-    ink = (24, 24, 27)           # #18181B
-    muted = (82, 82, 91)         # #52525B
-    rule = (228, 224, 216)       # #E4E0D8
-    neg_red = (185, 28, 28)      # #B91C1C
-    warm_bg = (254, 243, 199)    # #FEF3C7
-    warm_ink = (120, 53, 15)     # #78350F
-    neu_bg = (244, 244, 240)
-
-    img = Image.new("RGB", (width, height), color=paper)
+    img = Image.new("RGB", (width, height), color=(11, 15, 25))
     draw = ImageDraw.Draw(img)
 
-    margin = 48
-    pad = 84
-    draw.rectangle(
-        [(margin, margin), (width - margin, height - margin)],
-        fill=sheet,
-        outline=rule,
-        width=2,
+    # Outer border & header bar
+    pad = 64
+    draw.rounded_rectangle(
+        [(32, 32), (width - 32, height - 32)],
+        radius=28,
+        fill=(17, 24, 39),
+        outline=(30, 58, 138),
+        width=3,
     )
 
-    f_brand = _load_font(26, bold=True)
-    f_ticker = _load_font(82 if is_vertical else 72, bold=True)
+    f_brand = _load_font(28, bold=True)
+    f_ticker = _load_font(84 if is_vertical else 72, bold=True)
     f_comp = _load_font(34 if is_vertical else 30, bold=False)
-    f_date = _load_font(26, bold=False)
-    f_lbl = _load_font(27, bold=False)
+    f_date = _load_font(26, bold=True)
+    f_lbl = _load_font(28, bold=False)
     f_val = _load_font(44 if is_vertical else 40, bold=True)
-    f_stat = _load_font(30 if is_vertical else 28, bold=True)
+    f_stat = _load_font(32 if is_vertical else 29, bold=True)
     f_foot = _load_font(23, bold=False)
 
-    y = 92
-    draw.text((pad, y), "IDX Cash Radar, catatan fakta kas", fill=muted, font=f_brand)
-    y += 48
-    draw.line([(pad, y), (width - pad, y)], fill=rule, width=2)
-    y += 32
+    y = 72
+    draw.text((pad, y), "IDX CASH & ACCRUAL RADAR  |  KARTU AUDIT FAKTA", fill=(56, 189, 248), font=f_brand)
+    y += 56
+    draw.line([(pad, y), (width - pad, y)], fill=(31, 41, 55), width=2)
+    y += 34
 
-    draw.text((pad, y), payload["ticker"], fill=ink, font=f_ticker)
-    y += (102 if is_vertical else 88)
+    draw.text((pad, y), payload["ticker"], fill=(255, 255, 255), font=f_ticker)
+    y += (104 if is_vertical else 90)
     for line in _wrap_text(draw, payload["company_name"], f_comp, width - 2 * pad):
-        draw.text((pad, y), line, fill=ink, font=f_comp)
+        draw.text((pad, y), line, fill=(203, 213, 225), font=f_comp)
         y += 40
-    y += 10
+    y += 14
     draw.text(
         (pad, y),
-        f"Tanggal laporan keuangan: {payload['period_end_date']}",
-        fill=muted,
+        f"Tanggal Laporan Keuangan: {payload['period_end_date']}",
+        fill=(251, 191, 36),
         font=f_date,
     )
-    y += (54 if is_vertical else 40)
-    draw.line([(pad, y), (width - pad, y)], fill=rule, width=2)
-    y += (36 if is_vertical else 24)
+    y += (64 if is_vertical else 48)
 
+    tone_colors = {
+        "green": (52, 211, 153),
+        "amber": (251, 191, 36),
+        "red": (251, 113, 133),
+    }
+
+    card_h = 220 if is_vertical else 156
+    gap = 34 if is_vertical else 24
     for idx, m in enumerate(payload["metrics"]):
-        draw.text((pad, y), m["label"], fill=muted, font=f_lbl)
-        y += 40
+        box_top = y
+        box_bot = y + card_h
+        draw.rounded_rectangle(
+            [(pad, box_top), (width - pad, box_bot)],
+            radius=18,
+            fill=(11, 19, 41),
+            outline=(30, 64, 175),
+            width=2,
+        )
+        draw.text((pad + 28, box_top + 24), m["label"], fill=(148, 163, 184), font=f_lbl)
+        val_color = tone_colors.get(m.get("tone", ""), (255, 255, 255))
         if idx == 2:
-            bg = warm_bg if m.get("tone") == "warm" else neu_bg
-            fg = warm_ink if m.get("tone") == "warm" else ink
-            lines = _wrap_text(draw, m["value"], f_stat, width - 2 * pad - 36)
-            box_h = 32 + len(lines) * 40
-            draw.rectangle([(pad, y), (width - pad, y + box_h)], fill=bg, outline=rule, width=1)
-            ty = y + 16
-            for ln in lines:
-                draw.text((pad + 18, ty), ln, fill=fg, font=f_stat)
-                ty += 40
-            y += box_h + (42 if is_vertical else 28)
+            vy = box_top + 74
+            for ln in _wrap_text(draw, m["value"], f_stat, width - 2 * pad - 56):
+                draw.text((pad + 28, vy), ln, fill=val_color, font=f_stat)
+                vy += 42
         else:
-            val_col = neg_red if m.get("is_negative") else ink
-            draw.text((pad, y), m["value"], fill=val_col, font=f_val)
-            y += (64 if is_vertical else 56)
-            draw.line([(pad, y), (width - pad, y)], fill=rule, width=1)
-            y += (34 if is_vertical else 22)
+            draw.text((pad + 28, box_top + 74), m["value"], fill=val_color, font=f_val)
+        y = box_bot + gap
 
+    # Footer: XBRL source + disclaimer
     foot_y = height - (230 if is_vertical else 165)
-    draw.line([(pad, foot_y - 20), (width - pad, foot_y - 20)], fill=rule, width=2)
-    draw.text((pad, foot_y), payload["xbrl_source"], fill=ink, font=f_foot)
-    dy = foot_y + 34
+    draw.line([(pad, foot_y - 20), (width - pad, foot_y - 20)], fill=(31, 41, 55), width=2)
+    draw.text((pad, foot_y), payload["xbrl_source"], fill=(56, 189, 248), font=f_foot)
+    dy = foot_y + 36
     for ln in _wrap_text(draw, payload["disclaimer"], f_foot, width - 2 * pad):
-        draw.text((pad, dy), ln, fill=muted, font=f_foot)
+        draw.text((pad, dy), ln, fill=(148, 163, 184), font=f_foot)
         dy += 30
 
     buf = io.BytesIO()

@@ -1,9 +1,14 @@
-INFORMASI CAKUPAN EMITEN
-Kode emiten : {{ ticker }}
-Status      : Di Luar Cakupan Sektor Konstruksi
+ℹ️ INFORMASI CAKUPAN EMITEN
+Kode Emiten  : {{ ticker }}
+Status       : Di Luar Cakupan Sektor Konstruksi (MVP v1.2)
 
-Penjelasan:
-Emiten {{ ticker }} belum masuk cakupan awal Sub-Industri Konstruksi Bangunan & Rekayasa Sipil (PSAK 72). Permintaan pengecekan untuk kode saham ini telah dicatat.
+📌 PENJELASAN KARAKTERISTIK LAPORAN KEUANGAN:
+Sistem IDX Cash & Accrual Radar saat ini dirancang khusus untuk menganalisis emiten Sub-Industri Konstruksi Bangunan & Rekayasa Sipil (PSAK 72: Aset Kontrak, Termin Proyek, dan Utang Berbunga Jangka Pendek).
 
-Cara mengecek emiten ini:
-Anda dapat mengunggah berkas instance.zip atau .xbrl emiten ini dari situs BEI (idx.co.id) ke bot ini untuk mengekstrak angka keuangan secara otomatis.
+Emiten {{ ticker }} memiliki model bisnis dan struktur pos neraca yang berbeda (misalnya: perbankan berbasis margin bunga, konsumer berbasis perputaran persediaan, atau pertambangan berbasis komoditas) sehingga metrik PSAK 72 tidak dapat diterapkan secara sebanding.
+
+Permintaan analisis untuk kode saham ini telah dicatat ke dalam antrean riset sistem (demand log).
+
+💡 MAU ANALISIS INSTAN UNTUK EMITEN INI?
+Anda bisa langsung mengunggah (upload) berkas `instance.zip` atau `.xbrl` emiten ini dari situs BEI (idx.co.id) ke chat bot ini! Sistem kami akan otomatis mengekstrak angka keuangan, menyimpannya ke database, dan menerbitkan kartu diagnostik kasnya secara instan.
+

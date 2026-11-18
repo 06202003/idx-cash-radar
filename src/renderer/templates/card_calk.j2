@@ -1,19 +1,19 @@
- DETAIL CATATAN KAKI (CALK): {{ extraction.ticker }} (FY {{ extraction.fiscal_year }})
+📋 DETAIL CATATAN KAKI (CALK): {{ extraction.ticker }} (FY {{ extraction.fiscal_year }})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- {{ extraction.footnote_number }}: {{ extraction.footnote_title }}
-{% if extraction.page_number %} Halaman Dokumen: Hal. {{ extraction.page_number }}{% endif %}
- Satuan Pelaporan: {{ extraction.unit_reported }}
+📌 {{ extraction.footnote_number }}: {{ extraction.footnote_title }}
+{% if extraction.page_number %}📄 Halaman Dokumen: Hal. {{ extraction.page_number }}{% endif %}
+📊 Satuan Pelaporan: {{ extraction.unit_reported }}
 
 {% if extraction.is_grounding_verified %}
- VERIFIKASI GROUNDING:  LOLOS VERBATIM (100% AKURAT)
+🛡️ VERIFIKASI GROUNDING: 🟢 LOLOS VERBATIM (100% AKURAT)
 Semua angka telah diverifikasi deterministik terhadap teks sumber laporan keuangan resmi.
 {% else %}
- VERIFIKASI GROUNDING:  GAGAL / DITOLAK
+🛡️ VERIFIKASI GROUNDING: ⚠️ GAGAL / DITOLAK
 Alasan: {{ extraction.rejection_reason }}
 {% endif %}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {% if extraction.trade_receivables %}
- RINCIAN PIUTANG USAHA (Tagihan Konsumen):
+🏢 RINCIAN PIUTANG USAHA (Tagihan Konsumen):
 • Pihak Ketiga (Swasta/Umum) : Rp {{ format_idr_nominal(extraction.trade_receivables.gross_third_party_idr) }}
 • Pihak Berelasi (Grup/BUMN) : Rp {{ format_idr_nominal(extraction.trade_receivables.gross_related_party_idr) }}
 • Total Bruto               : Rp {{ format_idr_nominal(extraction.trade_receivables.gross_total_idr) }}
@@ -21,7 +21,7 @@ Alasan: {{ extraction.rejection_reason }}
 • Cadangan CKPN (Penyisihan): Rp {{ format_idr_nominal(extraction.trade_receivables.ckpn_impairment_allowance_idr) }}
 • Total Buku Neto           : Rp {{ format_idr_nominal(extraction.trade_receivables.net_total_idr) }}
 {% elif extraction.contract_assets %}
- RINCIAN ASET KONTRAK (Proyek Selesai Belum Ditagih):
+🏗️ RINCIAN ASET KONTRAK (Proyek Selesai Belum Ditagih):
 • Pihak Ketiga (Swasta/Umum) : Rp {{ format_idr_nominal(extraction.contract_assets.gross_third_party_idr) }}
 • Pihak Berelasi (Grup/BUMN) : Rp {{ format_idr_nominal(extraction.contract_assets.gross_related_party_idr) }}
 • Total Bruto               : Rp {{ format_idr_nominal(extraction.contract_assets.gross_total_idr) }}
@@ -30,11 +30,11 @@ Alasan: {{ extraction.rejection_reason }}
 • Total Buku Neto           : Rp {{ format_idr_nominal(extraction.contract_assets.net_total_idr) }}
 {% endif %}
 
- AUDIT TRAIL GROUNDING TEKS SUMBER:
+🔍 AUDIT TRAIL GROUNDING TEKS SUMBER:
 {% for item in extraction.audit_trail %}
-• {{ item.field_name }}  Verbatim: "{{ item.found_verbatim_token }}" [{{ " Cocok" if item.is_matched else " Gagal" }}]
+• {{ item.field_name }} ➔ Verbatim: "{{ item.found_verbatim_token }}" [{{ "✅ Cocok" if item.is_matched else "❌ Gagal" }}]
 {% endfor %}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- Arti Istilah untuk Investor Awam:
+💡 Arti Istilah untuk Investor Awam:
 • Pihak Berelasi: Proyek dari sesama grup perusahaan atau BUMN afiliasi. Porsi tinggi (> 30%) berarti arus kas sangat tergantung kelancaran anggaran proyek grup.
 • Cadangan CKPN: Tabungan cadangan jaga-jaga jika ada tagihan proyek yang macet atau tidak terbayar.

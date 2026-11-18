@@ -231,7 +231,7 @@ def build_brief_html() -> str:
 
   <!-- PAGE 1: COVER, CONTEXT & POSITIONING -->
   <div class="hero">
-    <div class="hero-tag">Product Discussion Brief, November 2026</div>
+    <div class="hero-tag">Product Discussion Brief &bull; November 2026</div>
     <h1>IDX Cash &amp; Accrual Radar</h1>
     <p>
       <strong>Radar Fakta Berita, Katalis Pasar &amp; Audit Kas Riil BEI</strong> — Platform intelijen
@@ -241,7 +241,7 @@ def build_brief_html() -> str:
     <div class="hero-meta">
       <div><strong>Live App:</strong> idx-cash-radar.vercel.app</div>
       <div><strong>Universe:</strong> 49 Emiten (5 Sektor Inti BEI)</div>
-      <div><strong>Runtime:</strong> Python 3.12, XBRL 2020&ndash;2025</div>
+      <div><strong>Runtime:</strong> Python 3.12 &bull; XBRL 2020&ndash;2025</div>
       <div><strong>Status QA:</strong> 135 Automated Tests Pass</div>
     </div>
   </div>
@@ -334,7 +334,7 @@ def build_brief_html() -> str:
   </table>
 
   <div class="footer">
-    <span>IDX Cash &amp; Accrual Radar, Product Discussion Brief</span>
+    <span>IDX Cash &amp; Accrual Radar &bull; Product Discussion Brief</span>
     <span>Halaman 1 dari 3</span>
   </div>
 
@@ -349,7 +349,7 @@ def build_brief_html() -> str:
 
   <div class="grid-2 avoid-break">
     <div class="card">
-      <h3>Bagian 1: XBRL Audit Pipeline &amp; Screener (49 Emiten)</h3>
+      <h3>Pilar A &mdash; XBRL Audit Pipeline &amp; Screener (49 Emiten)</h3>
       <ul>
         <li><strong>Parser XBRL Primer (<code>lxml</code>):</strong> Membaca langsung berkas XML/XBRL resmi BEI (bukan scraping angka sekunder yang rawan salah).</li>
         <li><strong>De-kumulasi YTD &rarr; TTM:</strong> Mengonversi laporan kumulatif 3M, 6M, 9M, 12M menjadi kuartal tunggal &amp; <em>Trailing Twelve Months</em>.</li>
@@ -359,7 +359,7 @@ def build_brief_html() -> str:
       </ul>
     </div>
     <div class="card">
-      <h3>Bagian 2: Aturan Deterministik &amp; Simulator What-If (Pro)</h3>
+      <h3>Pilar B &mdash; Aturan Deterministik &amp; Simulator What-If (Pro)</h3>
       <ul>
         <li><strong>Skor Utama Deterministik:</strong> Menggunakan rasio <em>Cash Coverage</em> (&lt; 1.0x / &lt; 0.20x) dan <em>Safeguard Flags</em> yang terbuka di <code>/metodologi</code> (klaim AUC model lama dicabut karena <em>label leakage</em> pada audit Fase 1).</li>
         <li><strong>Simulator Stres What-If (Pro/Lanjutan):</strong> Model MLP <code>5 &rarr; 16 &rarr; 8 &rarr; 1</code> hanya digunakan sebagai simulasi sensitivitas skenario kas/utang (<em>simulasi, bukan prediksi</em>).</li>
@@ -371,7 +371,7 @@ def build_brief_html() -> str:
 
   <div class="grid-2 avoid-break">
     <div class="card">
-      <h3>Bagian 3: Portfolio Cash-Safety X-Ray &amp; Market Quotes</h3>
+      <h3>Pilar C &mdash; Portfolio Cash-Safety X-Ray &amp; Market Quotes</h3>
       <ul>
         <li><strong>Portfolio X-Ray:</strong> Pengguna memasukkan alokasi modal (Rp) per saham; sistem menghitung berapa rupiah modal yang benar-benar didukung kas vs utang jangka pendek berdasarkan <em>Book Equity Cash Backing</em>.</li>
         <li><strong>Perbandingan Sektor Sejenis:</strong> Menunjukkan selisih <em>Capital-at-Risk</em> jika posisi terlemah dibandingkan dengan emiten se-subsektor yang lebih sehat kasnya.</li>
@@ -379,7 +379,7 @@ def build_brief_html() -> str:
       </ul>
     </div>
     <div class="card">
-      <h3>Bagian 4: AI Analyst (RAG + BYOK) &amp; Telegram Bot</h3>
+      <h3>Pilar D &mdash; AI Analyst (RAG + BYOK) &amp; Telegram Bot</h3>
       <ul>
         <li><strong>AI Narrative Translator:</strong> Menggunakan Google Gemini (<code>google-genai</code>) hanya sebagai penerjemah angka Python menjadi bahasa awam maks 3 kalimat, dengan <em>fallback</em> deterministik jika kuota habis/offline.</li>
         <li><strong>Bring Your Own Key (BYOK):</strong> Di web Vercel, pengguna bisa memasukkan API Key Gemini sendiri (tersimpan lokal di browser) untuk AI chat berbasis data XBRL &amp; CALK.</li>
@@ -403,7 +403,7 @@ def build_brief_html() -> str:
   </div>
 
   <div class="footer">
-    <span>IDX Cash &amp; Accrual Radar, Product Discussion Brief</span>
+    <span>IDX Cash &amp; Accrual Radar &bull; Product Discussion Brief</span>
     <span>Halaman 2 dari 3</span>
   </div>
 
@@ -465,7 +465,7 @@ def build_brief_html() -> str:
     <div class="card">
       <h3>2. Ide Pengembangan Fase Berikutnya</h3>
       <ul>
-        <li><strong>Status Hook "Berita vs Kas":</strong> <em>Belum teruji, bukan terbantah</em>, backtest Fase 5 hanya menemukan 1 kejadian uji &amp; 1 kontrol (N=0 di horizon 5/20/60 hari); butuh arsip Keterbukaan Informasi BEI 2022&ndash;2025 untuk pengujian lanjut.</li>
+        <li><strong>Status Hook "Berita vs Kas":</strong> <em>Belum teruji, bukan terbantah</em> &mdash; backtest Fase 5 hanya menemukan 1 kejadian uji &amp; 1 kontrol (N=0 di horizon 5/20/60 hari); butuh arsip Keterbukaan Informasi BEI 2022&ndash;2025 untuk pengujian lanjut.</li>
         <li><strong>Kandidat Universe Baru (Fase 6):</strong> 28 emiten UMA/FCA/suspensi terverifikasi sudah dipetakan di <code>reports/universe_candidates.csv</code> (belum dimasukkan ke produksi sebelum berkas XBRL-nya diverifikasi).</li>
         <li><strong>Validasi Pasar:</strong> Uji coba ke 5&ndash;10 trader aktif dan pantau <code>/analytics</code> (prioritas <code>ticker_dicek</code> &amp; <code>kartu_dibagikan</code>).</li>
       </ul>
@@ -483,7 +483,7 @@ def build_brief_html() -> str:
   </div>
 
   <div class="footer">
-    <span>IDX Cash &amp; Accrual Radar, Product Discussion Brief (Nov 2026)</span>
+    <span>IDX Cash &amp; Accrual Radar &bull; Product Discussion Brief (Nov 2026)</span>
     <span>Halaman 3 dari 3</span>
   </div>
 
