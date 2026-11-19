@@ -1742,9 +1742,11 @@
       applyFilters();
       if (chartInstance) renderRadarChart();
 
-      const selCalk = document.getElementById('selCalkTicker');
-      const curTicker = selCalk ? selCalk.value : 'WIKA';
-      renderDetailedDiagnostic(curTicker, 'tabCalkDiagnostic');
+      if (APP_CACHE.screener && APP_CACHE.screener.length > 0) {
+        const selCalk = document.getElementById('selCalkTicker');
+        const curTicker = selCalk ? selCalk.value : 'BBRI';
+        renderDetailedDiagnostic(curTicker, 'tabCalkDiagnostic');
+      }
       if (window.LAST_NEWS_ANALYSIS) renderRealtimeNewsResult();
     }
 
@@ -1754,9 +1756,10 @@
       // 1. Header subtitle & Tabs
       const sub = document.getElementById('headerSubtitle');
       if (sub) {
+        const issuerCount = (APP_CACHE && APP_CACHE.screener && APP_CACHE.screener.length) || 49;
         sub.textContent = isAwam
-          ? 'Monitor Cash Health & Earnings Quality Across 49 IDX Listed Companies'
-          : 'Fundamental Screener, Operating Cash Flow (CFO), & Solvency Analysis for 48 IDX Issuers';
+          ? `Monitor Cash Health & Earnings Quality Across ${issuerCount} IDX Listed Companies`
+          : `Fundamental Screener, Operating Cash Flow (CFO), & Solvency Analysis for ${issuerCount} IDX Issuers`;
       }
 
       const tabScreener = document.getElementById('tabBtnScreener');
@@ -2784,21 +2787,21 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 15px;"></span>
-                <strong style="color: #38bdf8; font-size: 13.5px;">ECONOMETRIC SOLVENCY &amp; ACCRUAL EVALUATION (${ticker})</strong>
+                <strong style="color: #38bdf8; font-size: 13.5px;">DETERMINISTIC SOLVENCY &amp; ACCRUAL EVALUATION (${ticker} &bull; ${reportPeriod})</strong>
               </div>
-              <span class="badge" style="background: #1e293b; color: ${ratingColor}; font-size: 11px; padding: 3px 8px; border: 1px solid ${ratingColor}; font-family: ui-monospace, monospace;">
-                Synthetic Credit Rating: ${rating} | P(Distress): ${pDistress.toFixed(2)}%
+              <span class="badge" style="background: #1e293b; color: ${statusColor}; font-size: 11px; padding: 3px 8px; border: 1px solid ${statusColor}; font-family: ui-monospace, monospace;">
+                ${detStatus}
               </span>
             </div>
 
             <!-- Quantitative Scores -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
-                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Multivariate Logistic Distress Probability:</span>
-                <strong class="font-num" style="font-size: 17px; color: ${pDistress > 50 ? '#fb7185' : (pDistress > 20 ? '#fbbf24' : '#34d399')};">
-                  P = ${pDistress.toFixed(2)}%
+                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Deterministic Safeguard Status (${reportPeriod}):</span>
+                <strong class="font-num" style="font-size: 15px; color: ${statusColor};">
+                  ${detStatus}
                 </strong>
-                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Model calibrated logistic odds</div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Python Decimal XBRL Audit Rule</div>
               </div>
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
                 <span style="font-size: 10.5px; color: #94a3b8; display: block;">Accrual Spread (CFO &minus; Net Income):</span>

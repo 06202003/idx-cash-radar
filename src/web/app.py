@@ -1397,40 +1397,40 @@ def get_metodologi() -> str:
 <body>
   <div class="wrap">
     <div style="margin-bottom: 14px;"><a href="/">&larr; Kembali ke Dashboard Utama</a></div>
-    <span class="pill">TRANSPARANSI METODOLOGI</span>
-    <h1>Metodologi Audit Kas &amp; Akrual XBRL</h1>
+    <span class="pill">METHODOLOGY &amp; TRANSPARENCY</span>
+    <h1>Metodologi Cash &amp; Accrual Radar (XBRL)</h1>
     <p style="color: #94a3b8; font-size: 13.5px; margin-top: 4px;">
-      Penjelasan terbuka mengenai rumus akuntansi deterministik, ambang penanda likuiditas, sumber tag XBRL BEI, dan batasan data.
+      Penjelasan terbuka mengenai rumus akuntansi deterministik, threshold likuiditas, sumber tag XBRL BEI, dan batasan data.
     </p>
 
     <div class="hero-note">
-      <strong style="color: #38bdf8; font-size: 14px;">Mengapa Kami Memakai Aturan Deterministik (Bukan Skor Kotak Hitam)?</strong>
+      <strong style="color: #38bdf8; font-size: 14px;">Mengapa Pakai Aturan Deterministik (Bukan Black-Box Score)?</strong>
       <p style="margin: 6px 0 0 0; font-size: 13px; color: #cbd5e1;">
         Seluruh status utama di platform ini dihitung menggunakan aturan akuntansi deterministik berbasis Python <code>Decimal</code> dari laporan XBRL resmi BEI.
-        Kami sengaja <strong>tidak</strong> menggunakan probabilitas model ML sebagai skor utama karena jumlah sampel historis BEI masih terbatas dan aturan kas sederhana jauh lebih transparan, mudah diaudit, serta bebas dari efek kotak hitam.
+        Kami sengaja <strong>tidak</strong> menggunakan probabilitas model ML sebagai skor utama karena jumlah sampel historis BEI masih terbatas dan aturan kas sederhana jauh lebih transparan, mudah diaudit, serta bebas dari efek <em>black-box</em>.
       </p>
     </div>
 
     <div class="card">
-      <h2>1. Aturan &amp; Ambang Deterministik Utama</h2>
+      <h2>1. Aturan &amp; Threshold Deterministik Utama</h2>
       <table>
-        <thead><tr><th>Metrik / Penanda</th><th>Bahasa Ritel</th><th>Definisi &amp; Ambang Terkunci</th></tr></thead>
+        <thead><tr><th>Metrik / Flag</th><th>Bahasa Ritel</th><th>Definisi &amp; Threshold Terkunci</th></tr></thead>
         <tbody>
-          <tr><td><code>cash_coverage_ratio</code></td><td>Kas dibanding utang jangka pendek</td><td>Kas &amp; setara kas dibagi utang berbunga jangka pendek. <code>&lt; 1.0x</code> menandakan kas di bawah utang jatuh tempo 12 bulan; <code>&lt; 0.20x</code> memicu penanda ketat.</td></tr>
-          <tr><td><code>sloan_ratio_ttm</code></td><td>Laba di atas kertas vs kas yang benar-benar masuk</td><td><code>(Laba Bersih TTM - CFO TTM) / Rata-rata Total Aset</code>. Nilai <code>&gt; +10%</code> menandakan porsi laba akrual yang belum masuk sebagai kas.</td></tr>
-          <tr><td><code>FLAG_ACCRUAL_DIVERGENCE</code></td><td>Penanda: Laba kertas, kas operasi negatif</td><td>Aktif jika Laba TTM &gt; 0, CFO TTM &lt; 0, CFO kuartal tunggal &lt; 0, dan Sloan &gt; 10%.</td></tr>
-          <tr><td><code>FLAG_ACUTE_LIQUIDITY</code></td><td>Penanda: Tekanan likuiditas kas jangka pendek</td><td>Aktif jika CFO TTM &lt; 0, terdapat utang jangka pendek berbunga (&gt; 0), dan <code>cash_coverage &lt; 0.20x</code>.</td></tr>
+          <tr><td><code>cash_coverage_ratio</code></td><td>Kas dibanding utang jangka pendek</td><td>Kas &amp; setara kas dibagi utang berbunga jangka pendek. <code>&lt; 1.0x</code> menandakan kas di bawah utang jatuh tempo 12 bulan; <code>&lt; 0.20x</code> memicu flag ketat.</td></tr>
+          <tr><td><code>sloan_ratio_ttm</code></td><td>Laba di atas kertas vs realisasi kas</td><td><code>(Laba Bersih TTM - CFO TTM) / Rata-rata Total Aset</code>. Nilai <code>&gt; +10%</code> menandakan porsi laba akrual yang belum masuk sebagai kas.</td></tr>
+          <tr><td><code>FLAG_ACCRUAL_DIVERGENCE</code></td><td>Flag: Laba kertas, CFO negatif</td><td>Aktif jika Laba TTM &gt; 0, CFO TTM &lt; 0, CFO kuartal tunggal &lt; 0, dan Sloan &gt; 10%.</td></tr>
+          <tr><td><code>FLAG_ACUTE_LIQUIDITY</code></td><td>Flag: Tekanan likuiditas kas jangka pendek</td><td>Aktif jika CFO TTM &lt; 0, terdapat utang jangka pendek berbunga (&gt; 0), dan <code>cash_coverage &lt; 0.20x</code>.</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="card">
-      <h2>2. Evaluasi Uji Waktu Aturan Deterministik (2022–2025)</h2>
+      <h2>2. Evaluasi Time-Series Aturan Deterministik (2022–2025)</h2>
       <p style="font-size: 13px; color: #cbd5e1;">
-        Dataset XBRL saat ini mencakup <strong>122 observasi</strong> dari 49 emiten (2022: n=12, 2023: n=12, 2024: n=49, 2025: n=49). Berikut kinerja aturan ambang sederhana pada pengujian berbasis waktu (tanpa <em>random split</em>):
+        Dataset XBRL saat ini mencakup <strong>122 observasi</strong> dari 49 emiten (2022: n=12, 2023: n=12, 2024: n=49, 2025: n=49). Berikut performa aturan threshold sederhana pada pengujian berbasis waktu (tanpa <em>random split</em>):
       </p>
       <table>
-        <thead><tr><th>Skenario Uji Waktu</th><th>Aturan Deterministik</th><th>Akurasi (95% CI Bootstrap)</th><th>Precision / Recall</th><th>Confusion Matrix</th></tr></thead>
+        <thead><tr><th>Skenario Time-Series</th><th>Aturan Deterministik</th><th>Akurasi (95% CI Bootstrap)</th><th>Precision / Recall</th><th>Confusion Matrix</th></tr></thead>
         <tbody>
           <tr>
             <td rowspan="2"><strong>Out-of-Sample 2024–2025</strong><br/>(n=98; Pos=15, Neg=83)</td>
@@ -1445,17 +1445,17 @@ def get_metodologi() -> str:
         </tbody>
       </table>
       <p style="font-size: 12.5px; color: #94a3b8; margin-top: 10px;">
-        <strong>Keterbatasan Uji:</strong> Sampel historis pra-2024 masih kecil (n=24) dan evaluasi di atas menggunakan definisi kondisi kas internal XBRL, belum menggunakan label eksternal seperti tanggal suspensi atau PKPU. Simulator stres MLP di menu <em>Pro / Lanjutan</em> hanya berfungsi sebagai simulasi <em>what-if</em>, bukan prediksi.
+        <strong>Limitasi Data &amp; Uji:</strong> Sampel historis pra-2024 masih kecil (n=24) dan evaluasi di atas menggunakan definisi kondisi kas internal XBRL, belum menggunakan label eksternal seperti tanggal suspensi atau PKPU. Simulator stres MLP di menu <em>Pro / Lanjutan</em> hanya berfungsi sebagai simulasi <em>what-if</em>, bukan prediksi.
       </p>
     </div>
 
     <div class="card">
-      <h2>3. Jejak Tag XBRL, Berita &amp; Penafian</h2>
+      <h2>3. Audit Trail XBRL, Berita &amp; Disclaimer</h2>
       <ul style="font-size: 13px; margin: 0; padding-left: 18px; color: #cbd5e1;">
-        <li><strong>Jejak Tag XBRL:</strong> Pengujian otomatis acak pada 36 angka akuntansi di screener menunjukkan <strong>36 / 36</strong> dapat ditelusuri ke <code>raw_xbrl_tag</code> dan <code>raw_context_ref</code> pada tabel <code>canonical_facts</code>. Kutipan harga pasar dan berita RSS berasal dari sumber eksternal (bukan tag XBRL).</li>
-        <li><strong>Isolasi Konteks Berita:</strong> Sentimen berita dan deteksi katalis (rebalancing indeks, UMA/FCA, aksi korporasi) bersifat informasi tambahan dan tidak mengubah penanda kas deterministik.</li>
-        <li><strong>Data Historis &amp; Tertinggal:</strong> Laporan keuangan mengikuti tanggal pelaporan resmi BEI (kuartalan/tahunan).</li>
-        <li><strong>Bukan Saran Investasi:</strong> Platform ini adalah alat audit fakta dan bukan ajakan beli/jual maupun target harga saham.</li>
+        <li><strong>Audit Trail Tag XBRL:</strong> Pengujian otomatis acak pada 36 angka akuntansi di screener menunjukkan <strong>36 / 36</strong> dapat ditelusuri ke <code>raw_xbrl_tag</code> dan <code>raw_context_ref</code> pada tabel <code>canonical_facts</code>. Quote harga saham dan berita RSS berasal dari sumber eksternal (bukan tag XBRL).</li>
+        <li><strong>Isolasi Sentimen Berita:</strong> Sentimen berita dan deteksi katalis (rebalancing indeks, UMA/FCA, aksi korporasi) bersifat konteks tambahan dan tidak mengubah flag kas deterministik.</li>
+        <li><strong>Data Historis (Lagging):</strong> Laporan keuangan mengikuti tanggal pelaporan resmi BEI (kuartalan/tahunan).</li>
+        <li><strong>Disclaimer (Bukan Ajakan Beli/Jual):</strong> Platform ini adalah alat audit fakta dan bukan rekomendasi investasi maupun target harga saham.</li>
       </ul>
     </div>
   </div>
