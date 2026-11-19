@@ -11,7 +11,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
-from aiogram.types import Message
+from aiogram.types import BotCommand, KeyboardButton, Message, ReplyKeyboardMarkup
 
 from src.config import (
     ADMIN_CHAT_ID,
@@ -53,6 +53,16 @@ WIB = ZoneInfo("Asia/Jakarta")
 
 store = AlertStore()
 
+MAIN_KEYBOARD = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="🔍 Cek Saham"), KeyboardButton(text="⚡ Morning Scan")],
+        [KeyboardButton(text="⭐ Watchlist"), KeyboardButton(text="🔑 Status Token")],
+        [KeyboardButton(text="📖 Bantuan")],
+    ],
+    resize_keyboard=True,
+    input_field_placeholder="Ketik kode saham (misal: BBCA) atau /cek BBRI...",
+)
+
 
 def _extract_ticker_arg(text: str) -> str | None:
     parts = (text or "").strip().split()
@@ -64,14 +74,16 @@ def _extract_ticker_arg(text: str) -> str | None:
 async def cmd_start(message: Message) -> None:
     await message.answer(
         "📡 *IDX Alert & Direction Sentiment Bot*\n\n"
-        "Bot asisten riset & alert saham BEI (Teknikal + Forecast Arah 5H + Berita + Kas XBRL).\n\n"
+        "Bot asisten riset & alert saham BEI (Teknikal + Forecast Arah 5H + Berita + Kas XBRL + Stockbit Orderbook/Broker).\n\n"
         "*Perintah tersedia:*\n"
         "• `/cek <KODE>` — Cek sentimen arah naik/turun, backtest OOS, berita & kas\n"
         "• `/morning` — Jalankan pemindaian Morning Confluence sekarang\n"
-        "• `/watch <KODE>` — Tambah saham ke watchlist alert otomatis (08:45 & 18:00 WIB)\n"
+        "• `/watch <KODE>` — Tambah saham ke watchlist alert otomatis\n"
         "• `/unwatch <KODE>` — Hapus saham dari watchlist\n"
-        "• `/watchlist` — Lihat daftar pantauan Anda\n\n"
-        "_Catatan: Hasil forecast & skor sentimen merupakan alat bantu riset statistik, bukan saran investasi._"
+        "• `/watchlist` — Lihat daftar pantauan Anda\n"
+        "• `/tokenstatus` & `/settoken <JWT>` — Cek / perbarui token Stockbit\n\n"
+        "_Catatan: Hasil forecast & skor sentimen merupakan alat bantu riset statistik, bukan saran investasi._",
+        reply_markup=MAIN_KEYBOARD,
     )
 
 
@@ -154,16 +166,31 @@ async def cmd_morning(message: Message) -> None:
 
 
 async def on_plain_ticker(message: Message) -> None:
-    txt = (message.text or "").strip().upper()
+    raw = (message.text or "").strip()
+    if raw == "🔍 Cek Saham":
+        await message.answer("Ketik langsung kode saham 4 huruf (misal: `BBCA`, `BBRI`, `ADRO`) atau `/cek BBRI`.")
+        return
+    if raw == "⚡ Morning Scan":
+        await cmd_morning(message)
+        return
+    if raw == "⭐ Watchlist":
+        await cmd_watchlist(message)
+        return
+    if raw == "🔑 Status Token":
+        await cmd_tokenstatus(message)
+        return
+    if raw == "📖 Bantuan":
+        await cmd_start(message)
+        return
+
+    txt = raw.upper()
     if txt.isalpha() and 4 <= len(txt) <= 5:
-        message_text_backup = f"/cek {txt}"
         wait_msg = await message.answer(f"⏳ Menganalisis *{txt}*...")
         res = await asyncio.to_thread(analyze_ticker, txt)
         if not res.get("technicals"):
             await wait_msg.edit_text(f"❌ Data pasar untuk `{txt}.JK` tidak ditemukan.")
             return
         await wait_msg.edit_text(format_ticker_alert(res))
-        _ = message_text_backup
 
 
 async def scheduler_loop(bot: Bot) -> None:
@@ -353,6 +380,20 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
 async def main() -> None:
     bot = create_bot()
     dp = build_dispatcher()
+
+    try:
+        await bot.set_my_commands([
+            BotCommand(command="cek", description="Analisis saham & sentimen arah (misal /cek BBCA)"),
+            BotCommand(command="morning", description="Scan Morning Confluence watchlist"),
+            BotCommand(command="watch", description="Tambah saham ke watchlist alert"),
+            BotCommand(command="unwatch", description="Hapus saham dari watchlist"),
+            BotCommand(command="watchlist", description="Lihat daftar watchlist aktif"),
+            BotCommand(command="tokenstatus", description="Cek sisa masa aktif token Stockbit"),
+            BotCommand(command="settoken", description="Perbarui Bearer JWT Stockbit"),
+            BotCommand(command="start", description="Bantuan & tampilkan menu tombol"),
+        ])
+    except Exception as exc:
+        logger.warning("Failed to set bot commands: %s", exc)
 
     sched_task = asyncio.create_task(scheduler_loop(bot))
     ob_task = asyncio.create_task(orderbook_monitor_loop(bot))
