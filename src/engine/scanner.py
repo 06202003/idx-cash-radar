@@ -15,6 +15,7 @@ from src.data.stockbit_feed import (
 from src.data.stockbit_token_manager import load_active_token, refresh_token_via_playwright
 from src.engine.forecaster import forecast_direction_with_backtest
 from src.engine.indicators import compute_indicators, summarize_latest_technicals
+from src.engine.risk_manager import compute_risk_reward_plan, format_risk_reward_block
 
 
 def _fetch_stockbit_context(ticker: str) -> tuple[dict[str, Any] | None, dict[str, Any] | None, bool]:
@@ -92,7 +93,7 @@ def analyze_ticker(ticker: str, cash_map: dict[str, dict[str, Any]] | None = Non
     }
 
 
-def format_ticker_alert(res: dict[str, Any]) -> str:
+def format_ticker_alert(res: dict[str, Any], capital_idr: float = 100_000_000.0) -> str:
     """Formats analysis result into a crisp 3-second scannable Telegram alert card."""
     t = res["ticker"]
     tech = res.get("technicals") or {}
@@ -127,6 +128,15 @@ def format_ticker_alert(res: dict[str, Any]) -> str:
 
     if tech.get("spike_chase_warning"):
         lines.append("⚠️ *Catatan:* Volume ≥ 3x disertai kenaikan ≥ 3% (hindari mengejar harga).")
+
+    rr_plan = compute_risk_reward_plan(
+        entry_price=float(tech.get("close") or 0.0),
+        support_price=float(tech.get("low_20d") or 0.0) or None,
+        resistance_price=float(tech.get("high_20d") or 0.0) or None,
+        capital_idr=capital_idr,
+    )
+    if rr_plan:
+        lines.extend(format_risk_reward_block(rr_plan))
 
     lines.extend([
         "",

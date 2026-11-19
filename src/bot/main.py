@@ -84,6 +84,7 @@ async def cmd_start(message: Message) -> None:
         "• `/unwatch <KODE>` — Hapus saham dari watchlist\n"
         "• `/watchlist` — Lihat daftar pantauan Anda\n"
         "• `/pola <KODE>` — Rekap riwayat orderbook & pola market maker hari ini\n"
+        "• `/modal <RUPIAH>` — Atur modal trading (misal `/modal 50jt`) untuk sizing lot R:R\n"
         "• `/tokenstatus` & `/settoken <JWT>` — Cek / perbarui token Stockbit\n\n"
         "_Catatan: Hasil forecast & skor sentimen merupakan alat bantu riset statistik, bukan saran investasi._",
         reply_markup=MAIN_KEYBOARD,
@@ -114,7 +115,8 @@ async def cmd_cek(message: Message) -> None:
         news_sentiment=news[0]["sentiment"] if news else "NETRAL",
         chat_id=message.chat.id,
     )
-    await wait_msg.edit_text(format_ticker_alert(res))
+    cap = store.get_capital(message.chat.id)
+    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap))
 
 
 async def cmd_watch(message: Message) -> None:
@@ -163,8 +165,9 @@ async def cmd_morning(message: Message) -> None:
         await wait_msg.edit_text("❌ Gagal mengambil data pasar saat ini.")
         return
 
+    cap = store.get_capital(message.chat.id)
     header = f"🔔 *MORNING CONFLUENCE & DIRECTION RADAR*\nDipindai: {len(results)} emiten\n\n"
-    body = "\n\n---\n\n".join(format_ticker_alert(r) for r in top)
+    body = "\n\n---\n\n".join(format_ticker_alert(r, capital_idr=cap) for r in top)
     await wait_msg.edit_text(header + body)
 
 
@@ -193,7 +196,8 @@ async def on_plain_ticker(message: Message) -> None:
         if not res.get("technicals"):
             await wait_msg.edit_text(f"❌ Data pasar untuk `{txt}.JK` tidak ditemukan.")
             return
-        await wait_msg.edit_text(format_ticker_alert(res))
+        cap = store.get_capital(message.chat.id)
+    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap))
 
 
 async def scheduler_loop(bot: Bot) -> None:
@@ -227,7 +231,8 @@ async def _broadcast_watchlist_alerts(bot: Bot, alert_type: str) -> None:
         for t in tickers[:8]:
             res = await asyncio.to_thread(analyze_ticker, t, cash_map)
             if res.get("technicals"):
-                blocks.append(format_ticker_alert(res))
+                cap = store.get_capital(chat_id)
+                blocks.append(format_ticker_alert(res, capital_idr=cap))
                 fc = res.get("forecast") or {}
                 news = res.get("news") or []
                 store.log_alert(
@@ -292,6 +297,43 @@ async def cmd_pola(message: Message) -> None:
     await message.answer(report)
 
 
+def _parse_capital_arg(raw: str) -> float | None:
+    s = (raw or "").strip().lower().replace(",", "").replace(".", "").replace("rp", "").strip()
+    if not s:
+        return None
+    mult = 1.0
+    if s.endswith("jt"):
+        mult = 1_000_000.0
+        s = s[:-2].strip()
+    elif s.endswith("m"):
+        mult = 1_000_000_000.0
+        s = s[:-1].strip()
+    try:
+        val = float(s) * mult
+        return val if val >= 100_000 else None
+    except ValueError:
+        return None
+
+
+async def cmd_modal(message: Message) -> None:
+    parts = (message.text or "").strip().split(maxsplit=1)
+    if len(parts) < 2:
+        curr = store.get_capital(message.chat.id)
+        curr_s = f"Rp {int(round(curr)):,}".replace(",", ".")
+        await message.answer(
+            f"💰 Modal aktif saat ini: `{curr_s}` (Risk `1%`/trade).\n"
+            "Ubah dengan `/modal 50jt` atau `/modal 100000000`."
+        )
+        return
+    parsed = _parse_capital_arg(parts[1])
+    if parsed is None:
+        await message.answer("❌ Format salah. Contoh: `/modal 50jt` atau `/modal 100000000` (min Rp 100.000).")
+        return
+    store.set_capital(message.chat.id, parsed)
+    cap_s = f"Rp {int(round(parsed)):,}".replace(",", ".")
+    await message.answer(f"✅ Modal Money Management diset ke `{cap_s}` (maks risk `1%`/trade, maks alokasi `25%`/saham).")
+
+
 def build_dispatcher() -> Dispatcher:
     """Builds and wires all command & text message handlers."""
     dp = Dispatcher()
@@ -302,6 +344,7 @@ def build_dispatcher() -> Dispatcher:
     dp.message.register(cmd_watchlist, Command("watchlist"))
     dp.message.register(cmd_morning, Command("morning"))
     dp.message.register(cmd_pola, Command("pola", "riwayat"))
+    dp.message.register(cmd_modal, Command("modal"))
     dp.message.register(cmd_settoken, Command("settoken"))
     dp.message.register(cmd_tokenstatus, Command("tokenstatus"))
     dp.message.register(on_plain_ticker, F.text)
@@ -430,11 +473,15 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                         pass
 
                     for alert_txt, signal_kind in alerts_to_send:
-                        analysis_txt = build_instant_signal_analysis(
-                            t, signal_kind, curr_ob=curr_ob, md_raw=md_raw
-                        )
                         for cid, user_tickers in subs.items():
                             if t in user_tickers:
+                                analysis_txt = build_instant_signal_analysis(
+                                    t,
+                                    signal_kind,
+                                    curr_ob=curr_ob,
+                                    md_raw=md_raw,
+                                    capital_idr=store.get_capital(cid),
+                                )
                                 sent_msg = await bot.send_message(cid, alert_txt)
                                 await bot.send_message(
                                     cid,
@@ -458,6 +505,7 @@ async def main() -> None:
             BotCommand(command="unwatch", description="Hapus saham dari watchlist"),
             BotCommand(command="watchlist", description="Lihat daftar watchlist aktif"),
             BotCommand(command="pola", description="Rekam pola market maker & orderbook hari ini"),
+            BotCommand(command="modal", description="Atur modal untuk Risk:Reward & sizing lot"),
             BotCommand(command="tokenstatus", description="Cek sisa masa aktif token Stockbit"),
             BotCommand(command="settoken", description="Perbarui Bearer JWT Stockbit"),
             BotCommand(command="start", description="Bantuan & tampilkan menu tombol"),

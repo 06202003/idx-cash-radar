@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from src.data.market_feed import parse_safe_float
+from src.engine.risk_manager import compute_risk_reward_plan, format_risk_reward_compact
 
 # 16 major retail-heavy IDX broker codes
 RETAIL_BROKERS: frozenset[str] = frozenset({
@@ -273,6 +274,7 @@ def build_instant_signal_analysis(
     signal_kind: str,
     curr_ob: dict[str, dict[int, dict[str, int]]] | None = None,
     md_raw: dict[str, Any] | None = None,
+    capital_idr: float = 100_000_000.0,
 ) -> str:
     """
     Builds a <1ms deterministic contextual analysis right after an instant anomaly alert
@@ -323,4 +325,18 @@ def build_instant_signal_analysis(
             elif is_bear_signal:
                 verdict = "⚠️ *Guyuran Lawan Arus:* Ada HAKI/Offer sesaat, tapi secara harian Non-Ritel masih menampung."
 
-    return f"🧠 *Analisis Instan | {ticker}*\n{ob_line}\n{brok_line}\n{verdict}"
+    rr_line = ""
+    if best_offer and best_bid:
+        entry_px = best_offer if is_bull_signal else best_bid
+        low_bid = min(bids.keys()) if bids else None
+        high_off = max(offers.keys()) if offers else None
+        rr_plan = compute_risk_reward_plan(
+            entry_price=float(entry_px),
+            support_price=float(low_bid) if low_bid and low_bid < entry_px else None,
+            resistance_price=float(high_off) if high_off and high_off > entry_px else None,
+            capital_idr=capital_idr,
+        )
+        if rr_plan:
+            rr_line = "\n" + format_risk_reward_compact(rr_plan)
+
+    return f"🧠 *Analisis Instan | {ticker}*\n{ob_line}\n{brok_line}{rr_line}\n{verdict}"

@@ -64,6 +64,13 @@ class AlertStore:
                 );
                 CREATE INDEX IF NOT EXISTS idx_mm_events_ticker_day
                     ON mm_events (ticker, day_wib);
+
+                CREATE TABLE IF NOT EXISTS user_settings (
+                    chat_id INTEGER PRIMARY KEY,
+                    capital_idr REAL NOT NULL DEFAULT 100000000.0,
+                    risk_pct REAL NOT NULL DEFAULT 0.01,
+                    updated_at TEXT NOT NULL
+                );
                 """
             )
 
@@ -226,3 +233,26 @@ class AlertStore:
             + "\n\n*Timeline Terakhir:*\n"
             + "\n".join(timeline)
         )
+
+    def set_capital(self, chat_id: int, capital_idr: float, risk_pct: float = 0.01) -> None:
+        now = datetime.now(UTC).isoformat()
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO user_settings (chat_id, capital_idr, risk_pct, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(chat_id) DO UPDATE SET
+                    capital_idr = excluded.capital_idr,
+                    risk_pct = excluded.risk_pct,
+                    updated_at = excluded.updated_at
+                """,
+                (chat_id, max(100_000.0, float(capital_idr)), float(risk_pct), now),
+            )
+
+    def get_capital(self, chat_id: int, default: float = 100_000_000.0) -> float:
+        with self._connect() as conn:
+            row = conn.execute(
+                "SELECT capital_idr FROM user_settings WHERE chat_id = ?",
+                (chat_id,),
+            ).fetchone()
+        return float(row["capital_idr"]) if row else default
