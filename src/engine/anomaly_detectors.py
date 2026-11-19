@@ -118,9 +118,17 @@ def detect_wall_pulled(
     prev_ob: dict[str, dict[int, dict[str, int]]],
     curr_ob: dict[str, dict[int, dict[str, int]]],
     min_pulled_lot: int = 5000,
+    trade_lots: dict[str, float] | None = None,
 ) -> list[dict[str, Any]]:
-    """Detects sudden large Bid/Offer walls being cancelled/pulled (delta_lot <= -min_pulled_lot & delta_freq < 0)."""
+    """
+    Detects sudden large Bid/Offer walls disappearing (delta_lot <= -min_pulled_lot & delta_freq < 0).
+    If `trade_lots` (from 1m tradebook) shows >= 40% of the disappeared lot was matched by
+    HAKI (for bid) or HAKA (for offer), marks `eaten_by_trade = True` instead of genuine cancel.
+    """
     pulled: list[dict[str, Any]] = []
+    buy_lot = float((trade_lots or {}).get("buy_lot") or 0.0)
+    sell_lot = float((trade_lots or {}).get("sell_lot") or 0.0)
+
     for side in ("bid", "offer"):
         prev_levels = prev_ob.get(side) or {}
         curr_levels = curr_ob.get(side) or {}
@@ -129,11 +137,15 @@ def detect_wall_pulled(
             delta_lot = int(curr_vals.get("lot", 0)) - int(prev_vals.get("lot", 0))
             delta_freq = int(curr_vals.get("freq", 0)) - int(prev_vals.get("freq", 0))
             if delta_lot <= -min_pulled_lot and delta_freq < 0:
+                pulled_lot = abs(delta_lot)
+                matched_lot = sell_lot if side == "bid" else buy_lot
+                eaten = bool(trade_lots is not None and matched_lot >= 0.4 * pulled_lot)
                 pulled.append({
                     "side": side.upper(),
                     "price": int(price),
-                    "pulled_lot": abs(delta_lot),
+                    "pulled_lot": pulled_lot,
                     "delta_freq": delta_freq,
+                    "eaten_by_trade": eaten,
                 })
     return pulled
 
@@ -162,6 +174,23 @@ def _latest_cumulative_delta(series: list[dict[str, Any]], field: str) -> float:
         prev = _extract_raw_metric(series[-2], field)
         return max(0.0, curr - prev)
     return max(0.0, curr)
+
+
+def extract_latest_tradebook_delta(tradebook_payload: dict[str, Any]) -> dict[str, Any]:
+    """Extracts the latest 1-minute HAKA/HAKI lot & value delta from Stockbit trade-book JSON."""
+    data = tradebook_payload.get("data") or {}
+    buy_series = data.get("buy")
+    sell_series = data.get("sell")
+    if isinstance(buy_series, list) and isinstance(sell_series, list) and (buy_series or sell_series):
+        last_entry = buy_series[-1] if buy_series else sell_series[-1]
+        return {
+            "buy_lot": _latest_cumulative_delta(buy_series, "lot"),
+            "sell_lot": _latest_cumulative_delta(sell_series, "lot"),
+            "buy_val": _latest_cumulative_delta(buy_series, "value"),
+            "sell_val": _latest_cumulative_delta(sell_series, "value"),
+            "time": str(last_entry.get("time")) if isinstance(last_entry, dict) and last_entry.get("time") else None,
+        }
+    return {"buy_lot": 0.0, "sell_lot": 0.0, "buy_val": 0.0, "sell_val": 0.0, "time": None}
 
 
 def detect_tradebook_dominance(

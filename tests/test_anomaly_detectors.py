@@ -83,12 +83,20 @@ def test_parse_broker_distribution_crossing() -> None:
 def test_detect_wall_pulled() -> None:
     prev_ob = parse_orderbook_levels({"data": {"offer": [{"price": "5700", "volume": "1200000", "que_num": "15"}]}})
     curr_ob = parse_orderbook_levels({"data": {"offer": [{"price": "5700", "volume": "200000", "que_num": "13"}]}})
-    pulled = detect_wall_pulled(prev_ob, curr_ob, min_pulled_lot=5000)
+    pulled = detect_wall_pulled(prev_ob, curr_ob, min_pulled_lot=5000, trade_lots={"buy_lot": 100, "sell_lot": 50})
     assert len(pulled) == 1
     assert pulled[0]["pulled_lot"] == 10000
+    assert pulled[0]["eaten_by_trade"] is False
     msg = format_wall_pulled_alert("BBCA", pulled[0])
     assert "WALL DICABUT" in msg
     assert "5.700" in msg
+
+    # If bid drop coincides with large HAKI (>= 40% of dropped lot), mark eaten_by_trade=True
+    prev_bid = parse_orderbook_levels({"data": {"bid": [{"price": "3050", "volume": "1500000", "que_num": "189"}]}})
+    curr_bid = parse_orderbook_levels({"data": {"bid": [{"price": "3050", "volume": "335800", "que_num": "83"}]}})
+    eaten = detect_wall_pulled(prev_bid, curr_bid, min_pulled_lot=5000, trade_lots={"buy_lot": 200, "sell_lot": 12000})
+    assert len(eaten) == 1
+    assert eaten[0]["eaten_by_trade"] is True
 
 
 def test_detect_tradebook_haki_dominance_and_noise_filter() -> None:

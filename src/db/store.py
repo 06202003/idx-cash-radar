@@ -5,8 +5,12 @@ from __future__ import annotations
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
+from zoneinfo import ZoneInfo
 
 from src.config import DB_PATH
+
+WIB = ZoneInfo("Asia/Jakarta")
 
 
 class AlertStore:
@@ -44,6 +48,22 @@ class AlertStore:
                     badge TEXT,
                     news_sentiment TEXT
                 );
+
+                CREATE TABLE IF NOT EXISTS mm_events (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ts_wib TEXT NOT NULL,
+                    day_wib TEXT NOT NULL,
+                    ticker TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    side TEXT,
+                    price INTEGER,
+                    lot_delta INTEGER,
+                    freq_delta INTEGER,
+                    value_idr REAL,
+                    detail TEXT
+                );
+                CREATE INDEX IF NOT EXISTS idx_mm_events_ticker_day
+                    ON mm_events (ticker, day_wib);
                 """
             )
 
@@ -108,3 +128,101 @@ class AlertStore:
         with self._connect() as conn:
             row = conn.execute("SELECT COUNT(*) AS c FROM alert_logs").fetchone()
         return int(row["c"]) if row else 0
+
+    def log_mm_event(
+        self,
+        ticker: str,
+        event_type: str,
+        side: str | None = None,
+        price: int | None = None,
+        lot_delta: int | None = None,
+        freq_delta: int | None = None,
+        value_idr: float | None = None,
+        detail: str = "",
+        now_wib: datetime | None = None,
+    ) -> None:
+        dt = now_wib or datetime.now(WIB)
+        clean_t = ticker.strip().upper().replace(".JK", "")
+        with self._connect() as conn:
+            conn.execute(
+                """
+                INSERT INTO mm_events (
+                    ts_wib, day_wib, ticker, event_type, side, price,
+                    lot_delta, freq_delta, value_idr, detail
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    dt.strftime("%H:%M:%S"),
+                    dt.strftime("%Y-%m-%d"),
+                    clean_t,
+                    event_type,
+                    side,
+                    price,
+                    lot_delta,
+                    freq_delta,
+                    value_idr,
+                    detail,
+                ),
+            )
+
+    def get_mm_events(
+        self,
+        ticker: str,
+        day_wib: str | None = None,
+        limit: int = 40,
+    ) -> list[dict[str, Any]]:
+        clean_t = ticker.strip().upper().replace(".JK", "")
+        target_day = day_wib or datetime.now(WIB).strftime("%Y-%m-%d")
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT ts_wib, day_wib, ticker, event_type, side, price,
+                       lot_delta, freq_delta, value_idr, detail
+                FROM mm_events
+                WHERE ticker = ? AND day_wib = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (clean_t, target_day, limit),
+            ).fetchall()
+        return [dict(r) for r in reversed(rows)]
+
+    def format_mm_pattern_report(self, ticker: str, day_wib: str | None = None) -> str:
+        clean_t = ticker.strip().upper().replace(".JK", "")
+        target_day = day_wib or datetime.now(WIB).strftime("%Y-%m-%d")
+        events = self.get_mm_events(clean_t, day_wib=target_day, limit=100)
+        if not events:
+            return (
+                f"📊 *POLA MARKET MAKER | {clean_t} ({target_day})*\n"
+                "Belum ada rekaman event orderbook/tape hari ini.\n"
+                "Pastikan saham sudah masuk `/watch` saat jam bursa (09:00–16:00 WIB)."
+            )
+
+        counts: dict[str, int] = {}
+        for ev in events:
+            et = ev["event_type"]
+            counts[et] = counts.get(et, 0) + 1
+
+        summary_lines = [
+            f"• Wall Dipasang: `{counts.get('WALL_ADDED', 0)}x` | Wall Dicabut: `{counts.get('WALL_PULLED', 0)}x`",
+            f"• Dimakan HAKA/HAKI: `{counts.get('WALL_EATEN', 0)}x` | Dominan 1M: HAKA `{counts.get('HAKA_1M', 0)}x` / HAKI `{counts.get('HAKI_1M', 0)}x`",
+            f"• Broker Flip: `{counts.get('BROKER_FLIP', 0)}x`",
+        ]
+
+        timeline: list[str] = []
+        for ev in events[-10:]:
+            px = f"@{ev['price']:,}".replace(",", ".") if ev.get("price") else ""
+            lot = f"{ev['lot_delta']:+,} lot".replace(",", ".") if ev.get("lot_delta") is not None else ""
+            val = ""
+            if ev.get("value_idr"):
+                v = float(ev["value_idr"])
+                val = f"Rp {v/1e9:.2f}M" if abs(v) >= 1e9 else f"Rp {v/1e6:.0f}Jt"
+            parts = [p for p in (ev["event_type"], ev.get("side") or "", px, lot, val, ev.get("detail") or "") if p]
+            timeline.append(f"`{ev['ts_wib']}` {' '.join(parts)}")
+
+        return (
+            f"📊 *REKAMAN POLA MARKET MAKER | {clean_t} ({target_day})*\n"
+            + "\n".join(summary_lines)
+            + "\n\n*Timeline Terakhir:*\n"
+            + "\n".join(timeline)
+        )

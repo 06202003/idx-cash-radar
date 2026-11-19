@@ -40,6 +40,7 @@ from src.engine.anomaly_detectors import (
     detect_broker_flow_anomaly,
     detect_tradebook_dominance,
     detect_wall_pulled,
+    extract_latest_tradebook_delta,
     format_broker_flow_alert,
     format_tradebook_dominance_alert,
     format_wall_pulled_alert,
@@ -81,6 +82,7 @@ async def cmd_start(message: Message) -> None:
         "• `/watch <KODE>` — Tambah saham ke watchlist alert otomatis\n"
         "• `/unwatch <KODE>` — Hapus saham dari watchlist\n"
         "• `/watchlist` — Lihat daftar pantauan Anda\n"
+        "• `/pola <KODE>` — Rekap riwayat orderbook & pola market maker hari ini\n"
         "• `/tokenstatus` & `/settoken <JWT>` — Cek / perbarui token Stockbit\n\n"
         "_Catatan: Hasil forecast & skor sentimen merupakan alat bantu riset statistik, bukan saran investasi._",
         reply_markup=MAIN_KEYBOARD,
@@ -280,6 +282,15 @@ async def cmd_tokenstatus(message: Message) -> None:
         await message.answer(f"🔑 Stockbit token aktif — sisa `{round(rem / 3600.0, 1)} jam`.")
 
 
+async def cmd_pola(message: Message) -> None:
+    ticker = _extract_ticker_arg(message.text or "")
+    if not ticker:
+        await message.answer("Gunakan format: `/pola BBRI` untuk melihat rekaman pola market maker hari ini.")
+        return
+    report = store.format_mm_pattern_report(ticker)
+    await message.answer(report)
+
+
 def build_dispatcher() -> Dispatcher:
     """Builds and wires all command & text message handlers."""
     dp = Dispatcher()
@@ -289,6 +300,7 @@ def build_dispatcher() -> Dispatcher:
     dp.message.register(cmd_unwatch, Command("unwatch"))
     dp.message.register(cmd_watchlist, Command("watchlist"))
     dp.message.register(cmd_morning, Command("morning"))
+    dp.message.register(cmd_pola, Command("pola", "riwayat"))
     dp.message.register(cmd_settoken, Command("settoken"))
     dp.message.register(cmd_tokenstatus, Command("tokenstatus"))
     dp.message.register(on_plain_ticker, F.text)
@@ -336,24 +348,64 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                         curr_ob = {"bid": {}, "offer": {}}
 
                     alerts_to_send: list[str] = []
+                    tb_raw: dict = {}
+                    trade_lots: dict | None = None
+                    try:
+                        tb_raw = await asyncio.to_thread(fetch_stockbit_trade_book, t, tok, "1m")
+                        trade_lots = extract_latest_tradebook_delta(tb_raw)
+                    except Exception:
+                        tb_raw = {}
+
                     prev_ob = prev_snapshots.get(t)
                     if prev_ob and (curr_ob.get("bid") or curr_ob.get("offer")):
                         for w in detect_orderbook_wall_deltas(prev_ob, curr_ob, min_delta_lot=5000, max_delta_freq=2)[:2]:
                             if _cooldown_ok(t, f"wall_{w['side']}_{w['price']}", 180.0):
                                 alerts_to_send.append(format_orderbook_wall_alert(t, w))
-                        for pw in detect_wall_pulled(prev_ob, curr_ob, min_pulled_lot=5000)[:2]:
-                            if _cooldown_ok(t, f"pulled_{pw['side']}_{pw['price']}", 180.0):
+                                store.log_mm_event(
+                                    t,
+                                    "WALL_ADDED",
+                                    side=w["side"],
+                                    price=w["price"],
+                                    lot_delta=w["delta_lot"],
+                                    freq_delta=w["delta_freq"],
+                                )
+                        for pw in detect_wall_pulled(prev_ob, curr_ob, min_pulled_lot=5000, trade_lots=trade_lots)[:2]:
+                            if pw.get("eaten_by_trade"):
+                                if _cooldown_ok(t, f"eaten_{pw['side']}_{pw['price']}", 180.0):
+                                    store.log_mm_event(
+                                        t,
+                                        "WALL_EATEN",
+                                        side=pw["side"],
+                                        price=pw["price"],
+                                        lot_delta=-pw["pulled_lot"],
+                                        freq_delta=pw["delta_freq"],
+                                        detail="Dimakan HAKI/HAKA",
+                                    )
+                            elif _cooldown_ok(t, f"pulled_{pw['side']}_{pw['price']}", 180.0):
                                 alerts_to_send.append(format_wall_pulled_alert(t, pw))
+                                store.log_mm_event(
+                                    t,
+                                    "WALL_PULLED",
+                                    side=pw["side"],
+                                    price=pw["price"],
+                                    lot_delta=-pw["pulled_lot"],
+                                    freq_delta=pw["delta_freq"],
+                                )
                     if curr_ob.get("bid") or curr_ob.get("offer"):
                         prev_snapshots[t] = curr_ob
 
-                    try:
-                        tb_raw = await asyncio.to_thread(fetch_stockbit_trade_book, t, tok, "1m")
+                    if tb_raw:
                         dom = detect_tradebook_dominance(t, tb_raw)
                         if dom and _cooldown_ok(t, f"dom_{dom['side']}", 300.0):
                             alerts_to_send.append(format_tradebook_dominance_alert(dom))
-                    except Exception:
-                        pass
+                            store.log_mm_event(
+                                t,
+                                f"{dom['side']}_1M",
+                                side=dom["side"],
+                                lot_delta=dom.get("buy_lot") if dom["side"] == "HAKA" else -int(dom.get("sell_lot") or 0),
+                                value_idr=dom["total_value_idr"],
+                                detail=f"{dom['dominance_pct']}% ({dom.get('time') or ''})",
+                            )
 
                     try:
                         md_url = (
@@ -365,6 +417,13 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                         bf = detect_broker_flow_anomaly(t, md_raw)
                         if bf and _cooldown_ok(t, f"bf_{bf['signal']}", 900.0):
                             alerts_to_send.append(format_broker_flow_alert(bf))
+                            store.log_mm_event(
+                                t,
+                                "BROKER_FLIP",
+                                side=bf["signal"],
+                                value_idr=abs(bf["non_retail_net_idr"]),
+                                detail=f"Non-Ritel: {','.join(bf['non_retail_brokers'])}",
+                            )
                     except Exception:
                         pass
 
@@ -388,6 +447,7 @@ async def main() -> None:
             BotCommand(command="watch", description="Tambah saham ke watchlist alert"),
             BotCommand(command="unwatch", description="Hapus saham dari watchlist"),
             BotCommand(command="watchlist", description="Lihat daftar watchlist aktif"),
+            BotCommand(command="pola", description="Rekam pola market maker & orderbook hari ini"),
             BotCommand(command="tokenstatus", description="Cek sisa masa aktif token Stockbit"),
             BotCommand(command="settoken", description="Perbarui Bearer JWT Stockbit"),
             BotCommand(command="start", description="Bantuan & tampilkan menu tombol"),
