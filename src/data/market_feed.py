@@ -1,0 +1,83 @@
+"""Yahoo Finance (.JK) OHLCV market data fetcher with safe numeric parsing."""
+
+from __future__ import annotations
+
+import json
+import urllib.parse
+import urllib.request
+from datetime import UTC, datetime
+from typing import Any
+
+import pandas as pd
+
+
+def parse_safe_float(val: Any) -> float | None:
+    """Safely parses numeric strings (including comma-formatted thousands) into float."""
+    if val is None:
+        return None
+    if isinstance(val, (int, float)):
+        return float(val) if pd.notna(val) else None
+    s = str(val).strip().replace(",", "")
+    if not s or s.lower() in ("nan", "none", "null", "-"):
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def fetch_jk_ohlcv(ticker: str, range_str: str = "2y", timeout: float = 10.0) -> pd.DataFrame:
+    """
+    Fetches daily OHLCV bars for an IDX ticker (<TICKER>.JK) from Yahoo Finance chart API.
+    Returns DataFrame with columns: date, open, high, low, close, volume.
+    """
+    clean_t = ticker.strip().upper().replace(".JK", "")
+    symbol = urllib.parse.quote(f"{clean_t}.JK")
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={range_str}&interval=1d"
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (compatible; IDXAlertBot/1.0)"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return pd.DataFrame(columns=["date", "open", "high", "low", "close", "volume"])
+
+    result = (payload.get("chart") or {}).get("result") or []
+    if not result:
+        return pd.DataFrame(columns=["date", "open", "high", "low", "close", "volume"])
+
+    chart = result[0]
+    timestamps = chart.get("timestamp") or []
+    quote = ((chart.get("indicators") or {}).get("quote") or [{}])[0]
+    opens = quote.get("open") or []
+    highs = quote.get("high") or []
+    lows = quote.get("low") or []
+    closes = quote.get("close") or []
+    volumes = quote.get("volume") or []
+
+    rows: list[dict[str, Any]] = []
+    for i, ts in enumerate(timestamps):
+        o = parse_safe_float(opens[i] if i < len(opens) else None)
+        h = parse_safe_float(highs[i] if i < len(highs) else None)
+        l = parse_safe_float(lows[i] if i < len(lows) else None)
+        c = parse_safe_float(closes[i] if i < len(closes) else None)
+        v = parse_safe_float(volumes[i] if i < len(volumes) else 0.0) or 0.0
+        if None in (o, h, l, c) or c <= 0:
+            continue
+        dt_str = datetime.fromtimestamp(ts, tz=UTC).strftime("%Y-%m-%d")
+        rows.append({
+            "date": dt_str,
+            "open": o,
+            "high": h,
+            "low": l,
+            "close": c,
+            "volume": v,
+        })
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return df
+    df = df.drop_duplicates(subset=["date"]).sort_values("date").reset_index(drop=True)
+    return df

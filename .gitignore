@@ -5,7 +5,7 @@
 *.sqlite
 *.sqlite3
 *.log
-data/
+/data/
 .venv/
 venv/
 __pycache__/
