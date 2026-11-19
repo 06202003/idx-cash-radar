@@ -37,6 +37,7 @@ from src.data.stockbit_token_manager import (
 )
 from src.db.store import AlertStore
 from src.engine.anomaly_detectors import (
+    build_instant_signal_analysis,
     detect_broker_flow_anomaly,
     detect_tradebook_dominance,
     detect_wall_pulled,
@@ -347,8 +348,9 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                     except Exception:
                         curr_ob = {"bid": {}, "offer": {}}
 
-                    alerts_to_send: list[str] = []
+                    alerts_to_send: list[tuple[str, str]] = []
                     tb_raw: dict = {}
+                    md_raw: dict = {}
                     trade_lots: dict | None = None
                     try:
                         tb_raw = await asyncio.to_thread(fetch_stockbit_trade_book, t, tok, "1m")
@@ -360,7 +362,7 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                     if prev_ob and (curr_ob.get("bid") or curr_ob.get("offer")):
                         for w in detect_orderbook_wall_deltas(prev_ob, curr_ob, min_delta_lot=5000, max_delta_freq=2)[:2]:
                             if _cooldown_ok(t, f"wall_{w['side']}_{w['price']}", 180.0):
-                                alerts_to_send.append(format_orderbook_wall_alert(t, w))
+                                alerts_to_send.append((format_orderbook_wall_alert(t, w), f"{w['side']}_WALL"))
                                 store.log_mm_event(
                                     t,
                                     "WALL_ADDED",
@@ -382,7 +384,7 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                                         detail="Dimakan HAKI/HAKA",
                                     )
                             elif _cooldown_ok(t, f"pulled_{pw['side']}_{pw['price']}", 180.0):
-                                alerts_to_send.append(format_wall_pulled_alert(t, pw))
+                                alerts_to_send.append((format_wall_pulled_alert(t, pw), f"{pw['side']}_PULLED"))
                                 store.log_mm_event(
                                     t,
                                     "WALL_PULLED",
@@ -397,7 +399,7 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                     if tb_raw:
                         dom = detect_tradebook_dominance(t, tb_raw)
                         if dom and _cooldown_ok(t, f"dom_{dom['side']}", 300.0):
-                            alerts_to_send.append(format_tradebook_dominance_alert(dom))
+                            alerts_to_send.append((format_tradebook_dominance_alert(dom), dom["side"]))
                             store.log_mm_event(
                                 t,
                                 f"{dom['side']}_1M",
@@ -416,7 +418,7 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                         md_raw = await asyncio.to_thread(_get_json, md_url, tok)
                         bf = detect_broker_flow_anomaly(t, md_raw)
                         if bf and _cooldown_ok(t, f"bf_{bf['signal']}", 900.0):
-                            alerts_to_send.append(format_broker_flow_alert(bf))
+                            alerts_to_send.append((format_broker_flow_alert(bf), bf["signal"]))
                             store.log_mm_event(
                                 t,
                                 "BROKER_FLIP",
@@ -427,10 +429,18 @@ async def orderbook_monitor_loop(bot: Bot, poll_seconds: float = 25.0) -> None:
                     except Exception:
                         pass
 
-                    for alert_txt in alerts_to_send:
+                    for alert_txt, signal_kind in alerts_to_send:
+                        analysis_txt = build_instant_signal_analysis(
+                            t, signal_kind, curr_ob=curr_ob, md_raw=md_raw
+                        )
                         for cid, user_tickers in subs.items():
                             if t in user_tickers:
-                                await bot.send_message(cid, alert_txt)
+                                sent_msg = await bot.send_message(cid, alert_txt)
+                                await bot.send_message(
+                                    cid,
+                                    analysis_txt,
+                                    reply_to_message_id=sent_msg.message_id,
+                                )
         except Exception as exc:
             logger.warning("Orderbook monitor error: %s", exc)
         await asyncio.sleep(poll_seconds)

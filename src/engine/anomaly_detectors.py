@@ -266,3 +266,61 @@ def format_tradebook_dominance_alert(ev: dict[str, Any]) -> str:
     if ev["side"] == "HAKA":
         return f"⚡ *HAKA DOMINAN 1M | {ev['ticker']}*{time_suffix}\n• Rasio HAKA: `{ev['dominance_pct']}%` (Nilai: `Rp {val_jt:.0f} Jt`)"
     return f"🔻 *HAKI DOMINAN 1M | {ev['ticker']}*{time_suffix}\n• Rasio HAKI: `{ev['dominance_pct']}%` (Nilai: `Rp {val_jt:.0f} Jt`)"
+
+
+def build_instant_signal_analysis(
+    ticker: str,
+    signal_kind: str,
+    curr_ob: dict[str, dict[int, dict[str, int]]] | None = None,
+    md_raw: dict[str, Any] | None = None,
+) -> str:
+    """
+    Builds a <1ms deterministic contextual analysis right after an instant anomaly alert
+    using already-fetched orderbook + marketdetectors snapshots (zero extra latency).
+    """
+    ob = curr_ob or {"bid": {}, "offer": {}}
+    bids = ob.get("bid") or {}
+    offers = ob.get("offer") or {}
+
+    best_bid = max(bids.keys()) if bids else None
+    best_offer = min(offers.keys()) if offers else None
+    tot_bid_lot = sum(int(v.get("lot", 0)) for v in bids.values())
+    tot_offer_lot = sum(int(v.get("lot", 0)) for v in offers.values())
+
+    ob_line = "• Orderbook: data antrean belum tersedia"
+    if best_bid and best_offer:
+        ratio = (tot_bid_lot / tot_offer_lot) if tot_offer_lot > 0 else 1.0
+        tilt = "Bid lebih tebal" if ratio >= 1.15 else ("Offer lebih tebal" if ratio <= 0.85 else "Seimbang")
+        bid_s = f"Rp {best_bid:,}".replace(",", ".")
+        off_s = f"Rp {best_offer:,}".replace(",", ".")
+        ob_line = f"• Orderbook: Bid `{bid_s}` vs Offer `{off_s}` ({tilt}, `{ratio:.2f}x`)"
+
+    data = (md_raw or {}).get("data") or {}
+    bandar = data.get("bandar_detector") or {}
+    accdist = str(bandar.get("broker_accdist") or "-")
+    bf = detect_broker_flow_anomaly(ticker, md_raw or {}, min_net_idr=100_000_000.0)
+
+    brok_line = f"• Bandar Harian: `{accdist}`"
+    verdict = "Pantau reaksi harga di level Bid/Offer terdekat."
+
+    is_bull_signal = signal_kind in ("HAKA", "BID_WALL", "SERAPAN_NON_RITEL")
+    is_bear_signal = signal_kind in ("HAKI", "OFFER_WALL", "DISTRIBUSI_KE_RITEL")
+
+    if bf:
+        f_net = float(bf.get("foreign_net_idr") or 0.0)
+        f_str = f"Rp {abs(f_net)/1e9:.2f}M" if abs(f_net) >= 1e9 else f"Rp {abs(f_net)/1e6:.0f}Jt"
+        f_sign = "+" if f_net >= 0 else "-"
+        if bf["signal"] == "DISTRIBUSI_KE_RITEL":
+            brok_line = f"• Bandar Harian: `{accdist}` | Non-Ritel Net Sell (`{', '.join(bf['non_retail_brokers'])}`), Asing `{f_sign}{f_str}`"
+            if is_bull_signal:
+                verdict = "⚠️ *Waspada Pantulan Sesaat:* HAKA/Bid masuk, tapi arus besar harian masih distribusi ke ritel."
+            elif is_bear_signal:
+                verdict = "🔻 *Tekanan Searah:* Sinyal turun sejalan dengan distribusi Non-Ritel & Asing hari ini."
+        else:
+            brok_line = f"• Bandar Harian: `{accdist}` | Non-Ritel Net Buy (`{', '.join(bf['non_retail_brokers'])}`), Asing `{f_sign}{f_str}`"
+            if is_bull_signal:
+                verdict = "✅ *Searah Akumulasi:* Sinyal beli didukung akumulasi Non-Ritel hari ini."
+            elif is_bear_signal:
+                verdict = "⚠️ *Guyuran Lawan Arus:* Ada HAKI/Offer sesaat, tapi secara harian Non-Ritel masih menampung."
+
+    return f"🧠 *Analisis Instan | {ticker}*\n{ob_line}\n{brok_line}\n{verdict}"

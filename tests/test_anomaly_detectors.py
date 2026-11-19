@@ -8,6 +8,7 @@ from src.data.stockbit_feed import (
     parse_orderbook_levels,
 )
 from src.engine.anomaly_detectors import (
+    build_instant_signal_analysis,
     detect_broker_flow_anomaly,
     detect_tradebook_dominance,
     detect_wall_pulled,
@@ -137,3 +138,27 @@ def test_detect_tradebook_haki_dominance_and_noise_filter() -> None:
     msg = format_tradebook_dominance_alert(res)
     assert "HAKI DOMINAN 1M" in msg
     assert "13:40 WIB" in msg
+
+
+def test_build_instant_signal_analysis_context() -> None:
+    ob = parse_orderbook_levels({
+        "data": {
+            "bid": [{"price": "3050", "volume": "1500000", "que_num": "120"}],
+            "offer": [{"price": "3060", "volume": "3000000", "que_num": "200"}],
+        }
+    })
+    md = {
+        "data": {
+            "bandar_detector": {"broker_accdist": "Dist"},
+            "broker_summary": {
+                "brokers_buy": [{"netbs_broker_code": "YP", "bval": "9.0e+08", "type": "Lokal"}],
+                "brokers_sell": [{"netbs_broker_code": "AK", "sval": "-1.2e+09", "type": "Asing"}],
+            },
+        }
+    }
+    haka_ctx = build_instant_signal_analysis("BBRI", "HAKA", curr_ob=ob, md_raw=md)
+    assert "Waspada Pantulan Sesaat" in haka_ctx
+    assert "Offer lebih tebal" in haka_ctx
+
+    haki_ctx = build_instant_signal_analysis("BBRI", "HAKI", curr_ob=ob, md_raw=md)
+    assert "Tekanan Searah" in haki_ctx
