@@ -1100,7 +1100,15 @@ def post_portfolio_xray(req: PortfolioXRayRequest) -> dict[str, Any]:
         is_bank = "BANK" in sub or "FINANC" in sub
         is_free = (not is_bank) and bool(r.get("debt_free_short_term"))
         cov = None if (is_bank or is_free) else float(r.get("cash_coverage_ratio") or 0.0)
-        is_flagged = bool(r.get("flag_acute_liquidity") or r.get("flag_accrual_divergence") or (not is_bank and not is_free and (cov or 0.0) < 1.0))
+        cash_drop = min(max(float(req.cash_shock_pct or 0.0), 0.0), 80.0) / 100.0
+        debt_hike = min(max(float(req.debt_shock_pct or 0.0), 0.0), 200.0) / 100.0
+        stressed_cov = None if (is_bank or is_free or cov is None) else round(cov * (1.0 - cash_drop) / (1.0 + debt_hike), 2)
+        sloan_pct = float(r.get("sloan_ratio_pct") if r.get("sloan_ratio_pct") is not None else (float(r.get("sloan_ratio_ttm") or 0.0) * 100.0))
+        is_flagged = bool(
+            r.get("flag_acute_liquidity")
+            or r.get("flag_accrual_divergence")
+            or (not is_bank and not is_free and ((cov or 0.0) < 1.0 or (stressed_cov is not None and stressed_cov < 1.0)))
+        )
 
         total_cap += amt
         total_at_risk += sim["stressed_capital_at_risk_idr"]
@@ -1117,7 +1125,10 @@ def post_portfolio_xray(req: PortfolioXRayRequest) -> dict[str, Any]:
             "debt_free": is_free,
             "amount_idr": round(amt, 0),
             "cash_coverage": cov,
+            "stressed_coverage": stressed_cov,
+            "sloan_ratio_pct": round(sloan_pct, 1),
             "cfo_ttm_idr": float(r.get("cfo_ttm_idr") or 0.0),
+            "net_income_ttm_idr": float(r.get("net_income_ttm_idr") or 0.0),
             "stressed_risk_pct": sim["stressed_risk_pct"],
             "capital_at_risk_idr": sim["stressed_capital_at_risk_idr"],
             "is_flagged": is_flagged,
@@ -1129,7 +1140,13 @@ def post_portfolio_xray(req: PortfolioXRayRequest) -> dict[str, Any]:
     for item in evaluated:
         item["weight_pct"] = round((item["amount_idr"] / total_cap) * 100.0, 1)
 
-    weakest = max(evaluated, key=lambda x: x["capital_at_risk_idr"])
+    weakest = max(
+        evaluated,
+        key=lambda x: (
+            x["capital_at_risk_idr"],
+            -(x["stressed_coverage"] if x["stressed_coverage"] is not None else 999.0),
+        ),
+    )
     # Find safer peer in weakest holding's sub-industry
     weak_row = row_map[weakest["ticker"]]
     same_sec = [
