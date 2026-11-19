@@ -1,0 +1,245 @@
+"""Generates the IDX Alert & Direction Sentiment Bot technical & product brief (HTML + A4 PDF)."""
+
+from __future__ import annotations
+
+import os
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+OUT_HTML = ROOT_DIR / "docs" / "IDX_Alert_Bot_Brief_ID.html"
+OUT_PDF = ROOT_DIR / "docs" / "IDX_Alert_Bot_Brief_ID.pdf"
+
+
+def launch_browser(p):
+    for channel in ("msedge", "chrome", None):
+        try:
+            kwargs = {"headless": True}
+            if channel:
+                kwargs["channel"] = channel
+            return p.chromium.launch(**kwargs)
+        except Exception:
+            continue
+    raise RuntimeError("No Chromium/Edge/Chrome browser found for Playwright PDF export.")
+
+
+def build_html() -> str:
+    return """<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detail Brief: IDX Alert &amp; Direction Sentiment Bot</title>
+  <style>
+    @page { size: A4 portrait; margin: 13mm 14mm 14mm 14mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      color: #0f172a; background: #ffffff; font-size: 9.7pt; line-height: 1.48;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .page-break { page-break-before: always; }
+    .avoid-break { break-inside: avoid; }
+    .hero {
+      background: linear-gradient(135deg, #0b1120 0%, #172554 62%, #0f172a 100%);
+      color: #f8fafc; border-radius: 10px; padding: 20px 24px; margin-bottom: 14px; border: 1px solid #1e3a8a;
+    }
+    .hero-tag {
+      display: inline-block; background: rgba(56,189,248,0.16); color: #38bdf8;
+      border: 1px solid rgba(56,189,248,0.45); font-size: 8pt; font-weight: 700;
+      padding: 2px 9px; border-radius: 999px; letter-spacing: 0.4px; text-transform: uppercase; margin-bottom: 8px;
+    }
+    .hero h1 { font-size: 18.5pt; font-weight: 800; color: #ffffff; margin-bottom: 6px; }
+    .hero p { font-size: 9.6pt; color: #cbd5e1; }
+    .hero-meta {
+      margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(148,163,184,0.25);
+      display: flex; justify-content: space-between; font-size: 8.3pt; color: #94a3b8;
+    }
+    h2 {
+      font-size: 11.8pt; font-weight: 800; color: #0f172a;
+      border-left: 4px solid #0284c7; padding-left: 9px; margin: 13px 0 7px 0;
+    }
+    p { margin-bottom: 6px; color: #334155; }
+    ul, ol { margin: 4px 0 8px 18px; color: #334155; }
+    li { margin-bottom: 3px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 8px 0 12px 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 12px 0; }
+    .card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; }
+    .card-title { font-size: 9pt; font-weight: 800; color: #0284c7; margin-bottom: 4px; text-transform: uppercase; }
+    .card-dark {
+      background: #0f172a; color: #e2e8f0; border: 1px solid #1e3a8a; border-radius: 8px;
+      padding: 12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 8.5pt; line-height: 1.5; margin: 6px 0 12px 0;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 6px 0 12px 0; font-size: 8.9pt; }
+    th { background: #0f172a; color: #f8fafc; text-align: left; padding: 7px 9px; font-size: 8.2pt; text-transform: uppercase; }
+    td { border-bottom: 1px solid #e2e8f0; padding: 6.5px 9px; vertical-align: top; color: #1e293b; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    code { background: #e2e8f0; color: #0f172a; padding: 1px 4px; border-radius: 3px; font-size: 8.5pt; }
+    .callout {
+      background: #eff6ff; border: 1px solid #bfdbfe; border-left: 4px solid #2563eb;
+      border-radius: 8px; padding: 10px 12px; margin: 8px 0 12px 0; font-size: 9.2pt; color: #1e3a8a;
+    }
+    .footer {
+      margin-top: 14px; padding-top: 8px; border-top: 1px solid #cbd5e1;
+      font-size: 8pt; color: #64748b; display: flex; justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-tag">Detail Arsitektur &amp; Panduan Operasional · Standalone Project</div>
+    <h1>IDX Alert &amp; Direction Sentiment Bot</h1>
+    <p>
+      Bot Telegram 24/7 berbasis Vercel Serverless Webhook + Cron yang menggabungkan Forecast Arah Harga 5 Hari
+      (Walk-Forward ML), Indikator Teknikal (.JK), Sentimen Berita RSS (30 Hari Terakhir), dan Cross-Check Kas XBRL.
+    </p>
+    <div class="hero-meta">
+      <span><strong>Lokasi Project:</strong> Desktop/idx-alert-bot</span>
+      <span><strong>Runtime:</strong> Python 3.11+ · aiogram 3.x · FastAPI · scikit-learn</span>
+      <span><strong>Status:</strong> Teruji (5/5 pytest passed)</span>
+    </div>
+  </div>
+
+  <h2>1. Cara Kerja Bot (Pipeline 4 Tahap per Saham)</h2>
+  <div class="grid-2 avoid-break">
+    <div class="card">
+      <div class="card-title">1 · Data Pasar &amp; Indikator (.JK)</div>
+      <p style="font-size: 8.8pt;">Mengambil data OHLCV 2 tahun dari Yahoo Finance dengan parser angka aman (anti-bug koma ribuan), lalu menghitung:</p>
+      <ul style="font-size: 8.6pt; margin-left: 14px; margin-bottom: 0;">
+        <li><code>MA20</code> &amp; <code>MA50</code> (Uptrend / Downtrend / Sideways)</li>
+        <li><code>RSI(14)</code>, momentum 1D/5D/20D, &amp; volatilitas 20 hari</li>
+        <li><strong>Volume Spike Guard:</strong> peringatan <em>rawan kejar</em> jika volume &ge; 3x rata-rata &amp; harga naik &ge; 3%</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">2 · Walk-Forward Forecast 5 Hari</div>
+      <p style="font-size: 8.8pt;">Model <code>LogisticRegression</code> dilatih secara <em>expanding-window</em> (tanpa bocoran data masa depan) dengan target:</p>
+      <ul style="font-size: 8.6pt; margin-left: 14px; margin-bottom: 0;">
+        <li>Target <code>Naik</code> = return 5 hari ke depan &gt; <strong>0.4%</strong> (biaya transaksi)</li>
+        <li>Menghasilkan <code>P(Naik)</code> &amp; <code>P(Turun)</code></li>
+        <li>Mengukur <strong>Akurasi OOS</strong>, <strong>Win-Rate Naik</strong>, &amp; <strong>Avg Net Return</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">3 · Berita RSS Terbaru (when:30d)</div>
+      <p style="font-size: 8.8pt;">Menarik berita Google News 30 hari terakhir (urut terbaru dulu) dan menilai sentimen secara deterministik:</p>
+      <ul style="font-size: 8.6pt; margin-left: 14px; margin-bottom: 0;">
+        <li><code>POSITIF</code> (+5 poin skor): dividen, laba naik, kontrak baru, buyback</li>
+        <li><code>PERHATIAN</code> (-8 poin skor): suspensi, UMA, FCA, PKPU, rugi</li>
+        <li><code>NETRAL</code> (0 poin)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">4 · Cross-Check Kas XBRL</div>
+      <p style="font-size: 8.8pt;">Menghubungi API <code>idx-cash-radar.vercel.app</code> untuk memeriksa kesehatan neraca kas emiten:</p>
+      <ul style="font-size: 8.6pt; margin-left: 14px; margin-bottom: 0;">
+        <li>Menampilkan <em>Cash Coverage</em>, <em>Sloan Ratio</em>, &amp; status radar</li>
+        <li>Jika flag <code>TEKANAN_LIKUIDITAS</code> atau <code>DIVERGENSI_AKRUAL</code> aktif, skor komposit otomatis diturunkan (-10 poin) dan diberi label <strong>WASPADA</strong>.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>2. Contoh Output Nyata di Telegram (Live Test ADRO)</h2>
+  <div class="card-dark avoid-break">
+    <div><strong>*ADRO*</strong> — 🟡 NETRAL (Skor: <code>52.1%</code>)</div>
+    <div>💰 <strong>Harga:</strong> Rp 2.350 (<code>-0.42%</code> 1D) | <strong>RSI:</strong> <code>45.6</code> | <strong>Vol:</strong> <code>0.3x</code></div>
+    <div>📈 <strong>Tren:</strong> DOWNTREND (Harga &lt; MA20 &lt; MA50)</div>
+    <div>🎯 <strong>Forecast 5H:</strong> NETRAL (P(Naik): <code>52.1%</code> | P(Turun): <code>47.9%</code>)</div>
+    <div>🧪 <strong>Backtest OOS (211 hari):</strong> Akurasi <code>50.7%</code> | Win-rate Naik <code>63.6%</code> | Avg Net <code>+0.62%</code></div>
+    <div>📰 <strong>Berita (NETRAL · Thu, 12 Nov 2026):</strong> DEWA dan ADRO Pimpin Penguatan Saham BEI pada 12 November</div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <h2>3. Daftar Perintah Bot Telegram</h2>
+  <table class="avoid-break">
+    <thead>
+      <tr>
+        <th style="width: 24%;">Perintah</th>
+        <th style="width: 76%;">Fungsi</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/cek &lt;KODE&gt;</code><br/>atau ketik <code>ADRO</code></td><td>Menjalankan analisis lengkap (Harga, RSI, Tren, Forecast 5H, Backtest OOS, Berita RSS, Kas XBRL) untuk 1 saham.</td></tr>
+      <tr><td><code>/morning</code></td><td>Memindai watchlist (atau 10 saham default) dan mengurutkan dari skor sentimen tertinggi ke terendah.</td></tr>
+      <tr><td><code>/watch &lt;KODE&gt;</code></td><td>Menambahkan saham ke watchlist pribadi untuk menerima alert otomatis pukul 08:45 &amp; 18:00 WIB.</td></tr>
+      <tr><td><code>/unwatch &lt;KODE&gt;</code></td><td>Menghapus saham dari watchlist.</td></tr>
+      <tr><td><code>/watchlist</code></td><td>Melihat daftar saham yang sedang dipantau.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>4. Arsitektur 24/7 di Vercel (Laptop Mati Tetap Jalan)</h2>
+  <p>
+    Bot mendukung dua mode eksekusi: <strong>Polling Lokal</strong> (<code>python -m src.bot.main</code>) dan <strong>Serverless Webhook + Cron</strong> (<code>api/index.py</code>) untuk Vercel.
+  </p>
+  <div class="grid-3 avoid-break">
+    <div class="card">
+      <div class="card-title">Webhook Real-Time</div>
+      <p style="font-size: 8.6pt; margin-bottom: 0;">Setiap chat masuk dikirim Telegram ke <code>POST /api/webhook</code> di Vercel dan langsung dibalas tanpa perlu laptop menyala.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Cron 08:45 &amp; 18:00 WIB</div>
+      <p style="font-size: 8.6pt; margin-bottom: 0;"><code>vercel.json</code> &amp; GitHub Actions (<code>cron_alerts.yml</code>) menembak <code>/api/cron/morning</code> &amp; <code>/api/cron/evening</code> setiap hari bursa (Senin–Jumat).</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Watchlist Serverless</div>
+      <p style="font-size: 8.6pt; margin-bottom: 0;">Di Vercel, isi env <code>DEFAULT_CHAT_ID</code> &amp; <code>DEFAULT_WATCHLIST</code> agar cron tetap mengirim alert meski filesystem serverless tidak persisten.</p>
+    </div>
+  </div>
+
+  <h2>5. Panduan Deploy Cepat ke Vercel (3 Langkah)</h2>
+  <ol>
+    <li><strong>Upload ke GitHub:</strong> Push folder <code>Desktop/idx-alert-bot</code> ke repositori GitHub baru, lalu import project tersebut di dashboard Vercel.</li>
+    <li><strong>Isi Environment Variables di Vercel:</strong>
+      <ul>
+        <li><code>TELEGRAM_BOT_TOKEN</code>: token bot dari <code>@BotFather</code></li>
+        <li><code>DEFAULT_CHAT_ID</code>: ID Telegram Anda (cek via <code>@userinfobot</code>)</li>
+        <li><code>DEFAULT_WATCHLIST</code>: daftar kode saham dipisah koma, misal <code>ADRO,BBRI,BBCA,TLKM,ANTM</code></li>
+        <li><code>CRON_SECRET</code>: kata sandi acak (opsional, untuk mengamankan endpoint cron)</li>
+      </ul>
+    </li>
+    <li><strong>Aktifkan Webhook (1 kali):</strong> Setelah deploy berhasil, buka URL berikut di browser:<br/>
+      <code>https://&lt;nama-project-vercel&gt;.vercel.app/api/set-webhook</code><br/>
+      Jika muncul <code>{"ok": true}</code>, bot sudah aktif 24/7.
+    </li>
+  </ol>
+
+  <div class="callout avoid-break">
+    <strong>Disclaimer:</strong> Bot ini adalah alat bantu riset kuantitatif &amp; filter sentimen berbasis data historis.
+    Hasil probabilitas arah dan backtest <em>out-of-sample</em> bukan jaminan pergerakan harga di masa depan dan bukan rekomendasi beli/jual.
+  </div>
+
+  <div class="footer">
+    <span>IDX Alert &amp; Direction Sentiment Bot · Technical Brief</span>
+    <span>Desktop/idx-alert-bot</span>
+  </div>
+</body>
+</html>
+"""
+
+
+def main() -> None:
+    OUT_HTML.parent.mkdir(parents=True, exist_ok=True)
+    OUT_HTML.write_text(build_html(), encoding="utf-8")
+
+    with sync_playwright() as p:
+        browser = launch_browser(p)
+        try:
+            page = browser.new_page()
+            page.goto(OUT_HTML.as_uri(), wait_until="networkidle")
+            page.pdf(
+                path=str(OUT_PDF),
+                format="A4",
+                print_background=True,
+                margin={"top": "12mm", "right": "12mm", "bottom": "12mm", "left": "12mm"},
+            )
+        finally:
+            browser.close()
+
+    print(f"Generated HTML: {OUT_HTML}")
+    print(f"Generated PDF:  {OUT_PDF}")
+
+
+if __name__ == "__main__":
+    main()
