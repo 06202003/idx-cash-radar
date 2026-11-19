@@ -20,6 +20,13 @@ BLACKLISTED_WORDS = [
     "rekayasa laba",
     "rekomendasi beli",
     "rekomendasi jual",
+    "rawan kejar",
+    "momentum sehat",
+    "kas prima",
+    "layak",
+    "skor kelayakan",
+    "hindari",
+    "peluang",
 ]
 
 TARGET_DIRS = [

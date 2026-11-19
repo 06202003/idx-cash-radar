@@ -1,0 +1,13 @@
+services:
+  idx-telegram-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: idx-cash-radar-telegram-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Jakarta
+      - PYTHONUNBUFFERED=1
+    # DATABASE_URL wajib mengarah ke PostgreSQL / Supabase (bukan SQLite).

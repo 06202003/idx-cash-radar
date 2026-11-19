@@ -1,0 +1,21 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN useradd -m -u 10001 appuser
+
+COPY pyproject.toml requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -e . "sqlalchemy>=2.0" "psycopg[binary]>=3.1"
+
+COPY src ./src
+COPY config ./config
+COPY data ./data
+
+RUN chown -R appuser:appuser /app
+USER appuser
+
+ENV PYTHONUNBUFFERED=1
+ENV TZ=Asia/Jakarta
+
+CMD ["python", "-m", "src.bot.worker"]

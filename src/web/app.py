@@ -1219,6 +1219,7 @@ def get_share_card_json(ticker: str) -> dict[str, Any]:
 
 ALLOWED_ANALYTICS_EVENTS = {
     "ticker_dicek",
+    "ticker_tidak_ditemukan",
     "link_berita_ditempel",
     "kartu_dibuat",
     "kartu_dibagikan",
