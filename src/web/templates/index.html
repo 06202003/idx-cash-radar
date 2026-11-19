@@ -731,26 +731,26 @@
         </div>
       </div>
 
-      <!-- Mode Switcher: Retail (Simple) vs Expert (Pro Analyst) -->
+      <!-- Mode Switcher: Simple (Retail) vs Expert (Analyst) -->
       <div style="display: flex; align-items: center; gap: 4px; background: #0b0f19; padding: 3px 6px; border-radius: 22px; border: 1px solid #1e3a8a;">
         <button id="btnModeAwam" onclick="setAppMode('awam')" class="mode-btn active">
-          <span>Simple Mode (Retail)</span>
+          <span>Mode Simpel (Ritel)</span>
         </button>
         <button id="btnModeExpert" onclick="setAppMode('expert'); if (typeof trackRadarEvent === 'function') trackRadarEvent('mode_expert_dibuka', {});" class="mode-btn">
-          <span>Expert Mode (Pro Analyst)</span>
+          <span>Mode Expert (Analis)</span>
         </button>
       </div>
 
-      <!-- Main Navigation Tabs (Compact 4-Tab Layout) -->
+      <!-- Main Navigation Tabs -->
       <nav class="nav-tabs">
         <button onclick="switchTab('screener')" id="tabBtnScreener" class="nav-tab-btn active">
-          Stock Screener
+          Screener Saham
         </button>
         <button onclick="switchTab('calk')" id="tabBtnCalk" class="nav-tab-btn">
-          Stock Detail (Live)
+          Detail Saham (Live)
         </button>
         <button onclick="switchTab('news')" id="tabBtnNews" class="nav-tab-btn">
-          News &amp; Catalyst Radar
+          Radar Berita &amp; Katalis
         </button>
         <button onclick="switchTab('chat')" id="tabBtnChat" class="nav-tab-btn">
           AI Analyst
@@ -761,8 +761,8 @@
         <a href="/metodologi" class="nav-tab-btn" style="text-decoration: none; border-color: #1e3a8a; color: #38bdf8;">
           Metodologi &amp; Audit
         </a>
-        <button onclick="startActiveTabTour()" id="btnReplayTour" class="nav-tab-btn" title="Start Interactive Guide for Current Tab" style="border-color: #334155; color: #94a3b8;">
-          Guide
+        <button onclick="startActiveTabTour()" id="btnReplayTour" class="nav-tab-btn" title="Mulai Panduan Interaktif untuk Tab Ini" style="border-color: #334155; color: #94a3b8;">
+          Panduan
         </button>
       </nav>
     </header>
@@ -787,51 +787,51 @@
     <!-- Top Market Snapshot Ribbon -->
     <section class="stats-ribbon">
       <div class="card-panel stat-card">
-        <span id="lblRibbonUniverse" class="stat-label">STOCK UNIVERSE</span>
-        <span id="valRibbonUniverse" class="stat-value font-num">49 Issuers</span>
-        <span id="lblRibbonUniverseSub" style="font-size: 10.5px; color: #38bdf8;">5 Core IDX Sectors</span>
+        <span id="lblRibbonUniverse" class="stat-label">EMITEN TERPANTAU</span>
+        <span id="valRibbonUniverse" class="stat-value font-num">49 Emiten</span>
+        <span id="lblRibbonUniverseSub" style="font-size: 10.5px; color: #38bdf8;">5 Sektor Makro BEI</span>
       </div>
       <div class="card-panel stat-card">
-        <span id="lblRibbonFortress" class="stat-label" style="color: #34d399;">CASH FORTRESS (DEBT-FREE)</span>
+        <span id="lblRibbonFortress" class="stat-label" style="color: #34d399;">CASH FORTRESS (BEBAS UTANG JP)</span>
         <span class="stat-value font-num" style="color: #34d399; font-size: 15px;">TOTL, ACST, ICBP, UNVR</span>
-        <span id="lblRibbonFortressSub" style="font-size: 10.5px; color: #94a3b8;">Zero Short-Term Maturing Debt</span>
+        <span id="lblRibbonFortressSub" style="font-size: 10.5px; color: #94a3b8;">Utang Berbunga Jangka Pendek Rp 0</span>
       </div>
       <div class="card-panel stat-card">
-        <span id="lblRibbonDistress" class="stat-label" style="color: #fb7185;">CAUTION (THIN CASH)</span>
+        <span id="lblRibbonDistress" class="stat-label" style="color: #fb7185;">WASPADA (KAS TIPIS)</span>
         <span class="stat-value font-num" style="color: #fb7185; font-size: 15px;">WSKT, TOPS</span>
-        <span id="lblRibbonDistressSub" style="font-size: 10.5px; color: #94a3b8;">Cash Covers &lt; 20% of Short-Term Debt</span>
+        <span id="lblRibbonDistressSub" style="font-size: 10.5px; color: #94a3b8;">Cash Coverage &lt; 0.20x Utang JP</span>
       </div>
       <div class="card-panel stat-card">
-        <span id="lblRibbonIntegrity" class="stat-label">TRUSTED DATA SOURCE</span>
-        <span class="stat-value font-num" style="color: #38bdf8;">100% Official IDX</span>
-        <span id="lblRibbonIntegritySub" style="font-size: 10.5px; color: #94a3b8;">Audited Financial Statements</span>
+        <span id="lblRibbonIntegrity" class="stat-label">SUMBER DATA RESMI</span>
+        <span class="stat-value font-num" style="color: #38bdf8;">100% Resmi BEI</span>
+        <span id="lblRibbonIntegritySub" style="font-size: 10.5px; color: #94a3b8;">Laporan Audit XBRL &amp; Hash SHA-256</span>
       </div>
     </section>
 
-    <!-- TAB 1: SCREENER FUNDAMENTAL ARUS KAS (IDXRADAR + FORENSIC CASH & ACCRUAL) -->
+    <!-- TAB 1: SCREENER FUNDAMENTAL ARUS KAS -->
     <main id="viewScreener" style="display: flex; flex-direction: column; gap: 10px;">
       <!-- 4-Quadrant Cartesian Radar + Sector Heatmap & Signal Feed -->
       <section style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 10px; align-items: stretch;" class="radar-pulse-grid">
         <!-- Left: 4-Quadrant Cartesian Scatter Plot -->
         <div id="quadrantCardPanel" class="card-panel" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
-            <strong style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">4-QUADRANT CARTESIAN MAP: CASH COVERAGE VS ACCRUALS</strong>
+            <strong style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">PETA 4-KUADRAN: CASH COVERAGE VS SLOAN ACCRUAL</strong>
             <div class="quad-guide-bar">
               <span class="quad-pill" tabindex="0">
                 <span class="status-dot dot-green"></span>Q4: Cash Fortress <span style="color:#38bdf8;">(i)</span>
-                <span class="quad-tip"><strong style="color:#34d399;">Q4: Cash Fortress (Bottom-Right)</strong><br>Cash &ge; 1.0x short-term debt &amp; Accrual &le; 0%. Reported profits are backed by real operating cash inflows and debt is well covered.</span>
+                <span class="quad-tip"><strong style="color:#34d399;">Q4: Cash Fortress (Kanan-Bawah)</strong><br>Kas &ge; 1.0x utang jangka pendek &amp; Sloan Accrual &le; 0%. Laba didukung arus kas operasi nyata dan utang terlindungi penuh.</span>
               </span>
               <span class="quad-pill" tabindex="0">
                 <span class="status-dot dot-amber"></span>Q1: High Accrual <span style="color:#38bdf8;">(i)</span>
-                <span class="quad-tip"><strong style="color:#fbbf24;">Q1: High Accrual (Top-Right)</strong><br>Cash buffer is adequate (&ge; 1.0x), but Accrual &gt; 0%. Accounting profit exceeds cash inflows: part of earnings is tied up in receivables.</span>
+                <span class="quad-tip"><strong style="color:#fbbf24;">Q1: High Accrual (Kanan-Atas)</strong><br>Buffer kas cukup (&ge; 1.0x), namun Accrual &gt; 0%. Laba akuntansi lebih besar dari kas masuk karena sebagian masih tertahan di piutang.</span>
               </span>
               <span class="quad-pill" tabindex="0">
                 <span class="status-dot" style="background:#f97316;"></span>Q3: Cash Stress <span style="color:#38bdf8;">(i)</span>
-                <span class="quad-tip"><strong style="color:#fb923c;">Q3: Cash Stress (Bottom-Left)</strong><br>Cash &lt; 1.0x short-term debt, even with low accruals. The company holds a thin cash buffer against upcoming short-term obligations.</span>
+                <span class="quad-tip"><strong style="color:#fb923c;">Q3: Cash Stress (Kiri-Bawah)</strong><br>Kas &lt; 1.0x utang jangka pendek meski akrual rendah. Perusahaan memiliki buffer kas tipis terhadap utang jatuh tempo.</span>
               </span>
               <span class="quad-pill" tabindex="0">
                 <span class="status-dot dot-red"></span>Q2: Double Stress <span style="color:#38bdf8;">(i)</span>
-                <span class="quad-tip"><strong style="color:#fb7185;">Q2: Double Stress (Top-Left)</strong><br>Highest-risk zone: Cash &lt; 1.0x short-term debt AND Accrual &gt; 0%. Thin cash reserves combined with paper profits.</span>
+                <span class="quad-tip"><strong style="color:#fb7185;">Q2: Double Stress (Kiri-Atas)</strong><br>Zona risiko tertinggi: Kas &lt; 1.0x utang jangka pendek sekaligus Accrual &gt; 0%. Kas tipis disertai laba akrual.</span>
               </span>
             </div>
           </div>
@@ -839,8 +839,8 @@
             <canvas id="screenerQuadrantChart"></canvas>
           </div>
           <div style="display: flex; justify-content: space-between; font-size: 10px; color: #64748b;">
-            <span>Hover Q1–Q4 pills above for quadrant meanings | X: Cash Coverage (1.0x) | Y: Sloan Accrual (0%)</span>
-            <span>Click any dot to audit balance sheet</span>
+            <span>Arahkan kursor ke Q1–Q4 di atas untuk arti kuadran | X: Cash Coverage (1.0x) | Y: Sloan Accrual (0%)</span>
+            <span>Klik titik saham untuk audit neraca</span>
           </div>
         </div>
 
@@ -848,8 +848,8 @@
         <div style="display: flex; flex-direction: column; gap: 10px; justify-content: space-between;">
           <div class="card-panel" style="padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong id="lblHeatmapTitle" style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">5 IDX SECTOR HEATMAP (CLICK TO FILTER)</strong>
-              <button onclick="selectSectorFromHeatmap('')" class="btn-detail" style="font-size: 10px;">Reset Sector</button>
+              <strong id="lblHeatmapTitle" style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">HEATMAP 5 SEKTOR BEI (KLIK UNTUK FILTER)</strong>
+              <button onclick="selectSectorFromHeatmap('')" class="btn-detail" style="font-size: 10px;">Reset Sektor</button>
             </div>
             <div id="sectorHeatmapGrid" class="sector-heatmap-grid">
               <!-- Populated dynamically by renderSectorHeatmap() -->
@@ -858,7 +858,7 @@
 
           <div class="card-panel" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; flex: 1;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong id="lblSignalsTitle" style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">CASH RADAR SIGNALS &amp; NEWS CONTRAST</strong>
+              <strong id="lblSignalsTitle" style="color: #ffffff; font-size: 12px; letter-spacing: 0.2px;">SINYAL RADAR KAS &amp; KONTRAS BERITA</strong>
               <span class="badge-bei">Audited XBRL</span>
             </div>
             <div id="signalFeedPanel" style="display: flex; flex-direction: column; justify-content: space-between; gap: 6px; font-size: 11px; flex: 1;">
@@ -874,38 +874,38 @@
           <span id="lblFilterTitle" style="font-size: 11px; font-weight: 700; color: #94a3b8;">FILTER:</span>
           
           <select id="selSector" onchange="applyFilters()" class="form-select">
-            <option value="">All Sectors (48)</option>
-            <option value="CONSTRUCTION">Construction &amp; Engineering (15)</option>
-            <option value="FMCG">Consumer &amp; Retail (12)</option>
-            <option value="BANKING">Banking (8)</option>
-            <option value="ENERGY">Energy &amp; Mining (8)</option>
-            <option value="TELECOM">Telecommunications (5)</option>
+            <option value="">Semua Sektor (49)</option>
+            <option value="CONSTRUCTION">Konstruksi &amp; Rekayasa (15)</option>
+            <option value="FMCG">Konsumer &amp; Ritel (12)</option>
+            <option value="BANKING">Perbankan (8)</option>
+            <option value="ENERGY">Energi &amp; Pertambangan (9)</option>
+            <option value="TELECOM">Telekomunikasi (5)</option>
           </select>
 
           <select id="selStatus" onchange="applyFilters()" class="form-select">
-            <option id="optStatusAll" value="">All Cash Conditions</option>
-            <option id="optStatusFree" value="BEBAS_UTANG">Debt-Free (Very Safe)</option>
-            <option id="optStatusSolvent" value="SOLVEN_SEHAT">Strong Cash (&ge; 1.0x)</option>
-            <option id="optStatusModerate" value="TERKENDALI">Moderate / Watch (0.5x - 1.0x)</option>
-            <option id="optStatusDivergence" value="DIVERGENSI_AKRUAL">Paper Earnings (Cash Uncollected)</option>
-            <option id="optStatusDistress" value="TEKANAN_LIKUIDITAS">Thin Cash (&lt; 0.20x)</option>
+            <option id="optStatusAll" value="">Semua Kondisi Kas</option>
+            <option id="optStatusFree" value="BEBAS_UTANG">Bebas Utang JP (Prima)</option>
+            <option id="optStatusSolvent" value="SOLVEN_SEHAT">Kas Kuat (&ge; 1.0x)</option>
+            <option id="optStatusModerate" value="TERKENDALI">Moderat / Pantau (0.20x - 1.0x)</option>
+            <option id="optStatusDivergence" value="DIVERGENSI_AKRUAL">Laba Kertas (Sloan &gt; 10%)</option>
+            <option id="optStatusDistress" value="TEKANAN_LIKUIDITAS">Kas Tipis (&lt; 0.20x)</option>
           </select>
 
           <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; color: #cbd5e1; font-size: 11.5px; margin-left: 4px;">
             <input type="checkbox" id="chkPositiveCfo" onchange="applyFilters()">
-            <span id="lblPositiveCfoText">Positive Operating Cash Flow Only</span>
+            <span id="lblPositiveCfoText">Hanya CFO Positif</span>
           </label>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
           <input type="text" id="txtSearch" oninput="applyFilters()"
-                 placeholder="Search ticker (WIKA, BBRI, ICBP)..."
-                 class="form-input" style="width: 210px;">
+                 placeholder="Cari kode saham (WIKA, BBRI, ICBP)..."
+                 class="form-input" style="width: 220px;">
           <span id="lblCount" class="font-num" style="color: #38bdf8; font-size: 11px; white-space: nowrap;">
-            48 / 48
+            49 / 49
           </span>
           <button onclick="openAddIssuerModal()" id="btnOpenAddIssuer" class="btn-detail" style="background: #0284c7; color: #ffffff; border-color: #38bdf8; font-weight: 700;">
-            + Add New Stock
+            + Tambah Emiten
           </button>
           <button onclick="exportScreenerCSV()" class="btn-detail" style="background: #064e3b; color: #34d399; border-color: #059669; font-weight: 700;">
             Export CSV
@@ -918,22 +918,22 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th id="thColTicker" onclick="sortTable('ticker')">Stock Ticker &#x25B4;&#x25BE;</th>
-              <th id="thColSector" onclick="sortTable('sub_industry')">Industry &#x25B4;&#x25BE;</th>
-              <th id="thColPrice" style="text-align: right;">Live Price (1D)</th>
-              <th id="thColCash" onclick="sortTable('cash_idr')" style="text-align: right;">Cash in Bank &#x25B4;&#x25BE;</th>
-              <th id="thColDebt" onclick="sortTable('st_debt_idr')" style="text-align: right;">Short-Term Debt &#x25B4;&#x25BE;</th>
-              <th id="thColCoverage" onclick="sortTable('cash_coverage_ratio')" style="text-align: center;">Cash Buffer &#x25B4;&#x25BE;</th>
-              <th id="thColCfo" onclick="sortTable('cfo_ttm_idr')" style="text-align: right;">Operating Cash Inflow &#x25B4;&#x25BE;</th>
-              <th id="thColNetIncome" onclick="sortTable('net_income_ttm_idr')" style="text-align: right;">Net Profit &#x25B4;&#x25BE;</th>
-              <th id="thColSloan" onclick="sortTable('sloan_ratio_pct')" style="text-align: center;">Earnings Quality &#x25B4;&#x25BE;</th>
-              <th id="thColSentiment" style="text-align: center;">News Sentiment</th>
-              <th id="thColStatus" style="text-align: center;">Safety Level</th>
-              <th id="thColAction" style="text-align: center;">Inspect</th>
+              <th id="thColTicker" onclick="sortTable('ticker')">Kode Saham &#x25B4;&#x25BE;</th>
+              <th id="thColSector" onclick="sortTable('sub_industry')">Sub-Industri &#x25B4;&#x25BE;</th>
+              <th id="thColPrice" style="text-align: right;">Harga (1D)</th>
+              <th id="thColCash" onclick="sortTable('cash_idr')" style="text-align: right;">Kas &amp; Setara Kas &#x25B4;&#x25BE;</th>
+              <th id="thColDebt" onclick="sortTable('st_debt_idr')" style="text-align: right;">Utang JP Berbunga &#x25B4;&#x25BE;</th>
+              <th id="thColCoverage" onclick="sortTable('cash_coverage_ratio')" style="text-align: center;">Cash Coverage &#x25B4;&#x25BE;</th>
+              <th id="thColCfo" onclick="sortTable('cfo_ttm_idr')" style="text-align: right;">CFO TTM &#x25B4;&#x25BE;</th>
+              <th id="thColNetIncome" onclick="sortTable('net_income_ttm_idr')" style="text-align: right;">Net Income TTM &#x25B4;&#x25BE;</th>
+              <th id="thColSloan" onclick="sortTable('sloan_ratio_pct')" style="text-align: center;">Sloan Ratio &#x25B4;&#x25BE;</th>
+              <th id="thColSentiment" style="text-align: center;">Sentimen Berita</th>
+              <th id="thColStatus" style="text-align: center;">Status Kas</th>
+              <th id="thColAction" style="text-align: center;">Aksi</th>
             </tr>
           </thead>
           <tbody id="tbodyScreener">
-            <tr><td colspan="12" style="text-align: center; padding: 24px; color: #64748b;">Loading data...</td></tr>
+            <tr><td colspan="12" style="text-align: center; padding: 24px; color: #64748b;">Memuat data emiten...</td></tr>
           </tbody>
         </table>
       </div>
@@ -1082,11 +1082,11 @@
       <!-- Selector Bar -->
       <div class="card-panel" style="padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
         <div>
-          <strong style="color: #ffffff; font-size: 14px;">Live Price, Daily News &amp; Annual Financials Workspace</strong>
-          <div style="color: #94a3b8; font-size: 11.5px;">Real-time IDX stock chart (.JK), daily news sentiment cron feed, and audited annual XBRL financials (FY 2022&ndash;2025).</div>
+          <strong style="color: #ffffff; font-size: 14px;">Workspace Harga Live, Berita Harian &amp; Laporan Keuangan Tahunan</strong>
+          <div style="color: #94a3b8; font-size: 11.5px;">Grafik harga saham BEI (.JK), feed sentimen berita harian, dan laporan XBRL teraudit (FY 2022&ndash;2025).</div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-          <label style="color: #94a3b8; font-size: 11px; font-weight: 700;">SELECT ISSUER:</label>
+          <label style="color: #94a3b8; font-size: 11px; font-weight: 700;">PILIH EMITEN:</label>
           <select id="selCalkTicker" onchange="if (typeof trackRadarEvent === 'function') trackRadarEvent('ticker_dicek', { ticker: this.value }); onTabCalkTickerChange(this.value)" class="form-select" style="min-width: 240px; font-weight: 700; color: #38bdf8;">
             <option value="WIKA">WIKA | Wijaya Karya (Persero) Tbk.</option>
           </select>
@@ -1106,7 +1106,7 @@
                 <span id="stockChartLivePrice" class="font-num" style="font-size: 16px; font-weight: 800; color: #38bdf8;">-</span>
                 <span id="stockChartPeriodChg" class="badge badge-yellow font-num">-</span>
               </div>
-              <div id="stockChartRangeMeta" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Loading market chart...</div>
+              <div id="stockChartRangeMeta" style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Memuat grafik pasar...</div>
             </div>
             <div class="nav-tabs" style="gap: 4px;">
               <button onclick="setStockChartRange('1d')" id="btnRng1d" class="nav-tab-btn" style="padding: 4px 8px; font-size: 11px;">1D</button>
@@ -1123,7 +1123,7 @@
         </div>
 
         <div id="stockTriangulationCard" class="card-panel" style="padding: 16px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; background: #0b1329; border-color: #1e3a8a;">
-          <div style="color: #94a3b8; font-size: 12px;">Loading live price, news sentiment, and annual financials synthesis...</div>
+          <div style="color: #94a3b8; font-size: 12px;">Memuat harga live, sentimen berita, dan ringkasan laporan tahunan...</div>
         </div>
       </div>
 
@@ -1145,7 +1145,7 @@
           <!-- Controls -->
           <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
             <div>
-              <label style="font-size: 10.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">YOUR CAPITAL / MODAL (IDR)</label>
+              <label style="font-size: 10.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">MODAL ANDA (IDR)</label>
               <input type="number" id="txtNeuralCapital" value="10000000" min="100000" step="1000000" oninput="runNeuralCapitalSim()" class="form-input font-num" style="width: 100%; font-size: 13px; font-weight: 700;">
               <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
                 <button type="button" onclick="setNeuralCapital(5000000)" class="btn-detail" style="font-size: 10px;">Rp 5 Jt</button>
@@ -1155,26 +1155,26 @@
               </div>
             </div>
             <div>
-              <label style="font-size: 10.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">CHOOSE SCENARIO (1-CLICK)</label>
+              <label style="font-size: 10.5px; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 4px;">PILIH SKENARIO (1-KLIK)</label>
               <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                 <button type="button" onclick="applyNeuralScenario(0, 0)" class="btn-detail" style="font-size: 10.5px; border-color: #059669; color: #34d399;">Normal (Audited)</button>
-                <button type="button" onclick="applyNeuralScenario(15, 20)" class="btn-detail" style="font-size: 10.5px; border-color: #d97706; color: #fbbf24;">Payment Delay</button>
-                <button type="button" onclick="applyNeuralScenario(30, 50)" class="btn-detail" style="font-size: 10.5px; border-color: #e11d48; color: #fb7185;">Macro Crisis</button>
+                <button type="button" onclick="applyNeuralScenario(15, 20)" class="btn-detail" style="font-size: 10.5px; border-color: #d97706; color: #fbbf24;">Penundaan Bayar</button>
+                <button type="button" onclick="applyNeuralScenario(30, 50)" class="btn-detail" style="font-size: 10.5px; border-color: #e11d48; color: #fb7185;">Krisis Makro</button>
               </div>
             </div>
             <details style="font-size: 11px; color: #94a3b8;">
-              <summary style="cursor: pointer; color: #38bdf8; font-weight: 600;">Fine-tune stress assumptions (optional)</summary>
+              <summary style="cursor: pointer; color: #38bdf8; font-weight: 600;">Atur asumsi stres manual (opsional)</summary>
               <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;">
                 <div>
                   <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;">
-                    <span>Cash / Revenue Drop:</span>
+                    <span>Penurunan Kas / Pendapatan:</span>
                     <strong id="lblCashShockVal" class="font-num" style="color: #fbbf24;">-15%</strong>
                   </div>
                   <input type="range" id="rngCashShock" min="0" max="50" step="5" value="15" oninput="runNeuralCapitalSim()" style="width: 100%; accent-color: #38bdf8;">
                 </div>
                 <div>
                   <div style="display: flex; justify-content: space-between; font-size: 11px; color: #cbd5e1;">
-                    <span>Short-Term Debt Hike:</span>
+                    <span>Kenaikan Utang Jangka Pendek:</span>
                     <strong id="lblDebtShockVal" class="font-num" style="color: #fb7185;">+20%</strong>
                   </div>
                   <input type="range" id="rngDebtShock" min="0" max="100" step="10" value="20" oninput="runNeuralCapitalSim()" style="width: 100%; accent-color: #fb7185;">
@@ -1185,7 +1185,7 @@
 
           <!-- Output Metrics in Rupiah -->
           <div id="neuralStressOutput" style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-            <div style="color: #64748b; font-size: 12px;">Select an issuer to run the What-If Stress Simulator...</div>
+            <div style="color: #64748b; font-size: 12px;">Pilih emiten untuk menjalankan Simulator Stres What-If...</div>
           </div>
         </div>
       </div>
@@ -1201,13 +1201,13 @@
         <div class="card-panel" style="padding: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 10px;">
             <div>
-              <strong style="color: #ffffff; font-size: 13px;">Financial Statement Notes (Note 8: Receivables &amp; Contracts)</strong>
-              <div style="color: #94a3b8; font-size: 11px;">Related Parties vs. Third-Party Breakdown &amp; Impairment (CKPN)</div>
+              <strong style="color: #ffffff; font-size: 13px;">Catatan Laporan Keuangan (CALK Note 8: Piutang &amp; Kontrak)</strong>
+              <div style="color: #94a3b8; font-size: 11px;">Rincian Pihak Berelasi vs Pihak Ketiga &amp; Cadangan Kerugian (CKPN)</div>
             </div>
-            <span class="badge badge-green">100% IDX Grounded</span>
+            <span class="badge badge-green">100% Grounded BEI</span>
           </div>
           <div id="calkContainer">
-            <div style="color: #64748b; font-size: 12px;">Loading CALK footnote breakdown...</div>
+            <div style="color: #64748b; font-size: 12px;">Memuat rincian catatan kaki CALK...</div>
           </div>
         </div>
 
@@ -1215,13 +1215,13 @@
         <div class="card-panel" style="padding: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 10px;">
             <div>
-              <strong style="color: #ffffff; font-size: 13px;">Multi-Year Operating Cash Flow Projection (FY 2026 - 2027)</strong>
-              <div style="color: #94a3b8; font-size: 11px;">Deterministic Time-Series Forecast Based on Audited Filings</div>
+              <strong style="color: #ffffff; font-size: 13px;">Proyeksi Arus Kas Operasi Multi-Tahun (FY 2026 - 2027)</strong>
+              <div style="color: #94a3b8; font-size: 11px;">Proyeksi Time-Series Deterministik Berbasis Laporan Teraudit</div>
             </div>
             <span class="badge badge-green">Trend Forecast</span>
           </div>
           <div id="forecastContainer">
-            <div style="color: #64748b; font-size: 12px;">Calculating cash projection...</div>
+            <div style="color: #64748b; font-size: 12px;">Menghitung proyeksi kas...</div>
           </div>
         </div>
       </div>
@@ -1232,39 +1232,39 @@
       <div class="card-panel" style="padding: 18px; display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
           <div>
-            <strong id="lblNewsTabTitle" style="color: #ffffff; font-size: 15px;">Real-Time News Analysis &amp; Accrual Radar Cross-Check (Paste News Link)</strong>
+            <strong id="lblNewsTabTitle" style="color: #ffffff; font-size: 15px;">Analisis Berita Real-Time &amp; Cross-Check Accrual Radar (Tempel Link Berita)</strong>
             <div id="lblNewsTabSub" style="color: #94a3b8; font-size: 12px; margin-top: 2px;">
-              Paste an Indonesian stock news URL | the system reads the article, scores sentiment, detects the issuer, and cross-checks it against audited IDX cash health.
+              Tempel URL berita saham Indonesia | sistem membaca artikel, menilai sentimen, mendeteksi emiten, dan membandingkannya dengan kesehatan kas BEI teraudit.
             </div>
           </div>
           <button onclick="fillDemoNewsUrl()" class="btn-detail" style="background: #0c4a6e; color: #38bdf8; border-color: #0284c7; font-weight: 700;">
-            Sample: WSKT IDR 5.6T Contract News
+            Contoh: Berita Kontrak WSKT Rp 5,6 T
           </button>
         </div>
 
         <form onsubmit="analyzeNewsLink(event)" style="display: flex; flex-direction: column; gap: 10px;">
           <div style="display: grid; grid-template-columns: 2.2fr 1fr auto; gap: 8px;" class="radar-pulse-grid">
             <input type="url" id="txtNewsUrl" class="form-input" style="font-size: 12.5px; padding: 8px 12px;"
-                   placeholder="Paste news article URL (e.g. https://infobanknews.com/waskita-karya-kantongi-kontrak-baru-rp56-triliun-ini-rincian-proyeknya)">
+                   placeholder="Tempel URL berita (misal https://infobanknews.com/waskita-karya-kantongi-kontrak-baru-rp56-triliun-ini-rincian-proyeknya)">
             <select id="selNewsTicker" class="form-select" style="font-size: 12px;">
-              <option value="">Auto-Detect Stock from News</option>
+              <option value="">Deteksi Otomatis Emiten dari Berita</option>
             </select>
             <button type="submit" id="btnAnalyzeNews" class="btn-detail" style="background: #0284c7; color: #ffffff; padding: 8px 18px; font-weight: 700; font-size: 12.5px;">
-              Analyze News + Accrual Radar
+              Analisis Berita + Radar Kas
             </button>
           </div>
 
           <details style="font-size: 11.5px; color: #94a3b8;">
-            <summary style="cursor: pointer; color: #38bdf8; font-weight: 600;">+ Fallback Option: Paste Raw Article Text (if the news site blocks automated fetching or has a paywall)</summary>
+            <summary style="cursor: pointer; color: #38bdf8; font-weight: 600;">+ Opsi Fallback: Tempel Teks Artikel Manual (jika situs berita memblokir scraping atau ber-paywall)</summary>
             <textarea id="txtNewsRawText" rows="4" class="form-input" style="width: 100%; margin-top: 8px; resize: vertical;"
-                      placeholder="Optional: Paste headline &amp; article body text here..."></textarea>
+                      placeholder="Opsional: Tempel judul &amp; isi artikel berita di sini..."></textarea>
           </details>
         </form>
       </div>
 
       <div id="newsAnalyzeResult" style="display: flex; flex-direction: column; gap: 12px;">
         <div class="card-panel" style="padding: 24px; text-align: center; color: #94a3b8; font-size: 12.5px;">
-          Paste a news link above or click <strong style="color: #38bdf8;">Sample: WSKT IDR 5.6T Contract News</strong> to see AI Sentiment + Accrual Radar working together in real time.
+          Tempel link berita di atas atau klik <strong style="color: #38bdf8;">Contoh: Berita Kontrak WSKT Rp 5,6 T</strong> untuk melihat cross-check Sentimen Berita vs Accrual Radar.
         </div>
       </div>
 
@@ -1272,24 +1272,24 @@
       <div class="card-panel" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1f2937; padding-bottom: 10px;">
           <div>
-            <strong style="color: #ffffff; font-size: 14px;">Daily IDX News Sentiment Feed (Auto-Fetched RSS Cron)</strong>
-            <div id="dailyNewsMeta" style="color: #94a3b8; font-size: 11.5px; margin-top: 2px;">Loading daily RSS news snapshot...</div>
+            <strong style="color: #ffffff; font-size: 14px;">Feed Sentimen Berita Harian BEI (Auto-Fetch RSS)</strong>
+            <div id="dailyNewsMeta" style="color: #94a3b8; font-size: 11.5px; margin-top: 2px;">Memuat ringkasan berita RSS harian...</div>
           </div>
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <select id="selDailyNewsSent" onchange="renderDailyNewsFeed()" class="form-select" style="font-size: 11.5px;">
-              <option value="">All Sentiments</option>
-              <option value="POSITIF">Positive Only</option>
-              <option value="PERHATIAN">Caution Only</option>
-              <option value="NETRAL">Neutral Only</option>
+              <option value="">Semua Sentimen</option>
+              <option value="POSITIF">Positif Saja</option>
+              <option value="PERHATIAN">Perhatian Saja</option>
+              <option value="NETRAL">Netral Saja</option>
             </select>
-            <input type="text" id="txtDailyNewsSearch" oninput="renderDailyNewsFeed()" placeholder="Filter ticker or keyword..." class="form-input" style="width: 175px; font-size: 11.5px;">
+            <input type="text" id="txtDailyNewsSearch" oninput="renderDailyNewsFeed()" placeholder="Filter kode saham atau kata kunci..." class="form-input" style="width: 195px; font-size: 11.5px;">
             <button onclick="refreshDailyNewsNow()" id="btnRefreshDailyNews" class="btn-detail" style="background: #059669; color: #ffffff; border-color: #10b981; font-weight: 700;">
-              Pull Latest News Now
+              Tarik Berita Terbaru
             </button>
           </div>
         </div>
         <div id="dailyNewsFeedGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; max-height: 520px; overflow-y: auto; padding-right: 4px;">
-          <div style="color: #64748b; font-size: 12px;">Loading auto-fetched daily headlines...</div>
+          <div style="color: #64748b; font-size: 12px;">Memuat headline berita harian...</div>
         </div>
       </div>
     </section>
@@ -1302,38 +1302,38 @@
           <div style="display: flex; flex-direction: column; gap: 14px;">
             <button onclick="resetChatThread()" class="gemini-new-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>New Chat</span>
+              <span>Chat Baru</span>
             </button>
 
             <div>
-              <div class="gemini-side-label">Chat History</div>
+              <div class="gemini-side-label">Riwayat Chat</div>
               <div id="chatHistoryList" style="display: flex; flex-direction: column; gap: 2px;">
                 <!-- Populated by renderChatHistorySidebar() -->
               </div>
             </div>
 
             <div>
-              <div class="gemini-side-label">Quick Issuer Audits</div>
+              <div class="gemini-side-label">Audit Cepat Emiten</div>
               <div style="display: flex; flex-direction: column; gap: 2px;">
-                <div onclick="askPrompt('Evaluate WIKA cash profile and solvency')" class="gemini-hist-item">
+                <div onclick="askPrompt('Evaluasi profil kas dan solvabilitas WIKA')" class="gemini-hist-item">
                   <span class="status-dot dot-amber"></span>
-                  <span class="gemini-hist-title">WIKA | Solvency &amp; Cash</span>
+                  <span class="gemini-hist-title">WIKA | Solvabilitas &amp; Kas</span>
                 </div>
-                <div onclick="askPrompt('Analyze WSKT liquidity exposure')" class="gemini-hist-item">
+                <div onclick="askPrompt('Analisis risiko likuiditas WSKT')" class="gemini-hist-item">
                   <span class="status-dot dot-red"></span>
-                  <span class="gemini-hist-title">WSKT | Liquidity Stress</span>
+                  <span class="gemini-hist-title">WSKT | Tekanan Likuiditas</span>
                 </div>
-                <div onclick="askPrompt('What is BBRI cash profile?')" class="gemini-hist-item">
+                <div onclick="askPrompt('Bagaimana profil kas BBRI?')" class="gemini-hist-item">
                   <span class="status-dot dot-green"></span>
-                  <span class="gemini-hist-title">BBRI | State-Owned Bank</span>
+                  <span class="gemini-hist-title">BBRI | Bank BUMN</span>
                 </div>
-                <div onclick="askPrompt('What is ICBP cash profile?')" class="gemini-hist-item">
+                <div onclick="askPrompt('Bagaimana profil kas ICBP?')" class="gemini-hist-item">
                   <span class="status-dot dot-green"></span>
-                  <span class="gemini-hist-title">ICBP | Consumer &amp; Cash</span>
+                  <span class="gemini-hist-title">ICBP | Konsumer &amp; Kas</span>
                 </div>
-                <div onclick="askPrompt('What is TOTL cash profile?')" class="gemini-hist-item">
+                <div onclick="askPrompt('Bagaimana profil kas TOTL?')" class="gemini-hist-item">
                   <span class="status-dot dot-green"></span>
-                  <span class="gemini-hist-title">TOTL | Debt-Free ST</span>
+                  <span class="gemini-hist-title">TOTL | Bebas Utang JP</span>
                 </div>
               </div>
             </div>
@@ -1341,7 +1341,7 @@
 
           <div style="border-top: 1px solid #1e293b; padding-top: 10px; font-size: 11px; color: #64748b; display: flex; flex-direction: column; gap: 3px;">
             <div style="color: #cbd5e1; font-weight: 600;">IDX Cash &amp; Accrual AI</div>
-            <div>Gemini 3.8 Flash + SQLite XBRL</div>
+            <div>Gemini + SQLite XBRL</div>
           </div>
         </aside>
 
@@ -1349,13 +1349,13 @@
         <div class="gemini-main">
           <div class="gemini-topbar">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <button id="btnToggleChatSidebar" onclick="toggleChatSidebar()" class="btn-detail" style="padding: 4px 8px; display: inline-flex; align-items: center;" title="Show / Hide Sidebar">
+              <button id="btnToggleChatSidebar" onclick="toggleChatSidebar()" class="btn-detail" style="padding: 4px 8px; display: inline-flex; align-items: center;" title="Tampilkan / Sembunyikan Sidebar">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
               </button>
-              <strong id="chatActiveTitle" style="color: #f8fafc; font-size: 13px;">New Chat</strong>
+              <strong id="chatActiveTitle" style="color: #f8fafc; font-size: 13px;">Chat Baru</strong>
               <span class="badge-bei">XBRL Grounded</span>
             </div>
-            <button onclick="resetChatThread()" class="btn-detail" style="font-size: 11px;">+ New Chat</button>
+            <button onclick="resetChatThread()" class="btn-detail" style="font-size: 11px;">+ Chat Baru</button>
           </div>
 
           <div id="tabChatMessages" class="gemini-scroll">
@@ -1364,27 +1364,27 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg>
               </div>
               <div style="font-size: 20px; font-weight: 700; color: #f8fafc; letter-spacing: -0.3px;">
-                What would you like to audit today?
+                Mau audit saham apa hari ini?
               </div>
               <div style="font-size: 12.5px; color: #94a3b8; max-width: 520px; line-height: 1.5;">
-                Ask about cash position, short-term debt, Sloan accrual ratio, or financial statement diagnostics for any IDX issuer, including stocks you newly added.
+                Tanyakan posisi kas, utang jangka pendek, Sloan Accrual Ratio, atau diagnostik laporan keuangan untuk emiten BEI mana saja.
               </div>
               <div class="gemini-prompt-grid">
-                <button onclick="askPrompt('Evaluate WIKA cash profile and solvency')" class="gemini-prompt-card">
-                  <strong style="color: #38bdf8; display: block; margin-bottom: 3px;">WIKA Solvency Evaluation</strong>
-                  Check cash coverage against maturing debt and TTM operating cash flow.
+                <button onclick="askPrompt('Evaluasi profil kas dan solvabilitas WIKA')" class="gemini-prompt-card">
+                  <strong style="color: #38bdf8; display: block; margin-bottom: 3px;">Evaluasi Solvabilitas WIKA</strong>
+                  Cek rasio Cash Coverage terhadap utang jatuh tempo dan arus kas operasi TTM.
                 </button>
-                <button onclick="askPrompt('Which issuers have the strongest liquidity reserves?')" class="gemini-prompt-card">
-                  <strong style="color: #34d399; display: block; margin-bottom: 3px;">Strongest Liquidity Issuers</strong>
-                  List IDX companies with zero short-term debt and thick cash buffers.
+                <button onclick="askPrompt('Emiten mana yang punya cadangan kas paling kuat?')" class="gemini-prompt-card">
+                  <strong style="color: #34d399; display: block; margin-bottom: 3px;">Emiten Likuiditas Terkuat</strong>
+                  Daftar perusahaan BEI tanpa utang jangka pendek berbunga dan kas tebal.
                 </button>
-                <button onclick="askPrompt('Analyze WSKT liquidity exposure')" class="gemini-prompt-card">
-                  <strong style="color: #fbbf24; display: block; margin-bottom: 3px;">WSKT Cash Risk Audit</strong>
-                  Break down liquidity pressure, interest-bearing debt, and operating cash quality.
+                <button onclick="askPrompt('Analisis risiko likuiditas WSKT')" class="gemini-prompt-card">
+                  <strong style="color: #fbbf24; display: block; margin-bottom: 3px;">Audit Risiko Kas WSKT</strong>
+                  Bedah tekanan likuiditas, utang berbunga, dan kualitas arus kas operasional.
                 </button>
-                <button onclick="askPrompt('Explain Sloan Accrual and PSAK 72 methodology')" class="gemini-prompt-card">
-                  <strong style="color: #c084fc; display: block; margin-bottom: 3px;">Accrual &amp; PSAK 72 Methodology</strong>
-                  How to distinguish paper accounting profit from real cash entering the bank.
+                <button onclick="askPrompt('Jelaskan metodologi Sloan Accrual dan PSAK 72')" class="gemini-prompt-card">
+                  <strong style="color: #c084fc; display: block; margin-bottom: 3px;">Metodologi Sloan Accrual &amp; PSAK 72</strong>
+                  Cara membedakan laba akuntansi di atas kertas vs kas riil yang masuk ke bank.
                 </button>
               </div>
             </div>
@@ -1392,13 +1392,13 @@
 
           <div class="gemini-composer-wrap">
             <form onsubmit="handleChatSubmit(event, 'tabChatInput', 'tabChatMessages')" class="gemini-pill-form">
-              <input type="text" id="tabChatInput" placeholder="Ask a question about any IDX stock (e.g., Check BBRI or WIKA cash)..." class="gemini-pill-input" autocomplete="off">
-              <button type="submit" class="gemini-send-btn" title="Send Question" aria-label="Send Question">
+              <input type="text" id="tabChatInput" placeholder="Tanyakan tentang saham BEI mana saja (misal: Cek kas BBRI atau WIKA)..." class="gemini-pill-input" autocomplete="off">
+              <button type="submit" class="gemini-send-btn" title="Kirim Pertanyaan" aria-label="Kirim Pertanyaan">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </form>
             <div style="text-align: center; font-size: 10.5px; color: #64748b; margin-top: 7px;">
-              Powered by Google Gemini &amp; official IDX XBRL database. Not a buy/sell recommendation.
+              Didukung Google Gemini &amp; database XBRL resmi BEI. Bukan rekomendasi beli/jual.
             </div>
           </div>
         </div>
@@ -1410,30 +1410,30 @@
       <div class="card-panel" style="padding: 16px 18px; border-left: 4px solid #38bdf8;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #1f2937; padding-bottom: 10px; margin-bottom: 12px;">
           <div>
-            <strong style="color: #ffffff; font-size: 14.5px;">Portfolio Cash-Safety X-Ray (Multi-Stock Stress Test)</strong>
-            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 2px;">Brokerage apps show price P&amp;L, not balance-sheet fragility. Add 2-5 IDX stocks with your Rupiah allocation to see how much capital sits in cash-stressed issuers.</div>
+            <strong style="color: #ffffff; font-size: 14.5px;">Portfolio Cash-Safety X-Ray (Stress Test Multi-Saham)</strong>
+            <div style="color: #94a3b8; font-size: 11.5px; margin-top: 2px;">Aplikasi sekuritas hanya menampilkan P&amp;L harga, bukan kerentanan neraca kas. Masukkan 2–5 saham BEI beserta alokasi Rupiah Anda untuk melihat seberapa besar modal yang berada di emiten dengan tekanan kas.</div>
           </div>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button type="button" onclick="setPortfolioScenario(0, 0)" class="btn-detail" style="border-color: #059669; color: #34d399;">Normal (Audited)</button>
-            <button type="button" onclick="setPortfolioScenario(15, 20)" class="btn-detail" style="border-color: #d97706; color: #fbbf24;">Payment Delay</button>
-            <button type="button" onclick="setPortfolioScenario(30, 50)" class="btn-detail" style="border-color: #e11d48; color: #fb7185;">Macro Crisis</button>
+            <button type="button" onclick="setPortfolioScenario(15, 20)" class="btn-detail" style="border-color: #d97706; color: #fbbf24;">Penundaan Bayar</button>
+            <button type="button" onclick="setPortfolioScenario(30, 50)" class="btn-detail" style="border-color: #e11d48; color: #fb7185;">Krisis Makro</button>
           </div>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 16px;" class="radar-pulse-grid">
           <div style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">YOUR PORTFOLIO HOLDINGS (IDR)</span>
-              <button type="button" onclick="addPortfolioRow()" class="btn-detail" style="font-size: 10.5px; color: #38bdf8; border-color: #0284c7;">+ Add Stock</button>
+              <span style="font-size: 11px; font-weight: 700; color: #94a3b8;">DAFTAR PORTOFOLIO ANDA (IDR)</span>
+              <button type="button" onclick="addPortfolioRow()" class="btn-detail" style="font-size: 10.5px; color: #38bdf8; border-color: #0284c7;">+ Tambah Saham</button>
             </div>
             <div id="portfolioRowsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
             <button type="button" onclick="runPortfolioXRay()" class="btn-detail" style="width: 100%; background: #0284c7; color: #ffffff; border-color: #0284c7; padding: 8px; font-weight: 700;">
-              Run Portfolio X-Ray
+              Jalankan Portfolio X-Ray
             </button>
           </div>
 
           <div id="portfolioXRayOutput" style="background: #0b0f19; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="color: #64748b; font-size: 12px;">Loading Portfolio X-Ray...</div>
+            <div style="color: #64748b; font-size: 12px;">Memuat Portfolio X-Ray...</div>
           </div>
         </div>
       </div>
@@ -1758,101 +1758,101 @@
       if (sub) {
         const issuerCount = (APP_CACHE && APP_CACHE.screener && APP_CACHE.screener.length) || 49;
         sub.textContent = isAwam
-          ? `Monitor Cash Health & Earnings Quality Across ${issuerCount} IDX Listed Companies`
-          : `Fundamental Screener, Operating Cash Flow (CFO), & Solvency Analysis for ${issuerCount} IDX Issuers`;
+          ? `Pantau Kesehatan Kas & Kualitas Laba pada ${issuerCount} Emiten BEI`
+          : `Screener Fundamental, Arus Kas Operasi (CFO) & Audit Solvabilitas untuk ${issuerCount} Emiten BEI`;
       }
 
       const tabScreener = document.getElementById('tabBtnScreener');
-      if (tabScreener) tabScreener.textContent = isAwam ? 'Stock Screener' : 'Fundamental Screener';
+      if (tabScreener) tabScreener.textContent = isAwam ? 'Screener Saham' : 'Screener Fundamental';
 
       const tabCalk = document.getElementById('tabBtnCalk');
-      if (tabCalk) tabCalk.textContent = isAwam ? 'Stock Detail (Live)' : 'Stock Detail & Financials';
+      if (tabCalk) tabCalk.textContent = isAwam ? 'Detail Saham (Live)' : 'Detail Saham & Keuangan';
 
       const tabNews = document.getElementById('tabBtnNews');
-      if (tabNews) tabNews.textContent = isAwam ? 'News & URL Analyzer' : 'Daily News & URL Radar';
+      if (tabNews) tabNews.textContent = isAwam ? 'Radar Berita & URL' : 'Radar Berita & Keterbukaan';
 
       const tabChat = document.getElementById('tabBtnChat');
       if (tabChat) tabChat.textContent = isAwam ? 'AI Analyst' : 'AI Financial Analyst';
 
       // 2. Ribbon Cards
       const r1 = document.getElementById('lblRibbonUniverse');
-      if (r1) r1.textContent = isAwam ? 'STOCK UNIVERSE' : 'MONITORED UNIVERSE';
+      if (r1) r1.textContent = isAwam ? 'EMITEN TERPANTAU' : 'CAKUPAN EMITEN';
       const r1s = document.getElementById('lblRibbonUniverseSub');
-      if (r1s) r1s.textContent = isAwam ? '5 Core IDX Sectors' : '5 IDX Macro Sectors';
+      if (r1s) r1s.textContent = isAwam ? '5 Sektor Utama BEI' : '5 Sektor Makro BEI';
 
       const r2 = document.getElementById('lblRibbonFortress');
-      if (r2) r2.textContent = isAwam ? 'CASH FORTRESS (DEBT-FREE)' : 'CASH FORTRESS (DEBT-FREE)';
+      if (r2) r2.textContent = 'CASH FORTRESS (BEBAS UTANG JP)';
       const r2s = document.getElementById('lblRibbonFortressSub');
-      if (r2s) r2s.textContent = isAwam ? 'Zero Short-Term Maturing Debt' : 'Short-Term Debt IDR 0';
+      if (r2s) r2s.textContent = 'Utang Berbunga Jangka Pendek Rp 0';
 
       const r3 = document.getElementById('lblRibbonDistress');
-      if (r3) r3.textContent = isAwam ? 'CAUTION (THIN CASH)' : 'LIQUIDITY PRESSURE';
+      if (r3) r3.textContent = isAwam ? 'WASPADA (KAS TIPIS)' : 'TEKANAN LIKUIDITAS';
       const r3s = document.getElementById('lblRibbonDistressSub');
-      if (r3s) r3s.textContent = isAwam ? 'Cash Covers < 20% of Short-Term Debt' : 'Cash Coverage < 0.20x';
+      if (r3s) r3s.textContent = isAwam ? 'Kas Menutup < 20% Utang JP' : 'Cash Coverage < 0.20x';
 
       const r4 = document.getElementById('lblRibbonIntegrity');
-      if (r4) r4.textContent = isAwam ? 'TRUSTED DATA SOURCE' : 'DATA SOURCE INTEGRITY';
+      if (r4) r4.textContent = isAwam ? 'SUMBER DATA RESMI' : 'INTEGRITAS SUMBER DATA';
       const r4s = document.getElementById('lblRibbonIntegritySub');
-      if (r4s) r4s.textContent = isAwam ? 'Audited Financial Statements' : 'SHA-256 Audit Trail Hash';
+      if (r4s) r4s.textContent = isAwam ? 'Laporan Keuangan Teraudit' : 'Audit Trail XBRL & Hash SHA-256';
 
       // 3. Filter Toolbar
       const flTitle = document.getElementById('lblFilterTitle');
       if (flTitle) flTitle.textContent = isAwam ? 'FILTER:' : 'FILTER STATUS:';
 
       const optAll = document.getElementById('optStatusAll');
-      if (optAll) optAll.textContent = isAwam ? 'All Cash Conditions' : 'All Solvency Statuses';
+      if (optAll) optAll.textContent = isAwam ? 'Semua Kondisi Kas' : 'Semua Status Solvabilitas';
 
       const optFree = document.getElementById('optStatusFree');
-      if (optFree) optFree.textContent = isAwam ? 'Debt-Free (Very Safe) ' : 'Short-Term Debt-Free ';
+      if (optFree) optFree.textContent = isAwam ? 'Bebas Utang JP (Prima)' : 'Bebas Utang Jangka Pendek';
 
       const optSolvent = document.getElementById('optStatusSolvent');
-      if (optSolvent) optSolvent.textContent = isAwam ? 'Strong Cash (≥ 1.0x) ' : 'Solvent & Healthy Cash (≥ 1.0x) ';
+      if (optSolvent) optSolvent.textContent = isAwam ? 'Kas Kuat (≥ 1.0x)' : 'Solven & Kas Sehat (≥ 1.0x)';
 
       const optModerate = document.getElementById('optStatusModerate');
-      if (optModerate) optModerate.textContent = isAwam ? 'Moderate / Watch (0.5x - 1.0x) ' : 'Controlled / Moderate (0.5x - 1.0x) ';
+      if (optModerate) optModerate.textContent = isAwam ? 'Moderat / Pantau (0.20x - 1.0x)' : 'Terkendali / Moderat (0.20x - 1.0x)';
 
       const optDivergence = document.getElementById('optStatusDivergence');
-      if (optDivergence) optDivergence.textContent = isAwam ? 'Paper Earnings (Cash Uncollected) ' : 'High Accrual Divergence (Sloan > 10%) ';
+      if (optDivergence) optDivergence.textContent = isAwam ? 'Laba Kertas (Kas Belum Masuk)' : 'Divergensi Akrual (Sloan > 10%)';
 
       const optDistress = document.getElementById('optStatusDistress');
-      if (optDistress) optDistress.textContent = isAwam ? 'Red Alert: Thin Cash (< 0.20x) ' : 'Critical Liquidity Stress (< 0.20x) ';
+      if (optDistress) optDistress.textContent = isAwam ? 'Peringatan: Kas Tipis (< 0.20x)' : 'Tekanan Likuiditas Akut (< 0.20x)';
 
       const posCfoLbl = document.getElementById('lblPositiveCfoText');
-      if (posCfoLbl) posCfoLbl.textContent = isAwam ? 'Positive Operating Cash Flow Only' : 'Positive CFO Issuers Only';
+      if (posCfoLbl) posCfoLbl.textContent = isAwam ? 'Hanya Kas Operasi Positif' : 'Hanya Emiten CFO Positif';
 
       // 4. Table Headers
       const thTicker = document.getElementById('thColTicker');
-      if (thTicker) thTicker.innerHTML = isAwam ? 'Stock Ticker &#x25B4;&#x25BE;' : 'Ticker &amp; Issuer &#x25B4;&#x25BE;';
+      if (thTicker) thTicker.innerHTML = isAwam ? 'Kode Saham &#x25B4;&#x25BE;' : 'Ticker &amp; Emiten &#x25B4;&#x25BE;';
 
       const thSector = document.getElementById('thColSector');
-      if (thSector) thSector.innerHTML = isAwam ? 'Industry &#x25B4;&#x25BE;' : 'IDX Sub-Industry &#x25B4;&#x25BE;';
+      if (thSector) thSector.innerHTML = isAwam ? 'Industri &#x25B4;&#x25BE;' : 'Sub-Industri BEI &#x25B4;&#x25BE;';
 
       const thCash = document.getElementById('thColCash');
-      if (thCash) thCash.innerHTML = isAwam ? 'Cash in Bank &#x25B4;&#x25BE;' : 'Cash &amp; Equivalents &#x25B4;&#x25BE;';
+      if (thCash) thCash.innerHTML = isAwam ? 'Kas di Bank &#x25B4;&#x25BE;' : 'Kas &amp; Setara Kas &#x25B4;&#x25BE;';
 
       const thDebt = document.getElementById('thColDebt');
-      if (thDebt) thDebt.innerHTML = isAwam ? 'Short-Term Debt &#x25B4;&#x25BE;' : 'ST Interest-Bearing Debt &#x25B4;&#x25BE;';
+      if (thDebt) thDebt.innerHTML = isAwam ? 'Utang Jangka Pendek &#x25B4;&#x25BE;' : 'Utang JP Berbunga &#x25B4;&#x25BE;';
 
       const thCov = document.getElementById('thColCoverage');
-      if (thCov) thCov.innerHTML = isAwam ? 'Kas vs Utang JP &#x25B4;&#x25BE;' : 'Cash Coverage Ratio &#x25B4;&#x25BE;';
+      if (thCov) thCov.innerHTML = isAwam ? 'Kas vs Utang JP &#x25B4;&#x25BE;' : 'Cash Coverage &#x25B4;&#x25BE;';
 
       const thCfo = document.getElementById('thColCfo');
-      if (thCfo) thCfo.innerHTML = isAwam ? 'Kas Masuk Operasional &#x25B4;&#x25BE;' : 'CFO TTM (Cash Flow) &#x25B4;&#x25BE;';
+      if (thCfo) thCfo.innerHTML = isAwam ? 'Kas Masuk Operasi &#x25B4;&#x25BE;' : 'CFO TTM (Arus Kas) &#x25B4;&#x25BE;';
 
       const thNet = document.getElementById('thColNetIncome');
       if (thNet) thNet.innerHTML = isAwam ? 'Laba Bersih (Akrual) &#x25B4;&#x25BE;' : 'Net Income TTM &#x25B4;&#x25BE;';
 
       const thSloan = document.getElementById('thColSloan');
-      if (thSloan) thSloan.innerHTML = isAwam ? 'Laba Kertas vs Kas &#x25B4;&#x25BE;' : 'Sloan Accrual Ratio &#x25B4;&#x25BE;';
+      if (thSloan) thSloan.innerHTML = isAwam ? 'Kualitas Laba &#x25B4;&#x25BE;' : 'Sloan Ratio &#x25B4;&#x25BE;';
 
       const thSent = document.getElementById('thColSentiment');
-      if (thSent) thSent.innerHTML = isAwam ? 'News Sentiment' : 'IDX Sentiment';
+      if (thSent) thSent.innerHTML = isAwam ? 'Sentimen Berita' : 'Sentimen BEI';
 
       const thStatus = document.getElementById('thColStatus');
-      if (thStatus) thStatus.innerHTML = isAwam ? 'Safety Level' : 'Radar Status';
+      if (thStatus) thStatus.innerHTML = isAwam ? 'Status Kas' : 'Status Radar';
 
       const thAction = document.getElementById('thColAction');
-      if (thAction) thAction.innerHTML = isAwam ? 'Inspect' : 'Audit Action';
+      if (thAction) thAction.innerHTML = isAwam ? 'Cek' : 'Audit';
     }
 
     // Fast Tab Switching (0 ms latency)
@@ -2787,7 +2787,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 15px;"></span>
-                <strong style="color: #38bdf8; font-size: 13.5px;">DETERMINISTIC SOLVENCY &amp; ACCRUAL EVALUATION (${ticker} &bull; ${reportPeriod})</strong>
+                <strong style="color: #38bdf8; font-size: 13.5px;">EVALUASI SOLVABILITAS &amp; AKRUAL DETERMINISTIK (${ticker} &bull; ${reportPeriod})</strong>
               </div>
               <span class="badge" style="background: #1e293b; color: ${statusColor}; font-size: 11px; padding: 3px 8px; border: 1px solid ${statusColor}; font-family: ui-monospace, monospace;">
                 ${detStatus}
@@ -2797,36 +2797,36 @@
             <!-- Quantitative Scores -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
-                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Deterministic Safeguard Status (${reportPeriod}):</span>
+                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Status Safeguard Deterministik (${reportPeriod}):</span>
                 <strong class="font-num" style="font-size: 15px; color: ${statusColor};">
                   ${detStatus}
                 </strong>
-                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Python Decimal XBRL Audit Rule</div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Aturan Audit Python Decimal XBRL</div>
               </div>
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
-                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Accrual Spread (CFO &minus; Net Income):</span>
+                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Selisih Akrual (CFO &minus; Net Income):</span>
                 <strong class="font-num" style="font-size: 17px; color: ${cfoVal - netVal >= 0 ? '#34d399' : '#fb7185'};">
                   ${fmtRupiah(cfoVal - netVal)}
                 </strong>
                 <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Sloan Ratio: ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(2)}%</div>
               </div>
               <div style="background: #111827; padding: 10px 14px; border-radius: 6px; border: 1px solid #1f2937;">
-                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Cash-to-ST Debt Coverage Buffer:</span>
+                <span style="font-size: 10.5px; color: #94a3b8; display: block;">Buffer Kas vs Utang JP:</span>
                 <strong class="font-num" style="font-size: 17px; color: ${isFree || covVal >= 1.0 ? '#34d399' : (covVal < 0.2 ? '#fb7185' : '#fbbf24')};">
-                  ${isFree ? 'Debt-Free Short-Term' : `${covVal.toFixed(2)}x Coverage`}
+                  ${isFree ? 'Bebas Utang Jangka Pendek' : `${covVal.toFixed(2)}x Cash Coverage`}
                 </strong>
-                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Distress Threshold &lt; 0.20x</div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">Ambang Ketat &lt; 0.20x</div>
               </div>
             </div>
 
             <!-- Institutional Analysis -->
             <div style="background: #111827; padding: 12px; border-radius: 6px; border: 1px solid #1f2937; font-size: 12px; line-height: 1.5; color: #cbd5e1;">
-              <strong style="color: #38bdf8; display: block; margin-bottom: 4px;">Analytical Opinion &amp; Risk Watchpoints:</strong>
-              ${covVal < 0.20
-                ? `The issuer faces a structural liquidity headroom deficit with cash covering &lt; 20% of short-term interest-bearing debt. Focus on syndicated bank facility roll-over negotiations and cash realization from PSAK 72 contract receivables.`
+              <strong style="color: #38bdf8; display: block; margin-bottom: 4px;">Catatan Analitis &amp; Fokus Pemantauan:</strong>
+              ${covVal < 0.20 && !isFree
+                ? `Emiten memiliki ruang likuiditas ketat karena kas menutup &lt; 20% utang berbunga jangka pendek. Fokus pantauan pada perpanjangan fasilitas kredit bank dan realisasi kas dari piutang kontrak PSAK 72.`
                 : (sloanVal > 10.0
-                  ? `Top-quartile accrual divergence detected where net income growth is not matched by real operating cash conversion (<em>CFO deficit</em>). Verify gross receivable collectibility and impairment (CKPN) adequacy.`
-                  : `Cash flow structure remains in a prime solvency corridor with sufficient reserves covering all current-year interest-bearing obligations. Earnings quality is verified by real operating cash inflow.`
+                  ? `Terdeteksi divergensi akrual kuartil atas di mana laba bersih belum diikuti konversi kas operasi (<em>defisit CFO</em>). Periksa kolektibilitas piutang bruto dan kecukupan cadangan penurunan nilai (CKPN).`
+                  : `Struktur arus kas berada di koridor solvabilitas yang sehat dengan cadangan kas memadai untuk menutup kewajiban berbunga jangka pendek. Kualitas laba didukung oleh arus kas operasi nyata.`
               )}
             </div>
           </div>
@@ -4435,64 +4435,64 @@
         const cfoProfitGap = cfoVal - niVal;
 
         const liquidityAnalysis = tri.isFree
-          ? `Net Cash Surplus: +${fmtRupiah(cashVal)} (IDR 0 short-term debt).`
+          ? `Surplus Kas Bersih: +${fmtRupiah(cashVal)} (Utang JP Rp 0).`
           : covNum >= 1.0
-            ? `Net Cash Surplus: ${surplusStr} (${fmtRupiah(cashVal)} cash vs ${fmtRupiah(debtVal)} ST debt, ${tri.covVal.toFixed(2)}x).`
-            : `Cash Shortfall: ${surplusStr} (${fmtRupiah(cashVal)} cash vs ${fmtRupiah(debtVal)} ST debt; needs +${fmtRupiah(Math.abs(cashSurplus))} to reach 1.0x).`;
+            ? `Surplus Kas Bersih: ${surplusStr} (Kas ${fmtRupiah(cashVal)} vs Utang JP ${fmtRupiah(debtVal)}, ${tri.covVal.toFixed(2)}x).`
+            : `Defisit Buffer Kas: ${surplusStr} (Kas ${fmtRupiah(cashVal)} vs Utang JP ${fmtRupiah(debtVal)}; butuh +${fmtRupiah(Math.abs(cashSurplus))} untuk 1.0x).`;
 
-        const conversionAnalysis = `CFO vs Profit Gap: ${cfoProfitGap >= 0 ? '+' : ''}${fmtRupiah(cfoProfitGap)} (${fmtRupiah(cfoVal)} CFO vs ${fmtRupiah(niVal)} Net Income; Sloan ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%).`
-          + (runwayMonths ? ` Est. Cash Runway at current burn: ${runwayMonths} months.` : '');
+        const conversionAnalysis = `Selisih CFO vs Laba: ${cfoProfitGap >= 0 ? '+' : ''}${fmtRupiah(cfoProfitGap)} (CFO ${fmtRupiah(cfoVal)} vs Net Income ${fmtRupiah(niVal)}; Sloan ${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%).`
+          + (runwayMonths ? ` Estimasi Cash Runway saat ini: ${runwayMonths} bulan.` : '');
 
-        const sentLabel = tri.sent === 'POSITIF' ? 'POSITIVE' : (tri.sent === 'PERHATIAN' ? 'CAUTION' : 'NEUTRAL');
+        const sentLabel = tri.sent === 'POSITIF' ? 'POSITIF' : (tri.sent === 'PERHATIAN' ? 'PERHATIAN' : 'NETRAL');
         const sentColor = tri.sent === 'POSITIF' ? '#34d399' : (tri.sent === 'PERHATIAN' ? '#fb7185' : '#fbbf24');
         const newsContrastAnalysis = (tri.sent === 'POSITIF' && (row.flag_acute_liquidity || covNum < 0.50))
-          ? `News tone is POSITIVE, but balance-sheet safeguards remain flagged (${tri.covVal.toFixed(2)}x coverage, ${fmtRupiah(cfoVal)} CFO).`
-          : `News tone: ${sentLabel}. Quadrant: ${quadLabel.name}.`;
+          ? `Sentimen berita POSITIF, namun flag neraca kas tetap aktif (Cash Coverage ${tri.covVal.toFixed(2)}x, CFO ${fmtRupiah(cfoVal)}).`
+          : `Sentimen berita: ${sentLabel}. Kuadran: ${quadLabel.name}.`;
 
         triCard.innerHTML = `
           <div style="display: flex; flex-direction: column; gap: 10px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 8px;">
-              <strong style="color: #38bdf8; font-size: 13px;">REAL-TIME STOCK + DAILY NEWS + ANNUALS</strong>
+              <strong style="color: #38bdf8; font-size: 13px;">SAHAM LIVE + BERITA HARIAN + LAPORAN TAHUNAN</strong>
               ${tri.signalBadge}
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" class="font-num">
               <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
-                <div style="font-size: 10px; color: #94a3b8;">LIVE QUOTE (1D)</div>
-                <div style="font-size: 12.5px; font-weight: 700; color: #f8fafc;">${tri.q ? 'IDR ' + Number(tri.q.price_idr).toLocaleString('en-US') : 'Unavailable'} <span style="font-size: 11px; color: ${tri.chgPct > 0 ? '#34d399' : (tri.chgPct < 0 ? '#fb7185' : '#94a3b8')};">(${chgText})</span></div>
+                <div style="font-size: 10px; color: #94a3b8;">HARGA LIVE (1D)</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: #f8fafc;">${tri.q ? 'IDR ' + Number(tri.q.price_idr).toLocaleString('en-US') : 'Belum Tersedia'} <span style="font-size: 11px; color: ${tri.chgPct > 0 ? '#34d399' : (tri.chgPct < 0 ? '#fb7185' : '#94a3b8')};">(${chgText})</span></div>
               </div>
               <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
                 <div style="font-size: 10px; color: #94a3b8;">CASH COVERAGE (FY25)</div>
-                <div style="font-size: 12.5px; font-weight: 700; color: ${isBankSector(row.idx_sub_industry) ? '#fbbf24' : (covNum >= 1.0 ? '#34d399' : '#fb7185')};">${isBankSector(row.idx_sub_industry) ? 'N/A (Bank)' : (tri.isFree ? 'Debt-Free' : tri.covVal.toFixed(2) + 'x')} <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">(${fmtRupiah(cashVal)})</span></div>
+                <div style="font-size: 12.5px; font-weight: 700; color: ${isBankSector(row.idx_sub_industry) ? '#fbbf24' : (covNum >= 1.0 ? '#34d399' : '#fb7185')};">${isBankSector(row.idx_sub_industry) ? 'N/A (Bank)' : (tri.isFree ? 'Bebas Utang JP' : tri.covVal.toFixed(2) + 'x')} <span style="font-size: 10.5px; color: #94a3b8; font-weight: 500;">(${fmtRupiah(cashVal)})</span></div>
               </div>
               <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
                 <div style="font-size: 10px; color: #94a3b8;">CFO TTM VS NET INCOME</div>
                 <div style="font-size: 12px; font-weight: 700; color: ${cfoVal >= 0 ? '#34d399' : '#fb7185'};">${fmtRupiah(cfoVal)} <span style="font-size: 10.5px; color: #cbd5e1; font-weight: 500;">/ ${fmtRupiah(niVal)}</span></div>
               </div>
               <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 7px 10px;">
-                <div style="font-size: 10px; color: #94a3b8;">QUADRANT &amp; SLOAN</div>
+                <div style="font-size: 10px; color: #94a3b8;">KUADRAN &amp; SLOAN</div>
                 <div style="font-size: 12px; font-weight: 700; color: ${quadLabel.color};">${quadLabel.name} <span style="font-size: 10.5px; color: #cbd5e1; font-weight: 500;">(${sloanVal > 0 ? '+' : ''}${sloanVal.toFixed(1)}%)</span></div>
               </div>
             </div>
 
             <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 9px 11px; font-size: 11.5px; line-height: 1.5; color: #cbd5e1; display: flex; flex-direction: column; gap: 4px;">
-              <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8;">DETERMINISTIC DIAGNOSTIC ANALYSIS</div>
-              <div>&bull; <strong style="color: #e2e8f0;">Liquidity:</strong> ${liquidityAnalysis}</div>
-              <div>&bull; <strong style="color: #e2e8f0;">Cash Quality:</strong> ${conversionAnalysis}</div>
-              <div>&bull; <strong style="color: #e2e8f0;">News vs Cash:</strong> ${newsContrastAnalysis}</div>
+              <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.5px; color: #38bdf8;">ANALISIS DIAGNOSTIK DETERMINISTIK</div>
+              <div>&bull; <strong style="color: #e2e8f0;">Likuiditas:</strong> ${liquidityAnalysis}</div>
+              <div>&bull; <strong style="color: #e2e8f0;">Kualitas Kas:</strong> ${conversionAnalysis}</div>
+              <div>&bull; <strong style="color: #e2e8f0;">Berita vs Kas:</strong> ${newsContrastAnalysis}</div>
             </div>
           </div>
 
           <div style="background: #111827; padding: 9px 12px; border-radius: 6px; border-left: 3px solid ${sentColor};">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
-              <span style="font-size: 10.5px; color: #38bdf8; font-weight: 700;">LATEST DAILY NEWS (${latestNews.source || 'RSS'} &bull; ${latestNews.date})</span>
+              <span style="font-size: 10.5px; color: #38bdf8; font-weight: 700;">BERITA HARIAN TERBARU (${latestNews.source || 'RSS'} &bull; ${latestNews.date})</span>
               <span style="font-size: 10px; font-weight: 700; color: ${sentColor};">${sentLabel}</span>
             </div>
             <div style="font-size: 12px; color: #f8fafc; line-height: 1.4;">${latestNews.headline}</div>
           </div>
 
           <div style="font-size: 10.5px; color: #94a3b8;">
-            <em>Descriptive synthesis only: daily news and price action do not alter deterministic XBRL cash safeguards.</em>
+            <em>Sintesis deskriptif saja: berita harian dan pergerakan harga tidak mengubah flag kas XBRL deterministik.</em>
           </div>
         `;
       }
