@@ -13,12 +13,16 @@
    - Mendukung batas maksimal **20 ticker per pengguna**, validasi kode saham (`^[A-Z0-9]{4,5}$`), penanganan `TelegramRetryAfter`, retry pengiriman, dan auto-cleanup saat `TelegramForbiddenError` (pengguna memblokir bot).
    - **Pengiriman Idempoten:** Menggunakan `delivery_key` unik (`chat_id:tanggal:alert_type:scope`) di `alert_logs` agar restart worker tidak pernah mengirim pesan ganda.
 
-2. **Perintah Bot Telegram:**
+2. **Perintah & Mode Interaksi Bot Telegram:**
    - `/start`, `/bantuan` (panduan), `/tentang` (tautan `/metodologi` & kebijakan privasi).
    - `/cek <KODE|URL>`: Mengirim kartu PNG Fase 3 (`render_share_card_png`) sebagai foto + caption angka dari `canonical_facts` beserta `Tanggal Laporan`, atau menganalisis tautan berita bila argumen berupa URL.
+   - **Forward-to-Check:** Meneruskan pesan/tautan berita atau membalas pesan di grup dengan `/cek` untuk langsung memeriksa ticker/URL terkait tanpa label sentimen.
+   - **Mode Inline (`@namabot TLKM`) & Mode Grup:** Mengirim kartu fakta langsung ke grup dengan **cooldown anti-spam** (`GROUP_COOLDOWN_SECONDS=60`) per `(group_id, ticker)`.
    - `/watch <KODE>`, `/unwatch <KODE>`, `/watchlist`, `/jadwal <HH:MM>` (atur jam briefing pagi per pengguna, default `08:30 WIB`).
-   - `/stop`: Menghapus seluruh data pengguna (`user_watchlists`, `user_schedules`, `alert_logs`) sesuai UU PDP ([docs/privacy.md](docs/privacy.md)).
+   - `/stop`: Menghapus seluruh data pengguna (`user_watchlists`, `user_schedules`, `alert_logs`, `bot_users`) sesuai UU PDP ([docs/privacy.md](docs/privacy.md)).
    - Ticker di luar universe: membalas *"belum ada di data kami"* dan mencatat event `ticker_tidak_ditemukan`.
+   - **4 Metrik Inti (`get_north_star_metrics`):** `/start` (`bot_start`), aktivasi `>= 1` ticker, retensi hari ke-7 (`bot_users`), dan kartu dibagikan ke grup (`kartu_dibagikan`).
+   - **Alert Perubahan Laporan (`detect_filing_change_for_ticker`):** Notifikasi faktual saat `filing_id` baru masuk dibandingkan periode sebelumnya (perubahan CFO TTM & Cash Coverage, tanpa kata evaluatif).
 
 3. **Briefing Watchlist Pagi, Rekap Sore, Kalender Libur BEI & Arsip Bukti:**
    - [src/bot/idx_calendar.py](src/bot/idx_calendar.py): Kalender libur nasional & bursa BEI (2025–2026) zona waktu `Asia/Jakarta`; bot tidak mengirim briefing/alert saat akhir pekan atau hari libur BEI.

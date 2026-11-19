@@ -9,22 +9,32 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
+import re
 from datetime import date, datetime
 from typing import Any
 
-from aiogram import Bot, Router
+from aiogram import Bot, F, Router
 from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from aiogram.filters import Command
-from aiogram.types import BufferedInputFile, Message
+from aiogram.types import (
+    BufferedInputFile,
+    InlineQuery,
+    InlineQueryResultArticle,
+    InputTextMessageContent,
+    Message,
+)
 
 from src.bot.briefing import (
     capture_universe_daily_snapshot,
+    detect_filing_change_for_ticker,
     detect_verifiable_events,
     fetch_factual_market_quote,
     fetch_verifiable_news,
     format_event_alert,
+    format_filing_change_alert,
     format_volume_alert,
     format_watchlist_briefing_item,
+    list_universe_tickers,
     load_canonical_ticker_record,
 )
 from src.bot.idx_calendar import is_idx_trading_day, now_wib
@@ -37,6 +47,32 @@ logger = logging.getLogger("idx-cash-radar.bot-worker")
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://idx-cash-radar.vercel.app").rstrip("/")
 VOLUME_ALERT_THRESHOLD = float(os.getenv("VOLUME_ALERT_THRESHOLD", "3.0"))
+GROUP_COOLDOWN_SECONDS = float(os.getenv("GROUP_COOLDOWN_SECONDS", "60.0"))
+_URL_RE = re.compile(r"https?://[^\s<>\]\)\"']+")
+_TICKER_TOKEN_RE = re.compile(r"\b([A-Z]{4,5})\b")
+
+
+def extract_url_or_ticker(text: str, universe: set[str] | None = None) -> tuple[str | None, str | None]:
+    """
+    Extracts (url, ticker) from free text or forwarded messages.
+    Uses detect_ticker_in_article first, then falls back to known universe tokens.
+    """
+    raw = (text or "").strip()
+    if not raw:
+        return None, None
+    url_m = _URL_RE.search(raw)
+    if url_m:
+        return url_m.group(0), None
+
+    if universe:
+        issuers_arg = [{"ticker": t} for t in universe]
+        detected = detect_ticker_in_article(raw, issuers_arg)
+        if detected:
+            return None, detected
+        for tok in _TICKER_TOKEN_RE.findall(raw.upper()):
+            if tok in universe:
+                return None, tok
+    return None, None
 
 
 def build_about_text() -> str:
@@ -209,11 +245,20 @@ async def run_scheduler_tick(
                 capture_universe_daily_snapshot, store, repo, today, fetch_external
             )
 
-    # 3. Watched ticker event & volume alerts (idempotent per ticker per day)
+    # 3. Watched ticker filing-change, event & volume alerts (idempotent per ticker per day)
     if fetch_external and current.hour in (9, 10, 11, 13, 14, 15):
         all_subs = store.list_all_subscribers()
         watched_unique = sorted({t for ts in all_subs.values() for t in ts})
         for t in watched_unique:
+            filing_change = await asyncio.to_thread(detect_filing_change_for_ticker, t, store, repo)
+            if filing_change:
+                fmsg = format_filing_change_alert(filing_change)
+                for cid, user_tickers in all_subs.items():
+                    if t in user_tickers:
+                        fkey = store.build_delivery_key(cid, today, "filing_change", filing_change["new_filing_id"])
+                        await send_with_resilience(bot, cid, fmsg, store, fkey, today, "filing_change", t)
+                store.set_last_seen_filing(t, filing_change["new_filing_id"])
+
             market = await asyncio.to_thread(fetch_factual_market_quote, t, store)
             news = await asyncio.to_thread(fetch_verifiable_news, t, 2, store)
             events = detect_verifiable_events(news) if news else []
@@ -243,6 +288,14 @@ async def run_scheduler_tick(
 def create_fase8_router(store: BotStateStore, repo: FinancialRepository) -> Router:
     """Creates an aiogram Router implementing all Fase 8 production commands."""
     router = Router(name="fase8")
+
+    @router.message(Command("start", ignore_case=True))
+    async def handle_start_pg(message: Message) -> None:
+        cid = int(message.chat.id)
+        store.touch_user(cid)
+        store.record_analytics_event("bot_start")
+        from src.bot.main import handle_start
+        await handle_start(message)
 
     @router.message(Command("tentang", ignore_case=True))
     async def handle_tentang(message: Message) -> None:
@@ -290,6 +343,7 @@ def create_fase8_router(store: BotStateStore, repo: FinancialRepository) -> Rout
             await message.answer(format_unknown_ticker_message(clean_t))
             return
         ok, msg = store.add_watch(int(message.chat.id), clean_t)
+        store.touch_user(int(message.chat.id))
         prefix = "✅" if ok else "⚠️"
         await message.answer(f"{prefix} {msg}")
 
@@ -326,30 +380,35 @@ def create_fase8_router(store: BotStateStore, repo: FinancialRepository) -> Rout
         )
         await message.answer(msg or "Watchlist kosong.")
 
-    @router.message(Command("cek", ignore_case=True))
-    async def handle_cek_pg(message: Message) -> None:
-        parts = (message.text or "").strip().split(maxsplit=1)
-        if len(parts) < 2 or not parts[1].strip():
-            await message.answer("Gunakan `/cek <KODE>` (contoh: `/cek WIKA`) atau `/cek <URL_BERITA>`.")
+    async def _reply_checked_url(message: Message, url: str) -> None:
+        is_group = message.chat.type in ("group", "supergroup")
+        if is_group and not store.check_and_set_group_cooldown(int(message.chat.id), "URL", GROUP_COOLDOWN_SECONDS):
             return
-        arg = parts[1].strip()
-        if arg.startswith("http://") or arg.startswith("https://"):
-            res = await asyncio.to_thread(fetch_article_from_url, arg)
-            headline = res.get("headline") or "-"
-            src = res.get("source") or "Web"
-            body_text = res.get("body_text") or ""
-            t = detect_ticker_in_article(headline, body_text)
-            lines = [f"📰 *{headline}*", f"Media: _{src}_", arg]
-            if t:
-                rec = load_canonical_ticker_record(t, repo)
-                if rec:
-                    lines.append("\n" + format_watchlist_briefing_item(rec))
-            await message.answer("\n".join(lines))
-            return
+        res = await asyncio.to_thread(fetch_article_from_url, url)
+        headline = res.get("headline") or "-"
+        src = res.get("source") or "Web"
+        body_text = res.get("body_text") or ""
+        issuers_arg = [{"ticker": tk} for tk in list_universe_tickers(repo)]
+        t = detect_ticker_in_article(f"{headline}\n{body_text}", issuers_arg, url=url)
+        lines = [f"📰 *{headline}*", f"Media: _{src}_", url]
+        if t:
+            rec = load_canonical_ticker_record(t, repo)
+            if rec:
+                lines.append("\n" + format_watchlist_briefing_item(rec))
+                if is_group:
+                    store.record_analytics_event("kartu_dibagikan", t)
+            else:
+                store.record_analytics_event("ticker_tidak_ditemukan", t)
+                lines.append("\n" + format_unknown_ticker_message(t))
+        await message.answer("\n".join(lines))
 
-        clean_t = store.validate_ticker(arg)
+    async def _reply_checked_ticker(message: Message, raw_ticker: str) -> None:
+        clean_t = store.validate_ticker(raw_ticker)
         if not clean_t:
             await message.answer("⚠️ Format kode saham tidak valid (4–5 karakter).")
+            return
+        is_group = message.chat.type in ("group", "supergroup")
+        if is_group and not store.check_and_set_group_cooldown(int(message.chat.id), clean_t, GROUP_COOLDOWN_SECONDS):
             return
 
         rec = load_canonical_ticker_record(clean_t, repo)
@@ -363,6 +422,75 @@ def create_fase8_router(store: BotStateStore, repo: FinancialRepository) -> Rout
         png_bytes = await asyncio.to_thread(render_share_card_png, payload, "1:1")
         photo = BufferedInputFile(png_bytes, filename=f"{clean_t}_card.png")
         await message.answer_photo(photo=photo, caption=caption)
+        if is_group:
+            store.record_analytics_event("kartu_dibagikan", clean_t)
+
+    @router.message(Command("cek", ignore_case=True))
+    async def handle_cek_pg(message: Message) -> None:
+        store.touch_user(int(message.chat.id))
+        parts = (message.text or "").strip().split(maxsplit=1)
+        arg = parts[1].strip() if len(parts) >= 2 else ""
+
+        # Group/reply support: /cek replying to a message mentioning a stock or URL
+        if not arg and message.reply_to_message:
+            replied_txt = message.reply_to_message.text or message.reply_to_message.caption or ""
+            universe = set(list_universe_tickers(repo))
+            found_url, found_ticker = extract_url_or_ticker(replied_txt, universe=universe)
+            if found_url:
+                await _reply_checked_url(message, found_url)
+                return
+            if found_ticker:
+                await _reply_checked_ticker(message, found_ticker)
+                return
+            await message.answer("ℹ️ Tidak ditemukan kode saham atau tautan berita pada pesan yang dibalas.")
+            return
+
+        if not arg:
+            await message.answer("Gunakan `/cek <KODE>` (contoh: `/cek WIKA`) atau `/cek <URL_BERITA>`.")
+            return
+        if arg.startswith("http://") or arg.startswith("https://"):
+            await _reply_checked_url(message, arg)
+            return
+        await _reply_checked_ticker(message, arg)
+
+    @router.message(F.forward_origin | (F.chat.type == "private") & F.text.regexp(r"https?://"))
+    async def handle_forward_to_check(message: Message) -> None:
+        """Forward-to-check: extracts URL or ticker from forwarded messages or private URLs."""
+        store.touch_user(int(message.chat.id))
+        raw = message.text or message.caption or ""
+        universe = set(list_universe_tickers(repo))
+        found_url, found_ticker = extract_url_or_ticker(raw, universe=universe)
+        if found_url:
+            await _reply_checked_url(message, found_url)
+            return
+        if found_ticker:
+            await _reply_checked_ticker(message, found_ticker)
+            return
+        await message.answer("ℹ️ Tidak ditemukan kode saham BEI atau tautan berita di pesan yang diteruskan.")
+
+    @router.inline_query()
+    async def handle_inline_query(inline_query: InlineQuery) -> None:
+        """Inline mode: @botname TLKM sends factual cash card directly to any group/chat."""
+        q = (inline_query.query or "").strip().upper().replace(".JK", "")
+        universe = list_universe_tickers(repo)
+        matches = [t for t in universe if t.startswith(q)] if q else universe[:5]
+        results: list[InlineQueryResultArticle] = []
+        for t in matches[:5]:
+            rec = load_canonical_ticker_record(t, repo)
+            if not rec:
+                continue
+            card_text = format_watchlist_briefing_item(rec)
+            results.append(
+                InlineQueryResultArticle(
+                    id=f"card_{t}",
+                    title=f"{t} — {rec['company_name']}",
+                    description=f"Kas: {rec['cash_coverage_display']} | Laporan: {rec['period_end_date']}",
+                    input_message_content=InputTextMessageContent(message_text=card_text),
+                )
+            )
+        if results:
+            store.record_analytics_event("kartu_dibagikan", matches[0])
+        await inline_query.answer(results=results, cache_time=60, is_personal=False)
 
     return router
 
@@ -382,10 +510,9 @@ async def run_worker() -> None:
     dp = Dispatcher()
     dp.include_router(create_fase8_router(store, repo))
 
-    # Also keep legacy handlers (/help, /bantuan, /check, /ticker, /top, /compare, /trend, /calk, /ask)
-    from src.bot.main import handle_help, handle_start
+    # Also keep legacy /help & /bantuan handler
+    from src.bot.main import handle_help
 
-    dp.message.register(handle_start, Command("start", ignore_case=True))
     dp.message.register(handle_help, Command("help", "bantuan", ignore_case=True))
 
     async def _loop() -> None:

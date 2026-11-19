@@ -58,3 +58,22 @@ CREATE TABLE IF NOT EXISTS bot_analytics_events (
     ticker VARCHAR(16),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS bot_users (
+    chat_id BIGINT PRIMARY KEY,
+    first_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS group_cooldowns (
+    group_id BIGINT NOT NULL,
+    ticker VARCHAR(16) NOT NULL,
+    last_sent_ts DOUBLE PRECISION NOT NULL,
+    PRIMARY KEY (group_id, ticker)
+);
+
+CREATE TABLE IF NOT EXISTS last_seen_filings (
+    ticker VARCHAR(10) PRIMARY KEY,
+    latest_filing_id VARCHAR(64) NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

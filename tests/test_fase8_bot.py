@@ -184,3 +184,70 @@ def test_daily_snapshot_captures_entire_universe() -> None:
     cnt = capture_universe_daily_snapshot(store, repo, snapshot_date=snap_date, fetch_external=False)
     assert cnt == len(list_universe_tickers(repo))
     assert store.count_snapshots(snap_date) == cnt
+
+
+def test_forward_to_check_url_and_ticker_extraction() -> None:
+    from src.bot.worker import extract_url_or_ticker
+
+    universe = {"ADRO", "BBRI", "TLKM", "WIKA"}
+    u, t = extract_url_or_ticker("Cek berita ini https://kontan.co.id/news/adro-2026 ya", universe=universe)
+    assert u == "https://kontan.co.id/news/adro-2026"
+    assert t is None
+
+    u2, t2 = extract_url_or_ticker("Menurut kalian saham TLKM gimana?", universe=universe)
+    assert u2 is None
+    assert t2 == "TLKM"
+
+
+def test_group_cooldown_anti_spam() -> None:
+    store = _make_test_store()
+    assert store.check_and_set_group_cooldown(-100123, "TLKM", cooldown_seconds=60.0, now_ts=1000.0) is True
+    assert store.check_and_set_group_cooldown(-100123, "TLKM", cooldown_seconds=60.0, now_ts=1025.0) is False
+    assert store.check_and_set_group_cooldown(-100123, "TLKM", cooldown_seconds=60.0, now_ts=1065.0) is True
+    assert store.check_and_set_group_cooldown(-100123, "BBRI", cooldown_seconds=60.0, now_ts=1025.0) is True
+
+
+def test_filing_change_alert_detection_and_formatting() -> None:
+    from src.bot.briefing import detect_filing_change_for_ticker, format_filing_change_alert
+
+    store = _make_test_store()
+    repo = FinancialRepository()
+    # Seed older filing as last seen for WIKA so the newest filing triggers a change alert
+    with repo.get_connection() as conn:
+        rows = conn.execute(
+            "SELECT filing_id FROM filings WHERE ticker = 'WIKA' ORDER BY fiscal_year DESC, period_end_date DESC LIMIT 2"
+        ).fetchall()
+    if len(rows) < 2:
+        return
+
+    store.set_last_seen_filing("WIKA", str(rows[1]["filing_id"]))
+    change = detect_filing_change_for_ticker("WIKA", store, repo)
+    assert change is not None
+    assert change["new_filing_id"] == str(rows[0]["filing_id"])
+
+    msg = format_filing_change_alert(change)
+    assert "WIKA" in msg
+    assert change["new_period_end_date"] in msg
+    assert "Arus kas operasi 12 bulan" in msg
+    low = msg.lower()
+    for bad in BLACKLISTED_WORDS:
+        assert bad not in low
+
+
+def test_north_star_4_metrics() -> None:
+    from datetime import timedelta
+
+    store = _make_test_store()
+    now = datetime(2026, 11, 19, 10, 0, tzinfo=WIB)
+    store.record_analytics_event("bot_start")
+    store.record_analytics_event("bot_start")
+    store.add_watch(5001, "TLKM")
+    store.touch_user(5001, seen_at=now - timedelta(days=7))
+    store.touch_user(5001, seen_at=now)
+    store.record_analytics_event("kartu_dibagikan", "TLKM")
+
+    metrics = store.get_north_star_metrics()
+    assert metrics["total_start"] == 2
+    assert metrics["activated_users"] == 1
+    assert metrics["d7_retained_users"] == 1
+    assert metrics["cards_shared_to_group"] == 1

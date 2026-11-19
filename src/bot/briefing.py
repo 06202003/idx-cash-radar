@@ -327,3 +327,73 @@ def capture_universe_daily_snapshot(
         )
         archived += 1
     return archived
+
+
+def detect_filing_change_for_ticker(
+    ticker: str,
+    store: BotStateStore,
+    repo: FinancialRepository | None = None,
+) -> dict[str, Any] | None:
+    """
+    Compares the latest filing in DB against the previous filing and last_seen_filings.
+    Returns a factual change payload only when a newer filing_id is detected.
+    """
+    clean_t = ticker.strip().upper()
+    db_repo = repo or FinancialRepository()
+    with db_repo.get_connection() as conn:
+        rows = conn.execute(
+            """
+            SELECT filing_id, fiscal_year, period_code, period_end_date
+            FROM filings
+            WHERE ticker = ?
+            ORDER BY fiscal_year DESC, period_end_date DESC
+            LIMIT 2
+            """,
+            (clean_t,),
+        ).fetchall()
+    if len(rows) < 2:
+        if len(rows) == 1 and store.get_last_seen_filing(clean_t) is None:
+            store.set_last_seen_filing(clean_t, str(rows[0]["filing_id"]))
+        return None
+
+    newest, prev = rows[0], rows[1]
+    newest_id = str(newest["filing_id"])
+    seen_id = store.get_last_seen_filing(clean_t)
+    if seen_id == newest_id:
+        return None
+    if seen_id is None:
+        # Baseline initialization on first run; do not spam historical filings.
+        store.set_last_seen_filing(clean_t, newest_id)
+        return None
+
+    m_new = db_repo.get_computed_metrics_row(newest_id) or {}
+    m_prev = db_repo.get_computed_metrics_row(str(prev["filing_id"])) or {}
+
+    def _cov_disp(m: dict[str, Any]) -> str:
+        if m.get("debt_free_short_term"):
+            return "Bebas Utang JP"
+        val = m.get("cash_coverage_ratio")
+        return f"{Decimal(str(val)):.2f}x" if val is not None else "N/A"
+
+    return {
+        "ticker": clean_t,
+        "new_filing_id": newest_id,
+        "new_period_end_date": str(newest["period_end_date"]),
+        "prev_period_end_date": str(prev["period_end_date"]),
+        "prev_cfo_idr": int(Decimal(str(m_prev.get("cfo_ttm_idr") or 0))),
+        "new_cfo_idr": int(Decimal(str(m_new.get("cfo_ttm_idr") or 0))),
+        "prev_cov_display": _cov_disp(m_prev),
+        "new_cov_display": _cov_disp(m_new),
+    }
+
+
+def format_filing_change_alert(change: dict[str, Any]) -> str:
+    """Formats a factual new-filing change alert without evaluative claims."""
+    prev_cfo = format_idr_nominal(Decimal(change["prev_cfo_idr"]))
+    new_cfo = format_idr_nominal(Decimal(change["new_cfo_idr"]))
+    return (
+        f"📄 *{change['ticker']}* merilis laporan baru (`{change['new_period_end_date']}`, "
+        f"sebelumnya `{change['prev_period_end_date']}`).\n"
+        f"• Arus kas operasi 12 bulan: `Rp {prev_cfo}` → `Rp {new_cfo}`\n"
+        f"• Cash coverage: `{change['prev_cov_display']}` → `{change['new_cov_display']}`"
+    )

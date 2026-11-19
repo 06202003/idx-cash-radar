@@ -121,6 +121,27 @@ class BotStateStore:
             Column("ticker", String(16), nullable=True),
             Column("created_at", String(40), nullable=False),
         )
+        self.bot_users = Table(
+            "bot_users",
+            self.metadata,
+            Column("chat_id", BigInteger, primary_key=True),
+            Column("first_seen_at", String(40), nullable=False),
+            Column("last_seen_at", String(40), nullable=False),
+        )
+        self.group_cooldowns = Table(
+            "group_cooldowns",
+            self.metadata,
+            Column("group_id", BigInteger, primary_key=True),
+            Column("ticker", String(16), primary_key=True),
+            Column("last_sent_ts", Float, nullable=False),
+        )
+        self.last_seen_filings = Table(
+            "last_seen_filings",
+            self.metadata,
+            Column("ticker", String(10), primary_key=True),
+            Column("latest_filing_id", String(64), nullable=False),
+            Column("updated_at", String(40), nullable=False),
+        )
         self.metadata.create_all(self.engine)
 
     @staticmethod
@@ -243,15 +264,17 @@ class BotStateStore:
         return out
 
     def delete_user_data(self, chat_id: int) -> dict[str, int]:
-        """Deletes all personal data (watchlist, schedule, alert_logs) for chat_id (/stop, UU PDP)."""
+        """Deletes all personal data (watchlist, schedule, alert_logs, bot_users) for chat_id (/stop, UU PDP)."""
         with self.engine.begin() as conn:
             r_wl = conn.execute(delete(self.user_watchlists).where(self.user_watchlists.c.chat_id == chat_id))
             r_sc = conn.execute(delete(self.user_schedules).where(self.user_schedules.c.chat_id == chat_id))
             r_al = conn.execute(delete(self.alert_logs).where(self.alert_logs.c.chat_id == chat_id))
+            r_bu = conn.execute(delete(self.bot_users).where(self.bot_users.c.chat_id == chat_id))
         return {
             "watchlists_deleted": r_wl.rowcount or 0,
             "schedules_deleted": r_sc.rowcount or 0,
             "alert_logs_deleted": r_al.rowcount or 0,
+            "users_deleted": r_bu.rowcount or 0,
         }
 
     @staticmethod
@@ -383,3 +406,134 @@ class BotStateStore:
                 )
             ).scalar_one()
         return int(cnt or 0)
+
+    def touch_user(self, chat_id: int, seen_at: datetime | None = None) -> None:
+        """Records user activity timestamp for D7 retention measurement."""
+        now_dt = seen_at or datetime.now(UTC)
+        now_iso = now_dt.isoformat()
+        with self.engine.begin() as conn:
+            existing = conn.execute(
+                select(self.bot_users.c.chat_id).where(self.bot_users.c.chat_id == chat_id)
+            ).first()
+            if existing:
+                conn.execute(
+                    self.bot_users.update()
+                    .where(self.bot_users.c.chat_id == chat_id)
+                    .values(last_seen_at=now_iso)
+                )
+            else:
+                conn.execute(
+                    self.bot_users.insert().values(
+                        chat_id=chat_id,
+                        first_seen_at=now_iso,
+                        last_seen_at=now_iso,
+                    )
+                )
+
+    def check_and_set_group_cooldown(
+        self,
+        group_id: int,
+        ticker: str,
+        cooldown_seconds: float = 60.0,
+        now_ts: float | None = None,
+    ) -> bool:
+        """
+        Anti-spam cooldown per (group_id, ticker).
+        Returns True if allowed to send now (and updates timestamp); False if still in cooldown.
+        """
+        import time
+
+        ts = now_ts if now_ts is not None else time.time()
+        clean_t = ticker.strip().upper()
+        with self.engine.begin() as conn:
+            last_ts = conn.execute(
+                select(self.group_cooldowns.c.last_sent_ts).where(
+                    self.group_cooldowns.c.group_id == group_id,
+                    self.group_cooldowns.c.ticker == clean_t,
+                )
+            ).scalar_one_or_none()
+            if last_ts is not None and (ts - float(last_ts)) < cooldown_seconds:
+                return False
+            if last_ts is not None:
+                conn.execute(
+                    self.group_cooldowns.update()
+                    .where(
+                        self.group_cooldowns.c.group_id == group_id,
+                        self.group_cooldowns.c.ticker == clean_t,
+                    )
+                    .values(last_sent_ts=ts)
+                )
+            else:
+                conn.execute(
+                    self.group_cooldowns.insert().values(
+                        group_id=group_id,
+                        ticker=clean_t,
+                        last_sent_ts=ts,
+                    )
+                )
+        return True
+
+    def get_last_seen_filing(self, ticker: str) -> str | None:
+        with self.engine.connect() as conn:
+            return conn.execute(
+                select(self.last_seen_filings.c.latest_filing_id).where(
+                    self.last_seen_filings.c.ticker == ticker.strip().upper()
+                )
+            ).scalar_one_or_none()
+
+    def set_last_seen_filing(self, ticker: str, filing_id: str) -> None:
+        clean_t = ticker.strip().upper()
+        now = datetime.now(UTC).isoformat()
+        with self.engine.begin() as conn:
+            existing = conn.execute(
+                select(self.last_seen_filings.c.ticker).where(self.last_seen_filings.c.ticker == clean_t)
+            ).first()
+            if existing:
+                conn.execute(
+                    self.last_seen_filings.update()
+                    .where(self.last_seen_filings.c.ticker == clean_t)
+                    .values(latest_filing_id=filing_id, updated_at=now)
+                )
+            else:
+                conn.execute(
+                    self.last_seen_filings.insert().values(
+                        ticker=clean_t, latest_filing_id=filing_id, updated_at=now
+                    )
+                )
+
+    def get_north_star_metrics(self) -> dict[str, int]:
+        """Returns the 4 core metrics: /start count, >=1 ticker activated, D7 retained, cards shared."""
+        with self.engine.connect() as conn:
+            total_start = conn.execute(
+                select(func.count()).select_from(self.bot_analytics_events).where(
+                    self.bot_analytics_events.c.event_name == "bot_start"
+                )
+            ).scalar_one()
+            activated_users = conn.execute(
+                select(func.count(func.distinct(self.user_watchlists.c.chat_id)))
+            ).scalar_one()
+            cards_shared = conn.execute(
+                select(func.count()).select_from(self.bot_analytics_events).where(
+                    self.bot_analytics_events.c.event_name == "kartu_dibagikan"
+                )
+            ).scalar_one()
+            users = conn.execute(
+                select(self.bot_users.c.first_seen_at, self.bot_users.c.last_seen_at)
+            ).all()
+
+        d7_retained = 0
+        for u in users:
+            try:
+                t0 = datetime.fromisoformat(str(u.first_seen_at))
+                t1 = datetime.fromisoformat(str(u.last_seen_at))
+                if (t1 - t0).total_seconds() >= 6 * 86400:  # returned on or after day 7
+                    d7_retained += 1
+            except Exception:
+                continue
+
+        return {
+            "total_start": int(total_start or 0),
+            "activated_users": int(activated_users or 0),
+            "d7_retained_users": d7_retained,
+            "cards_shared_to_group": int(cards_shared or 0),
+        }
