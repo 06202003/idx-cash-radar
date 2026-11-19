@@ -7,6 +7,7 @@ daily snapshots to data/daily_news_sentiment.json (with in-memory fallback).
 
 from __future__ import annotations
 
+import email.utils
 import json
 import threading
 import time
@@ -28,6 +29,73 @@ _DAILY_LOCK = threading.Lock()
 _DAILY_MEMORY_CACHE: dict[str, Any] = {}
 
 
+def _parse_pub_dt(pub_date: str) -> datetime:
+    """Parses RSS pubDate into a timezone-aware UTC datetime for sorting."""
+    if not pub_date:
+        return datetime.min.replace(tzinfo=UTC)
+    try:
+        dt = email.utils.parsedate_to_datetime(pub_date)
+        return dt if dt.tzinfo is not None else dt.replace(tzinfo=UTC)
+    except Exception:
+        return datetime.min.replace(tzinfo=UTC)
+
+
+def _fetch_rss_query(query: str, max_items: int, timeout: float) -> list[dict[str, Any]]:
+    """Executes a single Google News RSS query and returns items sorted newest-first."""
+    url = (
+        "https://news.google.com/rss/search?q="
+        + urllib.parse.quote(query)
+        + "&hl=id&gl=ID&ceid=ID:id"
+    )
+    req = urllib.request.Request(
+        url,
+        headers={"User-Agent": "Mozilla/5.0 (compatible; IDXCashRadarBot/2.0)"},
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        raw_xml = resp.read()
+    root = etree.fromstring(raw_xml)
+
+    parsed: list[tuple[datetime, dict[str, Any]]] = []
+    for item_el in root.xpath("//channel/item"):
+        title = (item_el.findtext("title") or "").strip()
+        link = (item_el.findtext("link") or "").strip()
+        pub_date = (item_el.findtext("pubDate") or "").strip()
+        source_el = item_el.find("source")
+        source_name = (
+            source_el.text.strip()
+            if source_el is not None and source_el.text
+            else "Google News RSS"
+        )
+        if not title:
+            continue
+
+        # Clean trailing " - Publisher" from Google News titles
+        if " - " in title and source_name != "Google News RSS":
+            title = title.rsplit(" - ", 1)[0].strip()
+
+        sent_res = analyze_sentiment_deterministic(title, "")
+        dt = _parse_pub_dt(pub_date)
+        fallback_dt = datetime.now(UTC).strftime("%d %b %Y")
+        parsed.append((
+            dt,
+            {
+                "date": pub_date[:16] if pub_date else fallback_dt,
+                "sentiment": sent_res["sentiment"],
+                "headline": title,
+                "source": source_name,
+                "url": link or None,
+                "matched_positive": sent_res["matched_positive"],
+                "matched_warning": sent_res["matched_warning"],
+                "catalysts": sent_res.get("catalysts", []),
+                "catalyst_labels": sent_res.get("catalyst_labels", []),
+                "volatility_alert": bool(sent_res.get("volatility_alert")),
+            },
+        ))
+
+    parsed.sort(key=lambda pair: pair[0], reverse=True)
+    return [item for _, item in parsed[:max_items]]
+
+
 def fetch_ticker_rss_news(
     ticker: str,
     company_name: str = "",
@@ -39,57 +107,15 @@ def fetch_ticker_rss_news(
     short_comp = " ".join(
         company_name.replace("Tbk.", "").replace("(Persero)", "").split()[:2]
     ).strip()
-    query = f"{clean_t} {short_comp} saham".strip() if short_comp else f"{clean_t} saham BEI"
-    url = (
-        "https://news.google.com/rss/search?q="
-        + urllib.parse.quote(query)
-        + "&hl=id&gl=ID&ceid=ID:id"
-    )
-    req = urllib.request.Request(
-        url,
-        headers={"User-Agent": "Mozilla/5.0 (compatible; IDXCashRadarBot/2.0)"},
-    )
+    base_query = f"{clean_t} {short_comp} saham".strip() if short_comp else f"{clean_t} saham BEI"
 
-    items: list[dict[str, Any]] = []
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            raw_xml = resp.read()
-        root = etree.fromstring(raw_xml)
-        for item_el in root.xpath("//channel/item")[:max_items]:
-            title = (item_el.findtext("title") or "").strip()
-            link = (item_el.findtext("link") or "").strip()
-            pub_date = (item_el.findtext("pubDate") or "").strip()
-            source_el = item_el.find("source")
-            source_name = (
-                source_el.text.strip()
-                if source_el is not None and source_el.text
-                else "Google News RSS"
-            )
-            if not title:
-                continue
-
-            # Clean trailing " - Publisher" from Google News titles
-            if " - " in title and source_name != "Google News RSS":
-                title = title.rsplit(" - ", 1)[0].strip()
-
-            sent_res = analyze_sentiment_deterministic(title, "")
-            fallback_dt = datetime.now(UTC).strftime("%d %b %Y")
-            items.append({
-                "date": pub_date[:16] if pub_date else fallback_dt,
-                "sentiment": sent_res["sentiment"],
-                "headline": title,
-                "source": source_name,
-                "url": link or None,
-                "matched_positive": sent_res["matched_positive"],
-                "matched_warning": sent_res["matched_warning"],
-                "catalysts": sent_res.get("catalysts", []),
-                "catalyst_labels": sent_res.get("catalyst_labels", []),
-                "volatility_alert": bool(sent_res.get("volatility_alert")),
-            })
+        items = _fetch_rss_query(f"{base_query} when:30d", max_items, timeout)
+        if not items:
+            items = _fetch_rss_query(base_query, max_items, timeout)
+        return items
     except Exception:
         return []
-
-    return items
 
 
 def refresh_daily_news(

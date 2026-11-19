@@ -2557,11 +2557,11 @@
         return `
           <div style="background: #0b0f19; border: 1px solid #1f2937; border-radius: 8px; padding: 14px;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px; margin-bottom: 8px;">
-              <strong style="color: #ffffff; font-size: 13px;">IDX NEWS &amp; DISCLOSURE SENTIMENT RADAR</strong>
-              <span class="badge-bei">Factual Audit Trail</span>
+              <strong style="color: #ffffff; font-size: 13px;">RADAR SENTIMEN BERITA &amp; KETERBUKAAN BEI</strong>
+              <span class="badge-bei">Audit Trail Faktual</span>
             </div>
             <div style="color: #94a3b8; font-size: 12px;">
-              No emergency announcements or material negative sentiment found for ${ticker}. Periodic reporting is normal.
+              Tidak ditemukan pengumuman darurat atau sentimen negatif material untuk ${ticker}. Pelaporan berkala berjalan normal.
             </div>
           </div>
         `;
@@ -2569,9 +2569,9 @@
 
       let itemsHtml = '';
       newsList.forEach(n => {
-        let sentBadge = '<span class="badge badge-yellow">NEUTRAL</span>';
-        if (n.sentiment === 'POSITIF') sentBadge = '<span class="badge badge-green">POSITIVE</span>';
-        else if (n.sentiment === 'PERHATIAN') sentBadge = '<span class="badge badge-red">CAUTION</span>';
+        let sentBadge = '<span class="badge badge-yellow">NETRAL</span>';
+        if (n.sentiment === 'POSITIF') sentBadge = '<span class="badge badge-green">POSITIF</span>';
+        else if (n.sentiment === 'PERHATIAN') sentBadge = '<span class="badge badge-red">PERHATIAN</span>';
 
         itemsHtml += `
           <div style="background: #111827; padding: 10px 12px; border-radius: 6px; border: 1px solid #1f2937; display: flex; flex-direction: column; gap: 4px;">
@@ -2579,7 +2579,7 @@
               <div style="display: flex; align-items: center; gap: 8px;">
                 ${sentBadge}
                 <span style="font-size: 11px; color: #94a3b8;" class="font-num">${n.date}</span>
-                <span style="font-size: 10.5px; color: #64748b;">&bull; ${n.source || 'IDX Disclosure'}</span>
+                <span style="font-size: 10.5px; color: #64748b;">&bull; ${n.source || 'Keterbukaan BEI'}</span>
               </div>
             </div>
             <div style="font-size: 12px; color: #e2e8f0; font-weight: 500; line-height: 1.4;">
@@ -2595,15 +2595,15 @@
           <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1f2937; padding-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <span style="font-size: 14px;"></span>
-              <strong style="color: #ffffff; font-size: 13px;">OFFICIAL IDX NEWS &amp; DISCLOSURE SENTIMENT RADAR</strong>
+              <strong style="color: #ffffff; font-size: 13px;">RADAR SENTIMEN BERITA &amp; KETERBUKAAN RESMI BEI</strong>
             </div>
-            <span class="badge-bei">Contextual Isolation Active</span>
+            <span class="badge-bei">Isolasi Konteks Aktif</span>
           </div>
           <div style="display: flex; flex-direction: column; gap: 8px;">
             ${itemsHtml}
           </div>
           <div style="font-size: 10.5px; color: #94a3b8; border-top: 1px solid #1f2937; padding-top: 6px;">
-            <em>Contextual Isolation Rule: News sentiment is strictly secondary context and cannot override or downgrade deterministic cash safeguard flags.</em>
+            <em>Aturan Isolasi Konteks: Sentimen berita hanya bersifat konteks sekunder dan tidak dapat membatalkan atau menurunkan flag kas deterministik.</em>
           </div>
         </div>
       `;
