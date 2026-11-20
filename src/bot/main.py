@@ -105,17 +105,50 @@ async def cmd_start(message: Message) -> None:
     )
 
 
+def _skeleton_ticker_loading(ticker: str, pct: int = 35, step_note: str = "Menarik OHLCV, Broksum & Berita...") -> str:
+    filled = max(1, min(10, round(pct / 10)))
+    bar = ("▓" * filled) + ("░" * (10 - filled))
+    t_done = "▓▓▓▓▓▓▓▓" if pct >= 50 else "▓▓▓▓░░░░"
+    f_done = "▓▓▓▓▓▓▓▓" if pct >= 75 else "░░░░░░░░"
+    s_done = "▓▓▓▓░░░░" if pct >= 75 else "░░░░░░░░"
+    return (
+        f"⏳ *ANALISIS RADAR | {ticker}*\n"
+        f"`[{bar}] {pct}%` — _{step_note}_\n\n"
+        f"• 📐 Teknikal & Level 20H: `{t_done}`\n"
+        f"• 🎯 Forecast 5H & OOS: `{f_done}`\n"
+        f"• 🤝 Broksum & Kas XBRL: `{t_done}`\n"
+        f"• 📰 Berita & Sparkline: `{s_done}`"
+    )
+
+
+def _skeleton_scan_loading(done: int, total: int, current_ticker: str = "") -> str:
+    total = max(1, total)
+    pct = min(100, int(round(done / total * 100)))
+    filled = max(0, min(10, round(pct / 10)))
+    bar = ("▓" * filled) + ("░" * (10 - filled))
+    curr_txt = f"Memindai *{current_ticker}*..." if current_ticker else "Menyiapkan radar..."
+    return (
+        "🔎 *MORNING CONFLUENCE SCAN*\n"
+        f"`[{bar}] {done}/{total} emiten ({pct}%)`\n"
+        f"_{curr_txt}_"
+    )
+
+
 async def cmd_cek(message: Message) -> None:
     ticker = _extract_ticker_arg(message.text or "")
     if not ticker:
         await message.answer("Gunakan format: `/cek BBRI` atau ketik langsung kode saham (misal `ADRO`).")
         return
 
-    wait_msg = await message.answer(f"⏳ Menganalisis *{ticker}* (OHLCV 2Y, Walk-Forward Backtest, RSS & Kas XBRL)...")
+    wait_msg = await message.answer(_skeleton_ticker_loading(ticker, pct=35))
     res = await asyncio.to_thread(analyze_ticker, ticker)
     if not res.get("technicals"):
         await wait_msg.edit_text(f"❌ Data pasar untuk `{ticker}.JK` tidak ditemukan.")
         return
+    try:
+        await wait_msg.edit_text(_skeleton_ticker_loading(ticker, pct=80, step_note="Menyusun Sparkline & Risk Plan..."))
+    except Exception:
+        pass
 
     fc = res.get("forecast") or {}
     news = res.get("news") or []
@@ -169,7 +202,11 @@ async def cmd_chart(message: Message) -> None:
     if not ticker:
         await message.answer("Gunakan format: `/chart BBCA`")
         return
-    wait_msg = await message.answer(f"📊 Mengambil grafik *{ticker}*...")
+    wait_msg = await message.answer(
+        f"📊 *MEMUAT GRAFIK | {ticker}*\n"
+        "`[▓▓▓▓░░░░░░]` — _Mengambil data intraday Stockbit..._\n"
+        "`████ | ░░░░░░░░░░░░░░`"
+    )
     prices, labels, subtitle = await asyncio.to_thread(_fetch_chart_series, ticker)
     if len(prices) < 2:
         await wait_msg.edit_text(f"❌ Data grafik *{ticker}* belum tersedia.")
@@ -255,12 +292,18 @@ async def _send_morning_chart_cards(
 
 
 async def cmd_morning(message: Message) -> None:
-    wait_msg = await message.answer("🔎 Memindai universe saham BEI untuk Morning Confluence...")
-    cash_map = await asyncio.to_thread(fetch_cash_radar_map)
     sample_tickers = store.list_watch(message.chat.id) or DEFAULT_UNIVERSE[:10]
+    total = len(sample_tickers)
+    wait_msg = await message.answer(_skeleton_scan_loading(0, total))
+    cash_map = await asyncio.to_thread(fetch_cash_radar_map)
 
     results = []
-    for t in sample_tickers:
+    for idx, t in enumerate(sample_tickers, start=1):
+        if idx == 1 or idx % 2 == 0 or idx == total:
+            try:
+                await wait_msg.edit_text(_skeleton_scan_loading(idx - 1, total, t))
+            except Exception:
+                pass
         res = await asyncio.to_thread(analyze_ticker, t, cash_map)
         if res.get("technicals"):
             results.append(res)
@@ -299,11 +342,15 @@ async def on_plain_ticker(message: Message) -> None:
 
     txt = raw.upper()
     if txt.isalpha() and 4 <= len(txt) <= 5:
-        wait_msg = await message.answer(f"⏳ Menganalisis *{txt}*...")
+        wait_msg = await message.answer(_skeleton_ticker_loading(txt, pct=35))
         res = await asyncio.to_thread(analyze_ticker, txt)
         if not res.get("technicals"):
             await wait_msg.edit_text(f"❌ Data pasar untuk `{txt}.JK` tidak ditemukan.")
             return
+        try:
+            await wait_msg.edit_text(_skeleton_ticker_loading(txt, pct=80, step_note="Menyusun Sparkline & Risk Plan..."))
+        except Exception:
+            pass
         cap = store.get_capital(message.chat.id)
         spark_txt = await asyncio.to_thread(_build_sparkline_for_ticker, txt, res.get("ohlcv_df"))
         await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + spark_txt)
