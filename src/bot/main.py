@@ -292,13 +292,14 @@ async def _send_morning_chart_cards(
                 capital_idr,
             )
             caption = (
-                f"📊 *MORNING VIEW | {ticker}* ({res.get('badge', '')})\n"
+                f"📊 MORNING VIEW | {ticker} ({res.get('badge', '')})\n"
                 f"🔎 {pattern_res.get('headline', '-')}"
             )
             await bot.send_photo(
                 chat_id,
                 BufferedInputFile(png_bytes, filename=f"{ticker}_morning.png"),
                 caption=caption[:1024],
+                parse_mode=None,
             )
         except Exception as exc:
             logger.warning("Morning chart card failed for %s: %s", ticker, exc)
