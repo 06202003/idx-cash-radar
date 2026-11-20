@@ -273,7 +273,8 @@ async def _send_morning_chart_cards(
         try:
             days = await asyncio.to_thread(store.list_broker_history_days, ticker, 30)
             if len(days) < 5:
-                await asyncio.to_thread(backfill_broker_history, store, ticker, 10)
+                # Backfill in background so the PNG chart is sent immediately without waiting minutes
+                asyncio.create_task(asyncio.to_thread(backfill_broker_history, store, ticker, 10))
             hist_rows = await asyncio.to_thread(store.get_broker_daily_history, ticker, 60)
             ohlcv_df = res.get("ohlcv_df")
             pattern_res = analyze_broker_patterns(
