@@ -7,8 +7,11 @@ import urllib.parse
 import urllib.request
 from datetime import UTC, datetime
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from lxml import etree
+
+WIB = ZoneInfo("Asia/Jakarta")
 
 POSITIVE_KEYWORDS = (
     "dividen", "laba naik", "laba tumbuh", "kontrak baru", "ekspansi",
@@ -44,10 +47,24 @@ def _parse_pub_dt(pub_date: str) -> datetime:
         return datetime.min.replace(tzinfo=UTC)
 
 
+def _format_pub_wib(dt: datetime, raw_pub_date: str) -> str:
+    if dt > datetime.min.replace(tzinfo=UTC):
+        return dt.astimezone(WIB).strftime("%d %b %Y %H:%M WIB")
+    return raw_pub_date[:16] if raw_pub_date else "-"
+
+
 def fetch_latest_news(ticker: str, max_items: int = 3, timeout: float = 6.0) -> list[dict[str, Any]]:
-    """Fetches newest Google News RSS articles (when:30d) sorted newest-first."""
+    """Fetches newest Google News RSS articles (WIB timestamps, newest-first)."""
     clean_t = ticker.strip().upper().replace(".JK", "")
-    for query in (f"{clean_t} saham BEI when:30d", f"{clean_t} saham BEI"):
+    queries = (
+        f"{clean_t} saham when:2d",
+        f"{clean_t} saham BEI when:30d",
+        f"{clean_t} saham",
+    )
+    seen_titles: set[str] = set()
+    parsed: list[tuple[datetime, dict[str, Any]]] = []
+
+    for query in queries:
         url = (
             "https://news.google.com/rss/search?q="
             + urllib.parse.quote(query)
@@ -64,7 +81,6 @@ def fetch_latest_news(ticker: str, max_items: int = 3, timeout: float = 6.0) -> 
         except Exception:
             continue
 
-        parsed: list[tuple[datetime, dict[str, Any]]] = []
         for el in root.xpath("//channel/item"):
             title = (el.findtext("title") or "").strip()
             link = (el.findtext("link") or "").strip()
@@ -76,19 +92,29 @@ def fetch_latest_news(ticker: str, max_items: int = 3, timeout: float = 6.0) -> 
             if " - " in title and src != "Google News":
                 title = title.rsplit(" - ", 1)[0].strip()
 
+            norm_key = title.lower()
+            if norm_key in seen_titles:
+                continue
+            seen_titles.add(norm_key)
+
             dt = _parse_pub_dt(pub_date)
             parsed.append((
                 dt,
                 {
-                    "date": pub_date[:16] if pub_date else dt.strftime("%d %b %Y"),
+                    "date": _format_pub_wib(dt, pub_date),
                     "headline": title,
                     "source": src,
                     "sentiment": score_headline_sentiment(title),
                     "url": link or None,
                 },
             ))
-        if parsed:
-            parsed.sort(key=lambda pair: pair[0], reverse=True)
-            return [item for _, item in parsed[:max_items]]
+
+        # Stop early once we already have recent items from the fresher query
+        if len(parsed) >= max_items:
+            break
+
+    if parsed:
+        parsed.sort(key=lambda pair: pair[0], reverse=True)
+        return [item for _, item in parsed[:max_items]]
 
     return []
