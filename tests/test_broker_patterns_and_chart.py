@@ -89,7 +89,15 @@ def test_render_morning_chart_outputs_valid_png(tmp_path: Path) -> None:
             "high_20d": 1220.0,
             "atr14": 25.0,
         },
-        "forecast": {"p_up_pct": 66.0},
+        "forecast": {
+            "p_up_pct": 66.0,
+            "trajectory": {
+                "mid": [1210.0, 1220.0, 1225.0, 1235.0, 1245.0],
+                "upper": [1230.0, 1250.0, 1265.0, 1280.0, 1295.0],
+                "lower": [1190.0, 1190.0, 1185.0, 1190.0, 1195.0],
+                "target_5d_pct": 3.75,
+            },
+        },
     }
     pattern_res = {
         "latest_day": "2026-11-19",

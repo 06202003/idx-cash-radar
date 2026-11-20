@@ -6,7 +6,8 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, Ridge
+from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -31,6 +32,64 @@ def _prepare_dataset(df: pd.DataFrame, horizon_days: int = 5, fee: float = ROUND
     ind["fwd_ret"] = (ind["close"].shift(-horizon_days) / ind["close"]) - 1.0
     ind["target_up"] = (ind["fwd_ret"] > fee).astype(float)
     return ind
+
+
+def _forecast_5d_trajectory(
+    prep: pd.DataFrame,
+    latest_row: pd.DataFrame,
+    horizon_days: int = 5,
+) -> dict[str, Any] | None:
+    """Predicts +1D..+5D price trajectory + 1-sigma cone using an MLP + Ridge ensemble."""
+    if latest_row.empty:
+        return None
+    last_close = float(latest_row["close"].iloc[0])
+    if last_close <= 0:
+        return None
+
+    target_cols = []
+    work = prep.copy()
+    for k in range(1, horizon_days + 1):
+        col = f"fwd_ret_{k}"
+        work[col] = ((work["close"].shift(-k) / work["close"]) - 1.0).clip(-0.25, 0.25)
+        target_cols.append(col)
+
+    train_df = work.dropna(subset=FEATURE_COLS + target_cols)
+    if len(train_df) < 60:
+        return None
+
+    X_train = train_df[FEATURE_COLS]
+    Y_train = train_df[target_cols].to_numpy(dtype=float)
+    X_curr = latest_row[FEATURE_COLS]
+
+    ridge = Pipeline([("scaler", StandardScaler()), ("reg", Ridge(alpha=15.0))])
+    ridge.fit(X_train, Y_train)
+    pred_rets = ridge.predict(X_curr)[0]
+
+    try:
+        mlp = Pipeline([
+            ("scaler", StandardScaler()),
+            ("mlp", MLPRegressor(hidden_layer_sizes=(32, 16), max_iter=300, early_stopping=True, random_state=42)),
+        ])
+        mlp.fit(X_train, Y_train)
+        pred_mlp = mlp.predict(X_curr)[0]
+        pred_rets = 0.5 * pred_rets + 0.5 * pred_mlp
+    except Exception:
+        pass
+
+    pred_rets = np.clip(pred_rets, -0.20, 0.20)
+    daily_vol = float(latest_row["volatility_20d"].iloc[0]) if pd.notna(latest_row["volatility_20d"].iloc[0]) else 0.02
+    daily_vol = max(0.008, min(0.06, daily_vol))
+
+    mid = [round(last_close * (1.0 + float(pred_rets[k])), 2) for k in range(horizon_days)]
+    upper = [round(last_close * (1.0 + float(pred_rets[k]) + daily_vol * np.sqrt(k + 1)), 2) for k in range(horizon_days)]
+    lower = [round(last_close * (1.0 + float(pred_rets[k]) - daily_vol * np.sqrt(k + 1)), 2) for k in range(horizon_days)]
+
+    return {
+        "mid": mid,
+        "upper": upper,
+        "lower": lower,
+        "target_5d_pct": round(float(pred_rets[-1]) * 100.0, 2),
+    }
 
 
 def _build_model() -> Pipeline:
@@ -133,6 +192,8 @@ def forecast_direction_with_backtest(
     else:
         direction = "NETRAL"
 
+    trajectory = _forecast_5d_trajectory(prep, latest_row, horizon_days=horizon_days)
+
     return {
         "status": "ok",
         "horizon_days": horizon_days,
@@ -144,4 +205,5 @@ def forecast_direction_with_backtest(
         "oos_bullish_win_rate_pct": bullish_win,
         "oos_bullish_avg_net_ret_pct": bullish_avg_net,
         "oos_bullish_signals": bullish_n,
+        "trajectory": trajectory,
     }

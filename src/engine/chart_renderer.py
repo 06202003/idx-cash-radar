@@ -108,10 +108,41 @@ def render_morning_chart(
                 va="bottom",
             )
 
+        # Plot 5-Day Forward ML Trajectory & Cone if available
+        traj = fc.get("trajectory") or {}
+        mid_pts = traj.get("mid") or []
+        up_pts = traj.get("upper") or []
+        lo_pts = traj.get("lower") or []
+        if mid_pts and len(mid_pts) == len(up_pts) == len(lo_pts):
+            last_x = xs[-1]
+            last_c = closes[-1]
+            fx = [last_x] + [last_x + k + 1 for k in range(len(mid_pts))]
+            f_mid = [last_c] + [float(v) for v in mid_pts]
+            f_up = [last_c] + [float(v) for v in up_pts]
+            f_lo = [last_c] + [float(v) for v in lo_pts]
+            t_pct = float(traj.get("target_5d_pct") or 0.0)
+            f_col = green_color if t_pct >= 0 else red_color
+            ax1.fill_between(fx, f_lo, f_up, color=f_col, alpha=0.18)
+            ax1.plot(fx, f_mid, color=f_col, linestyle="--", linewidth=1.8, marker=".", markersize=5)
+            ax1.text(
+                fx[-1],
+                f_mid[-1],
+                f" ML+5H ({t_pct:+.1f}%)",
+                color=f_col,
+                fontsize=7.5,
+                fontweight="bold",
+                va="center",
+                ha="left",
+            )
+            ax1.set_xlim(-0.5, fx[-1] + 4.2)
+
         # Sparse x-axis date ticks
         step = max(1, len(xs) // 5)
         tick_idx = xs[::step]
         tick_lbl = [str(df_tail.iloc[i]["date"])[5:10] for i in tick_idx]
+        if mid_pts:
+            tick_idx = tick_idx + [xs[-1] + len(mid_pts)]
+            tick_lbl = tick_lbl + [f"+{len(mid_pts)}H"]
         ax1.set_xticks(tick_idx)
         ax1.set_xticklabels(tick_lbl, color=muted_color, fontsize=7.5)
     else:
