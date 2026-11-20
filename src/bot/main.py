@@ -79,19 +79,24 @@ def _extract_ticker_arg(text: str) -> str | None:
 
 
 async def cmd_start(message: Message) -> None:
+    first_name = (message.from_user.first_name if message.from_user else "") or "Trader"
     await message.answer(
-        "📡 *IDX Alert & Direction Sentiment Bot*\n\n"
-        "Bot asisten riset & alert saham BEI (Teknikal + Forecast Arah 5H + Berita + Kas XBRL + Stockbit Orderbook/Broker).\n\n"
-        "*Perintah tersedia:*\n"
-        "• `/cek <KODE>` — Cek sentimen arah naik/turun, backtest OOS, berita & kas\n"
-        "• `/morning` — Jalankan pemindaian Morning Confluence sekarang\n"
-        "• `/watch <KODE>` — Tambah saham ke watchlist alert otomatis\n"
-        "• `/unwatch <KODE>` — Hapus saham dari watchlist\n"
-        "• `/watchlist` — Lihat daftar pantauan Anda\n"
-        "• `/pola <KODE>` — Rekap riwayat orderbook & pola market maker hari ini\n"
-        "• `/modal <RUPIAH>` — Atur modal trading (misal `/modal 50jt`) untuk sizing lot R:R\n"
+        f"👁️ *IDX CASH RADAR* — _Selamat datang, {first_name}!_\n"
+        "_Melihat menembus ilusi laba, menangkap jejak kas nyata & smart money BEI._\n\n"
+        "━━━━━━━━━━━━━━━━━━━━\n"
+        "⚡ *MULAI CEPAT (3 DETIK)*\n"
+        "• Ketik langsung kode saham (contoh: `BBCA`, `BBRI`, `ADRO`) untuk analisis lengkap\n"
+        "• `/watch BBCA` — Pantau real-time *Wall, HAKA/HAKI, & Broker Flip*\n"
+        "• `/morning` — Scan Morning Confluence + *Grafik & Pola Broker*\n\n"
+        "🧭 *MENU & PERINTAH*\n"
+        "• `/cek <KODE>` — Teknikal, Forecast 5H, OOS Backtest, Berita & Kas XBRL\n"
+        "• `/pola <KODE>` — Rekap jejak Market Maker & orderbook hari ini\n"
+        "• `/watchlist` / `/unwatch <KODE>` — Kelola daftar pantauan\n"
+        "• `/modal <RUPIAH>` — Atur modal untuk hitung lot & Risk:Reward (misal `/modal 50jt`)\n"
         "• `/tokenstatus` & `/settoken <JWT>` — Cek / perbarui token Stockbit\n\n"
-        "_Catatan: Hasil forecast & skor sentimen merupakan alat bantu riset statistik, bukan saran investasi._",
+        "⏰ *Jadwal Auto-Alert:* `08:45 WIB` (Morning Radar) & `18:00 WIB` (Rekap Sore)\n"
+        "━━━━━━━━━━━━━━━━━━━━\n"
+        "_Disclaimer: Alat bantu riset kuantitatif & aliran dana, bukan ajakan beli/jual._",
         reply_markup=MAIN_KEYBOARD,
     )
 
