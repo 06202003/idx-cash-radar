@@ -194,92 +194,92 @@ def render_morning_chart(
     return buf.read()
 
 
-def render_ascii_intraday_chart(
+def render_sparkline_line(
     ticker: str,
     prices: list[float],
-    labels: list[str] | None = None,
-    width: int = 24,
-    height: int = 6,
     subtitle: str = "Intraday",
+    width: int = 18,
 ) -> str:
-    """
-    Renders a compact mobile-safe Unicode box-drawing chart (<= 38 chars wide)
-    inside a Telegram Markdown monospace block.
-    """
+    """Renders a clean 1-line Unicode sparkline (no code block, no COPY CODE button on mobile)."""
     clean_t = ticker.strip().upper().replace(".JK", "")
     valid = [float(p) for p in prices if p is not None and float(p) > 0]
     if len(valid) < 2:
         return f"📈 *{clean_t}* — Data grafik belum cukup."
 
-    # Resample evenly to `width` points so it never wraps on mobile Telegram
     if len(valid) > width:
         sampled = [valid[int(round(i * (len(valid) - 1) / (width - 1)))] for i in range(width)]
     else:
         sampled = valid
 
-    cols = len(sampled)
-    lo = min(sampled)
-    hi = max(sampled)
-    span = hi - lo if hi > lo else max(1.0, hi * 0.01)
+    blocks = "▁▂▃▄▅▆▇█"
+    lo, hi = min(sampled), max(sampled)
+    span = hi - lo if hi > lo else 1.0
+    spark = "".join(blocks[min(7, max(0, int((p - lo) / span * 7)))] for p in sampled)
 
-    # Map each price to row index [0 .. height - 1] (0 = top, height - 1 = bottom)
-    rows_idx = [
-        max(0, min(height - 1, height - 1 - int(round((p - lo) / span * (height - 1)))))
-        for p in sampled
-    ]
+    first_px, last_px = valid[0], valid[-1]
+    chg = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
+    return (
+        f"📈 *{clean_t} {subtitle}:* `{spark}`\n"
+        f"   Now `{_fmt_rp_short(last_px)}` (`{chg:+.2f}%`) | Range `{_fmt_rp_short(lo)}`–`{_fmt_rp_short(hi)}`"
+    )
 
-    grid = [[" " for _ in range(cols)] for _ in range(height)]
-    for x in range(cols):
-        y = rows_idx[x]
-        if x == 0:
-            grid[y][x] = "─"
-            continue
-        prev_y = rows_idx[x - 1]
-        if y == prev_y:
-            grid[y][x] = "─"
-        elif y < prev_y:
-            # Going up
-            grid[prev_y][x] = "╯"
-            for mid_y in range(y + 1, prev_y):
-                grid[mid_y][x] = "│"
-            grid[y][x] = "╭"
+
+def render_intraday_png(
+    ticker: str,
+    prices: list[float],
+    labels: list[str] | None = None,
+    subtitle: str = "Intraday",
+) -> bytes:
+    """Renders a sleek dark-mode PNG price chart for /chart command (0 AI tokens)."""
+    clean_t = ticker.strip().upper().replace(".JK", "")
+    valid = [float(p) for p in prices if p is not None and float(p) > 0]
+
+    bg = "#0f172a"
+    panel = "#1e293b"
+    txt = "#f8fafc"
+    muted = "#94a3b8"
+    first_px = valid[0] if valid else 0.0
+    last_px = valid[-1] if valid else 0.0
+    chg = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
+    accent = "#22c55e" if chg >= 0 else "#ef4444"
+
+    fig, ax = plt.subplots(figsize=(7.2, 3.8), dpi=140, facecolor=bg)
+    fig.subplots_adjust(left=0.12, right=0.95, top=0.82, bottom=0.14)
+    ax.set_facecolor(panel)
+
+    if len(valid) >= 2:
+        xs = list(range(len(valid)))
+        lo, hi = min(valid), max(valid)
+        ax.plot(xs, valid, color=accent, linewidth=2.4)
+        ax.fill_between(xs, valid, lo, color=accent, alpha=0.16)
+        ax.scatter([xs[-1]], [last_px], color=accent, s=45, zorder=5)
+        ax.axhline(first_px, color=muted, linestyle=":", linewidth=0.9, alpha=0.7)
+        if labels and len(labels) >= 2:
+            ax.set_xticks([0, len(valid) - 1])
+            ax.set_xticklabels([labels[0], labels[-1]], color=muted, fontsize=8.5)
         else:
-            # Going down
-            grid[prev_y][x] = "╮"
-            for mid_y in range(prev_y + 1, y):
-                grid[mid_y][x] = "│"
-            grid[y][x] = "╰"
+            ax.set_xticks([])
+        pad = max(1.0, (hi - lo) * 0.14)
+        ax.set_ylim(lo - pad, hi + pad)
+    else:
+        ax.text(0.5, 0.5, "Data grafik tidak cukup", color=muted, ha="center", va="center")
+        ax.set_xticks([])
 
-    def _px_s(v: float) -> str:
-        return f"{int(round(v)):,}".replace(",", ".")
+    ax.tick_params(axis="y", colors=muted, labelsize=8.5)
+    ax.grid(color="#334155", linestyle="--", linewidth=0.5, alpha=0.5)
+    for spine in ax.spines.values():
+        spine.set_color("#334155")
 
-    hi_s = _px_s(hi)
-    mid_s = _px_s((hi + lo) / 2.0)
-    lo_s = _px_s(lo)
-    pad_w = max(len(hi_s), len(mid_s), len(lo_s))
-    mid_row = height // 2
+    fig.suptitle(
+        f"{clean_t} {subtitle}  |  {_fmt_rp_short(last_px)} ({chg:+.2f}%)",
+        color=txt,
+        fontsize=12,
+        fontweight="bold",
+        y=0.93,
+    )
 
-    lines = []
-    for r in range(height):
-        if r == 0:
-            axis = hi_s.rjust(pad_w) + " ┤"
-        elif r == mid_row:
-            axis = mid_s.rjust(pad_w) + " ┤"
-        elif r == height - 1:
-            axis = lo_s.rjust(pad_w) + " ┼"
-        else:
-            axis = (" " * pad_w) + " │"
-        lines.append(axis + "".join(grid[r]))
-
-    first_px = valid[0]
-    last_px = valid[-1]
-    chg_pct = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
-
-    t_start = labels[0] if labels else "Start"
-    t_end = labels[-1] if labels else "Now"
-    footer_pad = " " * (pad_w + 2)
-    gap = max(1, cols - len(t_start) - len(t_end))
-    lines.append(footer_pad + t_start + (" " * gap) + t_end)
-
-    header = f"📈 *{clean_t} {subtitle}* | `{_px_s(last_px)}` (`{chg_pct:+.2f}%`)"
-    return header + "\n```\n" + "\n".join(lines) + "\n```"
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", facecolor=bg)
+    plt.close(fig)
+    buf.seek(0)
+    return buf.read()

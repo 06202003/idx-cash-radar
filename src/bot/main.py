@@ -53,7 +53,7 @@ from src.engine.anomaly_detectors import (
     format_wall_pulled_alert,
 )
 from src.engine.broker_patterns import analyze_broker_patterns
-from src.engine.chart_renderer import render_ascii_intraday_chart, render_morning_chart
+from src.engine.chart_renderer import render_intraday_png, render_morning_chart, render_sparkline_line
 from src.engine.orderbook_monitor import detect_orderbook_wall_deltas, format_orderbook_wall_alert
 from src.engine.scanner import analyze_ticker, format_ticker_alert
 
@@ -130,12 +130,12 @@ async def cmd_cek(message: Message) -> None:
         chat_id=message.chat.id,
     )
     cap = store.get_capital(message.chat.id)
-    ascii_chart = await asyncio.to_thread(_build_ascii_chart_for_ticker, ticker, res.get("ohlcv_df"))
-    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + ascii_chart)
+    spark_txt = await asyncio.to_thread(_build_sparkline_for_ticker, ticker, res.get("ohlcv_df"))
+    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + spark_txt)
 
 
-def _build_ascii_chart_for_ticker(ticker: str, fallback_ohlcv: Any = None) -> str:
-    """Fetches Stockbit intraday bars for ASCII chart, falling back to 20D daily OHLCV."""
+def _fetch_chart_series(ticker: str, fallback_ohlcv: Any = None) -> tuple[list[float], list[str], str]:
+    """Fetches Stockbit intraday prices/labels, falling back to 24D daily OHLCV."""
     try:
         tok = load_active_token()
         if tok:
@@ -145,7 +145,7 @@ def _build_ascii_chart_for_ticker(ticker: str, fallback_ohlcv: Any = None) -> st
                 dates_raw = intra["date"].astype(str).tolist()[-48:]
                 t0 = dates_raw[0][-5:] if len(dates_raw[0]) >= 5 else "Open"
                 t1 = dates_raw[-1][-5:] if len(dates_raw[-1]) >= 5 else "Now"
-                return render_ascii_intraday_chart(ticker, prices, labels=[t0, t1], subtitle="Intraday")
+                return prices, [t0, t1], "Intraday"
     except Exception:
         pass
 
@@ -155,8 +155,13 @@ def _build_ascii_chart_for_ticker(ticker: str, fallback_ohlcv: Any = None) -> st
         prices = tail["close"].astype(float).tolist()
         d0 = str(tail["date"].iloc[0])[5:10]
         d1 = str(tail["date"].iloc[-1])[5:10]
-        return render_ascii_intraday_chart(ticker, prices, labels=[d0, d1], subtitle="24H")
-    return f"📈 *{ticker}* — Data grafik belum tersedia."
+        return prices, [d0, d1], "24H"
+    return [], [], "Intraday"
+
+
+def _build_sparkline_for_ticker(ticker: str, fallback_ohlcv: Any = None) -> str:
+    prices, _, subtitle = _fetch_chart_series(ticker, fallback_ohlcv=fallback_ohlcv)
+    return render_sparkline_line(ticker, prices, subtitle=subtitle)
 
 
 async def cmd_chart(message: Message) -> None:
@@ -164,9 +169,17 @@ async def cmd_chart(message: Message) -> None:
     if not ticker:
         await message.answer("Gunakan format: `/chart BBCA`")
         return
-    wait_msg = await message.answer(f"📈 Mengambil grafik *{ticker}*...")
-    chart_txt = await asyncio.to_thread(_build_ascii_chart_for_ticker, ticker)
-    await wait_msg.edit_text(chart_txt)
+    wait_msg = await message.answer(f"📈 Menggambar grafik *{ticker}*...")
+    prices, labels, subtitle = await asyncio.to_thread(_fetch_chart_series, ticker)
+    if len(prices) < 2:
+        await wait_msg.edit_text(f"❌ Data grafik *{ticker}* belum tersedia.")
+        return
+    png_bytes = await asyncio.to_thread(render_intraday_png, ticker, prices, labels, subtitle)
+    await wait_msg.delete()
+    await message.answer_photo(
+        BufferedInputFile(png_bytes, filename=f"{ticker}_chart.png"),
+        caption=render_sparkline_line(ticker, prices, subtitle=subtitle),
+    )
 
 
 async def cmd_watch(message: Message) -> None:
@@ -296,8 +309,8 @@ async def on_plain_ticker(message: Message) -> None:
             await wait_msg.edit_text(f"❌ Data pasar untuk `{txt}.JK` tidak ditemukan.")
             return
         cap = store.get_capital(message.chat.id)
-        ascii_chart = await asyncio.to_thread(_build_ascii_chart_for_ticker, txt, res.get("ohlcv_df"))
-        await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + ascii_chart)
+        spark_txt = await asyncio.to_thread(_build_sparkline_for_ticker, txt, res.get("ohlcv_df"))
+        await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + spark_txt)
 
 
 async def scheduler_loop(bot: Bot) -> None:
