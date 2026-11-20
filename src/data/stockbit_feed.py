@@ -255,3 +255,106 @@ def fetch_stockbit_orderbook(ticker: str, token: str | None = None) -> dict[str,
     url = f"https://exodus.stockbit.com/company-price-feed/v2/orderbook/companies/{urllib.parse.quote(clean_t)}"
     payload = _get_json(url, tok)
     return parse_orderbook_levels(payload)
+
+
+def parse_marketdetectors_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extracts all net buyers and net sellers from marketdetectors JSON as signed rows."""
+    data = payload.get("data") or {}
+    broksum = data.get("broker_summary") or {}
+    buyers_raw = broksum.get("brokers_buy") or []
+    sellers_raw = broksum.get("brokers_sell") or []
+    rows: list[dict[str, Any]] = []
+
+    for b in buyers_raw:
+        code = str(b.get("netbs_broker_code") or b.get("broker_code") or "").strip().upper()
+        if not code or code == "?":
+            continue
+        val = abs(parse_safe_float(b.get("bval")) or 0.0)
+        lot = int(round(abs(parse_safe_float(b.get("blot")) or 0.0)))
+        avg_px = parse_safe_float(b.get("netbs_buy_avg_price"))
+        rows.append({
+            "broker_code": code,
+            "broker_type": str(b.get("type") or ""),
+            "side": "BUY",
+            "net_val_idr": val,
+            "net_lot": lot,
+            "avg_price": avg_px,
+        })
+
+    for s in sellers_raw:
+        code = str(s.get("netbs_broker_code") or s.get("broker_code") or "").strip().upper()
+        if not code or code == "?":
+            continue
+        raw_val = s.get("sval") if s.get("sval") is not None else s.get("bval")
+        raw_lot = s.get("slot") if s.get("slot") is not None else s.get("blot")
+        val = abs(parse_safe_float(raw_val) or 0.0)
+        lot = int(round(abs(parse_safe_float(raw_lot) or 0.0)))
+        avg_px = parse_safe_float(s.get("netbs_sell_avg_price"))
+        rows.append({
+            "broker_code": code,
+            "broker_type": str(s.get("type") or ""),
+            "side": "SELL",
+            "net_val_idr": -val,
+            "net_lot": -lot,
+            "avg_price": avg_px,
+        })
+
+    return rows
+
+
+def fetch_stockbit_broker_summary_for_date(
+    ticker: str,
+    day_str: str,
+    token: str | None = None,
+) -> list[dict[str, Any]]:
+    """Fetches net broker summary rows for a specific YYYY-MM-DD trading date."""
+    tok = token or load_active_token()
+    clean_t = ticker.strip().upper().replace(".JK", "")
+    url = (
+        f"https://exodus.stockbit.com/marketdetectors/{urllib.parse.quote(clean_t)}"
+        f"?from={urllib.parse.quote(day_str)}&to={urllib.parse.quote(day_str)}"
+        "&transaction_type=TRANSACTION_TYPE_NET&market_board=MARKET_BOARD_REGULER"
+        "&investor_type=INVESTOR_TYPE_ALL&limit=25"
+    )
+    payload = _get_json(url, tok)
+    return parse_marketdetectors_rows(payload)
+
+
+def backfill_broker_history(
+    store: Any,
+    ticker: str,
+    lookback_weekdays: int = 15,
+    token: str | None = None,
+) -> int:
+    """Fetches missing recent weekdays of broker summary into store. Returns count of days saved."""
+    from datetime import datetime, timedelta
+    from zoneinfo import ZoneInfo
+
+    tok = token or load_active_token()
+    if not tok:
+        return 0
+
+    wib = ZoneInfo("Asia/Jakarta")
+    today = datetime.now(wib).date()
+    existing = set(store.list_broker_history_days(ticker, lookback_days=lookback_weekdays + 15))
+    saved_days = 0
+    checked = 0
+    cursor = today - timedelta(days=1)  # Start from yesterday (most recent completed day)
+
+    while checked < lookback_weekdays:
+        if cursor.weekday() < 5:
+            day_str = cursor.strftime("%Y-%m-%d")
+            checked += 1
+            if day_str not in existing:
+                try:
+                    rows = fetch_stockbit_broker_summary_for_date(ticker, day_str, token=tok)
+                    if rows:
+                        store.upsert_broker_daily(day_str, ticker, rows)
+                        saved_days += 1
+                except StockbitAuthError:
+                    break
+                except Exception:
+                    pass
+        cursor -= timedelta(days=1)
+
+    return saved_days

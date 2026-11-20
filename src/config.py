@@ -18,6 +18,11 @@ STOCKBIT_PROFILE_DIR = ROOT_DIR / ".stockbit_browser_profile"
 STOCKBIT_TOKEN_FILE = ROOT_DIR / ".stockbit_token"
 CASH_RADAR_API_URL = os.getenv("CASH_RADAR_API_URL", "https://idx-cash-radar.vercel.app").rstrip("/")
 DEFAULT_CHAT_ID = os.getenv("DEFAULT_CHAT_ID", "").strip()
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
+_raw_staging = os.getenv("STAGING_CHAT_IDS", "1172607486").strip()
+STAGING_CHAT_IDS: frozenset[int] = frozenset(
+    int(x.strip()) for x in _raw_staging.split(",") if x.strip().lstrip("-").isdigit()
+)
 CRON_SECRET = os.getenv("CRON_SECRET", "").strip()
 DEFAULT_WATCHLIST_ENV = os.getenv("DEFAULT_WATCHLIST", "").strip()
 

@@ -5,3 +5,7 @@ lxml>=5.0.0
 numpy>=1.26.0
 pandas>=2.2.0
 scikit-learn>=1.4.0
+matplotlib>=3.8.0
+pillow>=10.0.0
+sqlalchemy>=2.0.0
+pg8000>=1.30.0

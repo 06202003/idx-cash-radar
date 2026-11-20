@@ -11,7 +11,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
-from aiogram.types import BotCommand, KeyboardButton, Message, ReplyKeyboardMarkup
+from aiogram.types import BotCommand, BufferedInputFile, KeyboardButton, Message, ReplyKeyboardMarkup
 
 from src.config import (
     ADMIN_CHAT_ID,
@@ -20,12 +20,15 @@ from src.config import (
     EVENING_RECAP_MINUTE,
     MORNING_ALERT_HOUR,
     MORNING_ALERT_MINUTE,
+    STAGING_CHAT_IDS,
     TELEGRAM_BOT_TOKEN,
 )
 from src.data.fundamental_client import fetch_cash_radar_map
 from src.data.stockbit_feed import (
     StockbitAuthError,
     _get_json,
+    backfill_broker_history,
+    fetch_stockbit_broker_summary_for_date,
     fetch_stockbit_orderbook,
     fetch_stockbit_trade_book,
 )
@@ -46,6 +49,8 @@ from src.engine.anomaly_detectors import (
     format_tradebook_dominance_alert,
     format_wall_pulled_alert,
 )
+from src.engine.broker_patterns import analyze_broker_patterns
+from src.engine.chart_renderer import render_morning_chart
 from src.engine.orderbook_monitor import detect_orderbook_wall_deltas, format_orderbook_wall_alert
 from src.engine.scanner import analyze_ticker, format_ticker_alert
 
@@ -148,6 +153,53 @@ async def cmd_watchlist(message: Message) -> None:
     await message.answer("📋 *Watchlist Anda:*\n" + ", ".join(f"`{t}`" for t in items))
 
 
+async def _send_morning_chart_cards(
+    bot: Bot,
+    chat_id: int,
+    results: list[dict],
+    capital_idr: float,
+    max_cards: int = 3,
+) -> None:
+    """Sends visual PNG Morning View + Lead-Lag Broker Pattern cards for staging chat_ids."""
+    if chat_id not in STAGING_CHAT_IDS:
+        return
+    ranked = sorted(results, key=lambda r: float(r.get("composite_score") or 0.0), reverse=True)[:max_cards]
+    for res in ranked:
+        ticker = res["ticker"]
+        try:
+            days = await asyncio.to_thread(store.list_broker_history_days, ticker, 30)
+            if len(days) < 5:
+                await asyncio.to_thread(backfill_broker_history, store, ticker, 10)
+            hist_rows = await asyncio.to_thread(store.get_broker_daily_history, ticker, 60)
+            ohlcv_df = res.get("ohlcv_df")
+            pattern_res = analyze_broker_patterns(
+                hist_rows,
+                ohlcv_df=ohlcv_df,
+                latest_broksum=res.get("stockbit_broksum"),
+            )
+            if ohlcv_df is None or ohlcv_df.empty:
+                continue
+            png_bytes = await asyncio.to_thread(
+                render_morning_chart,
+                ticker,
+                ohlcv_df,
+                res,
+                pattern_res,
+                capital_idr,
+            )
+            caption = (
+                f"📊 *MORNING VIEW | {ticker}* ({res.get('badge', '')})\n"
+                f"🔎 {pattern_res.get('headline', '-')}"
+            )
+            await bot.send_photo(
+                chat_id,
+                BufferedInputFile(png_bytes, filename=f"{ticker}_morning.png"),
+                caption=caption[:1024],
+            )
+        except Exception as exc:
+            logger.warning("Morning chart card failed for %s: %s", ticker, exc)
+
+
 async def cmd_morning(message: Message) -> None:
     wait_msg = await message.answer("🔎 Memindai universe saham BEI untuk Morning Confluence...")
     cash_map = await asyncio.to_thread(fetch_cash_radar_map)
@@ -169,6 +221,8 @@ async def cmd_morning(message: Message) -> None:
     header = f"🔔 *MORNING CONFLUENCE & DIRECTION RADAR*\nDipindai: {len(results)} emiten\n\n"
     body = "\n\n---\n\n".join(format_ticker_alert(r, capital_idr=cap) for r in top)
     await wait_msg.edit_text(header + body)
+    if message.bot is not None:
+        await _send_morning_chart_cards(message.bot, message.chat.id, results, cap, max_cards=3)
 
 
 async def on_plain_ticker(message: Message) -> None:
@@ -226,12 +280,15 @@ async def _broadcast_watchlist_alerts(bot: Bot, alert_type: str) -> None:
     if not subs:
         return
     cash_map = await asyncio.to_thread(fetch_cash_radar_map)
+    today_str = datetime.now(WIB).strftime("%Y-%m-%d")
     for chat_id, tickers in subs.items():
         blocks = []
+        analyzed_results = []
+        cap = store.get_capital(chat_id)
         for t in tickers[:8]:
             res = await asyncio.to_thread(analyze_ticker, t, cash_map)
             if res.get("technicals"):
-                cap = store.get_capital(chat_id)
+                analyzed_results.append(res)
                 blocks.append(format_ticker_alert(res, capital_idr=cap))
                 fc = res.get("forecast") or {}
                 news = res.get("news") or []
@@ -245,9 +302,18 @@ async def _broadcast_watchlist_alerts(bot: Bot, alert_type: str) -> None:
                     news_sentiment=news[0]["sentiment"] if news else "NETRAL",
                     chat_id=chat_id,
                 )
+                if alert_type == "evening":
+                    try:
+                        rows = await asyncio.to_thread(fetch_stockbit_broker_summary_for_date, t, today_str)
+                        if rows:
+                            await asyncio.to_thread(store.upsert_broker_daily, today_str, t, rows)
+                    except Exception:
+                        pass
         if blocks:
             title = "🔔 *MORNING ALERT (08:45 WIB)*" if alert_type == "morning" else "🌙 *REKAP SORE WATCHLIST (18:00 WIB)*"
             await bot.send_message(chat_id, title + "\n\n" + "\n\n---\n\n".join(blocks))
+            if alert_type == "morning":
+                await _send_morning_chart_cards(bot, chat_id, analyzed_results, cap, max_cards=3)
 
 
 def create_bot() -> Bot:

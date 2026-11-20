@@ -83,6 +83,7 @@ def analyze_ticker(ticker: str, cash_map: dict[str, dict[str, Any]] | None = Non
         "badge": badge,
         "composite_score": score,
         "technicals": tech,
+        "ohlcv_df": df,
         "stockbit_broksum": broksum,
         "stockbit_daily": sb_daily,
         "stockbit_auth_expired": auth_expired,
