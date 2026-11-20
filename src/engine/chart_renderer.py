@@ -192,3 +192,94 @@ def render_morning_chart(
     plt.close(fig)
     buf.seek(0)
     return buf.read()
+
+
+def render_ascii_intraday_chart(
+    ticker: str,
+    prices: list[float],
+    labels: list[str] | None = None,
+    width: int = 24,
+    height: int = 6,
+    subtitle: str = "Intraday",
+) -> str:
+    """
+    Renders a compact mobile-safe Unicode box-drawing chart (<= 38 chars wide)
+    inside a Telegram Markdown monospace block.
+    """
+    clean_t = ticker.strip().upper().replace(".JK", "")
+    valid = [float(p) for p in prices if p is not None and float(p) > 0]
+    if len(valid) < 2:
+        return f"📈 *{clean_t}* — Data grafik belum cukup."
+
+    # Resample evenly to `width` points so it never wraps on mobile Telegram
+    if len(valid) > width:
+        sampled = [valid[int(round(i * (len(valid) - 1) / (width - 1)))] for i in range(width)]
+    else:
+        sampled = valid
+
+    cols = len(sampled)
+    lo = min(sampled)
+    hi = max(sampled)
+    span = hi - lo if hi > lo else max(1.0, hi * 0.01)
+
+    # Map each price to row index [0 .. height - 1] (0 = top, height - 1 = bottom)
+    rows_idx = [
+        max(0, min(height - 1, height - 1 - int(round((p - lo) / span * (height - 1)))))
+        for p in sampled
+    ]
+
+    grid = [[" " for _ in range(cols)] for _ in range(height)]
+    for x in range(cols):
+        y = rows_idx[x]
+        if x == 0:
+            grid[y][x] = "─"
+            continue
+        prev_y = rows_idx[x - 1]
+        if y == prev_y:
+            grid[y][x] = "─"
+        elif y < prev_y:
+            # Going up
+            grid[prev_y][x] = "╯"
+            for mid_y in range(y + 1, prev_y):
+                grid[mid_y][x] = "│"
+            grid[y][x] = "╭"
+        else:
+            # Going down
+            grid[prev_y][x] = "╮"
+            for mid_y in range(prev_y + 1, y):
+                grid[mid_y][x] = "│"
+            grid[y][x] = "╰"
+
+    def _px_s(v: float) -> str:
+        return f"{int(round(v)):,}".replace(",", ".")
+
+    hi_s = _px_s(hi)
+    mid_s = _px_s((hi + lo) / 2.0)
+    lo_s = _px_s(lo)
+    pad_w = max(len(hi_s), len(mid_s), len(lo_s))
+    mid_row = height // 2
+
+    lines = []
+    for r in range(height):
+        if r == 0:
+            axis = hi_s.rjust(pad_w) + " ┤"
+        elif r == mid_row:
+            axis = mid_s.rjust(pad_w) + " ┤"
+        elif r == height - 1:
+            axis = lo_s.rjust(pad_w) + " ┼"
+        else:
+            axis = (" " * pad_w) + " │"
+        lines.append(axis + "".join(grid[r]))
+
+    first_px = valid[0]
+    last_px = valid[-1]
+    chg_pct = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
+
+    t_start = labels[0] if labels else "Start"
+    t_end = labels[-1] if labels else "Now"
+    footer_pad = " " * (pad_w + 2)
+    gap = max(1, cols - len(t_start) - len(t_end))
+    lines.append(footer_pad + t_start + (" " * gap) + t_end)
+
+    header = f"📈 *{clean_t} {subtitle}* | `{_px_s(last_px)}` (`{chg_pct:+.2f}%`)"
+    return header + "\n```\n" + "\n".join(lines) + "\n```"

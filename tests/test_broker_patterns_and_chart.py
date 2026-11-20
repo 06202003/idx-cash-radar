@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.db.store import AlertStore
 from src.engine.broker_patterns import analyze_broker_patterns
-from src.engine.chart_renderer import render_morning_chart
+from src.engine.chart_renderer import render_ascii_intraday_chart, render_morning_chart
 
 
 def _sample_ohlcv() -> pd.DataFrame:
@@ -106,3 +106,14 @@ def test_render_morning_chart_outputs_valid_png(tmp_path: Path) -> None:
     png_bytes = render_morning_chart("BBRI", ohlcv, analysis_res, pattern_res, capital_idr=100_000_000.0)
     assert png_bytes[:8] == b"\x89PNG\r\n\x1a\n"
     assert len(png_bytes) > 10_000
+
+
+def test_render_ascii_intraday_chart_mobile_safe() -> None:
+    prices = [3840, 3850, 3870, 3860, 3890, 3910, 3900, 3880, 3895, 3920]
+    out = render_ascii_intraday_chart("BMRI", prices, labels=["09:00", "14:50"], width=24, height=6)
+    assert "BMRI Intraday" in out
+    assert "```" in out
+    # Ensure every line inside the monospace block stays compact (no mobile wrap)
+    block = out.split("```\n", 1)[1].rsplit("\n```", 1)[0]
+    for line in block.splitlines():
+        assert len(line) <= 40

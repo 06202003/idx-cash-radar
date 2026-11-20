@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from aiogram import Bot, Dispatcher, F
@@ -24,11 +25,13 @@ from src.config import (
     TELEGRAM_BOT_TOKEN,
 )
 from src.data.fundamental_client import fetch_cash_radar_map
+from src.data.market_feed import fetch_jk_ohlcv
 from src.data.stockbit_feed import (
     StockbitAuthError,
     _get_json,
     backfill_broker_history,
     fetch_stockbit_broker_summary_for_date,
+    fetch_stockbit_intraday,
     fetch_stockbit_orderbook,
     fetch_stockbit_trade_book,
 )
@@ -50,7 +53,7 @@ from src.engine.anomaly_detectors import (
     format_wall_pulled_alert,
 )
 from src.engine.broker_patterns import analyze_broker_patterns
-from src.engine.chart_renderer import render_morning_chart
+from src.engine.chart_renderer import render_ascii_intraday_chart, render_morning_chart
 from src.engine.orderbook_monitor import detect_orderbook_wall_deltas, format_orderbook_wall_alert
 from src.engine.scanner import analyze_ticker, format_ticker_alert
 
@@ -90,6 +93,7 @@ async def cmd_start(message: Message) -> None:
         "• `/morning` — Scan Morning Confluence + *Grafik & Pola Broker*\n\n"
         "🧭 *MENU & PERINTAH*\n"
         "• `/cek <KODE>` — Teknikal, Forecast 5H, OOS Backtest, Berita & Kas XBRL\n"
+        "• `/chart <KODE>` — Grafik mini intraday real-time (ASCII terminal)\n"
         "• `/pola <KODE>` — Rekap jejak Market Maker & orderbook hari ini\n"
         "• `/watchlist` / `/unwatch <KODE>` — Kelola daftar pantauan\n"
         "• `/modal <RUPIAH>` — Atur modal untuk hitung lot & Risk:Reward (misal `/modal 50jt`)\n"
@@ -126,7 +130,43 @@ async def cmd_cek(message: Message) -> None:
         chat_id=message.chat.id,
     )
     cap = store.get_capital(message.chat.id)
-    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap))
+    ascii_chart = await asyncio.to_thread(_build_ascii_chart_for_ticker, ticker, res.get("ohlcv_df"))
+    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + ascii_chart)
+
+
+def _build_ascii_chart_for_ticker(ticker: str, fallback_ohlcv: Any = None) -> str:
+    """Fetches Stockbit intraday bars for ASCII chart, falling back to 20D daily OHLCV."""
+    try:
+        tok = load_active_token()
+        if tok:
+            intra = fetch_stockbit_intraday(ticker, token=tok, lookback_days=2)
+            if intra is not None and not intra.empty and len(intra) >= 4:
+                prices = intra["close"].astype(float).tolist()[-48:]
+                dates_raw = intra["date"].astype(str).tolist()[-48:]
+                t0 = dates_raw[0][-5:] if len(dates_raw[0]) >= 5 else "Open"
+                t1 = dates_raw[-1][-5:] if len(dates_raw[-1]) >= 5 else "Now"
+                return render_ascii_intraday_chart(ticker, prices, labels=[t0, t1], subtitle="Intraday")
+    except Exception:
+        pass
+
+    df = fallback_ohlcv if (fallback_ohlcv is not None and not getattr(fallback_ohlcv, "empty", True)) else fetch_jk_ohlcv(ticker, range_str="1mo")
+    if df is not None and not df.empty and len(df) >= 2:
+        tail = df.tail(24)
+        prices = tail["close"].astype(float).tolist()
+        d0 = str(tail["date"].iloc[0])[5:10]
+        d1 = str(tail["date"].iloc[-1])[5:10]
+        return render_ascii_intraday_chart(ticker, prices, labels=[d0, d1], subtitle="24H")
+    return f"📈 *{ticker}* — Data grafik belum tersedia."
+
+
+async def cmd_chart(message: Message) -> None:
+    ticker = _extract_ticker_arg(message.text or "")
+    if not ticker:
+        await message.answer("Gunakan format: `/chart BBCA`")
+        return
+    wait_msg = await message.answer(f"📈 Mengambil grafik *{ticker}*...")
+    chart_txt = await asyncio.to_thread(_build_ascii_chart_for_ticker, ticker)
+    await wait_msg.edit_text(chart_txt)
 
 
 async def cmd_watch(message: Message) -> None:
@@ -256,7 +296,8 @@ async def on_plain_ticker(message: Message) -> None:
             await wait_msg.edit_text(f"❌ Data pasar untuk `{txt}.JK` tidak ditemukan.")
             return
         cap = store.get_capital(message.chat.id)
-    await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap))
+        ascii_chart = await asyncio.to_thread(_build_ascii_chart_for_ticker, txt, res.get("ohlcv_df"))
+        await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + ascii_chart)
 
 
 async def scheduler_loop(bot: Bot) -> None:
@@ -410,6 +451,7 @@ def build_dispatcher() -> Dispatcher:
     dp = Dispatcher()
     dp.message.register(cmd_start, Command("start", "help"))
     dp.message.register(cmd_cek, Command("cek", "check"))
+    dp.message.register(cmd_chart, Command("chart", "grafik"))
     dp.message.register(cmd_watch, Command("watch"))
     dp.message.register(cmd_unwatch, Command("unwatch"))
     dp.message.register(cmd_watchlist, Command("watchlist"))
@@ -571,6 +613,7 @@ async def main() -> None:
     try:
         await bot.set_my_commands([
             BotCommand(command="cek", description="Analisis saham & sentimen arah (misal /cek BBCA)"),
+            BotCommand(command="chart", description="Grafik mini intraday real-time (ASCII)"),
             BotCommand(command="morning", description="Scan Morning Confluence watchlist"),
             BotCommand(command="watch", description="Tambah saham ke watchlist alert"),
             BotCommand(command="unwatch", description="Hapus saham dari watchlist"),
