@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import textwrap
+from datetime import datetime, timedelta
 from typing import Any
 
 import matplotlib
@@ -12,6 +13,20 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from src.engine.risk_manager import compute_risk_reward_plan
+
+
+def _next_trading_date_label(last_date_str: str, trading_days_ahead: int) -> str:
+    """Advances N IDX trading days (skipping Saturday & Sunday) and returns MM-DD label."""
+    try:
+        cur = datetime.strptime(str(last_date_str)[:10], "%Y-%m-%d").date()
+    except Exception:
+        return f"+{trading_days_ahead}HB"
+    added = 0
+    while added < trading_days_ahead:
+        cur += timedelta(days=1)
+        if cur.weekday() < 5:
+            added += 1
+    return f"{cur.strftime('%m-%d')} (+{trading_days_ahead}HB)"
 
 
 def _fmt_rp_short(val: float | None) -> str:
@@ -141,8 +156,9 @@ def render_morning_chart(
         tick_idx = xs[::step]
         tick_lbl = [str(df_tail.iloc[i]["date"])[5:10] for i in tick_idx]
         if mid_pts:
+            last_d = str(df_tail.iloc[-1]["date"])[:10]
             tick_idx = tick_idx + [xs[-1] + len(mid_pts)]
-            tick_lbl = tick_lbl + [f"+{len(mid_pts)}H"]
+            tick_lbl = tick_lbl + [_next_trading_date_label(last_d, len(mid_pts))]
         ax1.set_xticks(tick_idx)
         ax1.set_xticklabels(tick_lbl, color=muted_color, fontsize=7.5)
     else:
