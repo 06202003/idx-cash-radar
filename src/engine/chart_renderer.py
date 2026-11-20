@@ -194,6 +194,82 @@ def render_morning_chart(
     return buf.read()
 
 
+def render_ascii_bar_chart(
+    ticker: str,
+    prices: list[float],
+    labels: list[str] | None = None,
+    width: int = 16,
+    height: int = 5,
+    subtitle: str = "Intraday",
+) -> str:
+    """
+    Renders a clean solid-block ASCII/Unicode bar chart using single-backtick monospace lines
+    (no triple-backtick COPY CODE box on Telegram mobile).
+    """
+    clean_t = ticker.strip().upper().replace(".JK", "")
+    valid = [float(p) for p in prices if p is not None and float(p) > 0]
+    if len(valid) < 2:
+        return f"📈 *{clean_t}* — Data grafik belum cukup."
+
+    if len(valid) > width:
+        sampled = [valid[int(round(i * (len(valid) - 1) / (width - 1)))] for i in range(width)]
+    else:
+        sampled = valid
+
+    lo = min(sampled)
+    hi = max(sampled)
+    span = hi - lo if hi > lo else max(1.0, hi * 0.01)
+
+    # Use half-step resolution (height * 2) with █ (full) and ▄ (bottom half)
+    max_units = height * 2
+    units = [
+        max(1, min(max_units, int(round((p - lo) / span * (max_units - 1))) + 1))
+        for p in sampled
+    ]
+
+    def _px_s(v: float) -> str:
+        return f"{int(round(v)):,}".replace(",", ".")
+
+    hi_s = _px_s(hi)
+    mid_s = _px_s((hi + lo) / 2.0)
+    lo_s = _px_s(lo)
+    pad_w = max(len(hi_s), len(mid_s), len(lo_s))
+    mid_row = height // 2
+
+    lines = []
+    for r in range(height):
+        level_bot = (height - 1 - r) * 2
+        row_chars = []
+        for u in units:
+            if u >= level_bot + 2:
+                row_chars.append("█")
+            elif u == level_bot + 1:
+                row_chars.append("▄")
+            else:
+                row_chars.append(" ")
+        if r == 0:
+            axis = hi_s.rjust(pad_w) + " |"
+        elif r == mid_row:
+            axis = mid_s.rjust(pad_w) + " |"
+        elif r == height - 1:
+            axis = lo_s.rjust(pad_w) + " |"
+        else:
+            axis = (" " * pad_w) + " |"
+        lines.append(f"`{axis}{''.join(row_chars)}`")
+
+    t_start = labels[0] if labels and len(labels) >= 1 else "Open"
+    t_end = labels[-1] if labels and len(labels) >= 2 else "Now"
+    cols = len(sampled)
+    gap = max(1, cols - len(t_start) - len(t_end))
+    footer = (" " * (pad_w + 2)) + t_start + (" " * gap) + t_end
+    lines.append(f"`{footer}`")
+
+    first_px, last_px = valid[0], valid[-1]
+    chg = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
+    header = f"📊 *{clean_t} {subtitle}* | `{_px_s(last_px)}` (`{chg:+.2f}%`)"
+    return header + "\n" + "\n".join(lines)
+
+
 def render_sparkline_line(
     ticker: str,
     prices: list[float],

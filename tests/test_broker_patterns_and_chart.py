@@ -8,7 +8,7 @@ import pandas as pd
 
 from src.db.store import AlertStore
 from src.engine.broker_patterns import analyze_broker_patterns
-from src.engine.chart_renderer import render_intraday_png, render_morning_chart, render_sparkline_line
+from src.engine.chart_renderer import render_ascii_bar_chart, render_morning_chart, render_sparkline_line
 
 
 def _sample_ohlcv() -> pd.DataFrame:
@@ -108,13 +108,14 @@ def test_render_morning_chart_outputs_valid_png(tmp_path: Path) -> None:
     assert len(png_bytes) > 10_000
 
 
-def test_render_sparkline_and_intraday_png() -> None:
+def test_render_sparkline_and_ascii_bar_chart() -> None:
     prices = [3840, 3850, 3870, 3860, 3890, 3910, 3900, 3880, 3895, 3920]
     spark = render_sparkline_line("BMRI", prices, subtitle="Intraday")
     assert "BMRI Intraday" in spark
     assert "```" not in spark
     assert "▁" in spark and "█" in spark
 
-    png = render_intraday_png("BMRI", prices, labels=["09:00", "14:50"], subtitle="Intraday")
-    assert png[:8] == b"\x89PNG\r\n\x1a\n"
-    assert len(png) > 5_000
+    bar = render_ascii_bar_chart("BMRI", prices, labels=["09:00", "14:50"], subtitle="Intraday")
+    assert "BMRI Intraday" in bar
+    assert "```" not in bar
+    assert "█" in bar

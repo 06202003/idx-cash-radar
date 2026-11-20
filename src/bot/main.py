@@ -53,7 +53,7 @@ from src.engine.anomaly_detectors import (
     format_wall_pulled_alert,
 )
 from src.engine.broker_patterns import analyze_broker_patterns
-from src.engine.chart_renderer import render_intraday_png, render_morning_chart, render_sparkline_line
+from src.engine.chart_renderer import render_ascii_bar_chart, render_morning_chart, render_sparkline_line
 from src.engine.orderbook_monitor import detect_orderbook_wall_deltas, format_orderbook_wall_alert
 from src.engine.scanner import analyze_ticker, format_ticker_alert
 
@@ -169,17 +169,13 @@ async def cmd_chart(message: Message) -> None:
     if not ticker:
         await message.answer("Gunakan format: `/chart BBCA`")
         return
-    wait_msg = await message.answer(f"📈 Menggambar grafik *{ticker}*...")
+    wait_msg = await message.answer(f"📊 Mengambil grafik *{ticker}*...")
     prices, labels, subtitle = await asyncio.to_thread(_fetch_chart_series, ticker)
     if len(prices) < 2:
         await wait_msg.edit_text(f"❌ Data grafik *{ticker}* belum tersedia.")
         return
-    png_bytes = await asyncio.to_thread(render_intraday_png, ticker, prices, labels, subtitle)
-    await wait_msg.delete()
-    await message.answer_photo(
-        BufferedInputFile(png_bytes, filename=f"{ticker}_chart.png"),
-        caption=render_sparkline_line(ticker, prices, subtitle=subtitle),
-    )
+    chart_txt = render_ascii_bar_chart(ticker, prices, labels=labels, subtitle=subtitle)
+    await wait_msg.edit_text(chart_txt)
 
 
 async def cmd_watch(message: Message) -> None:
