@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+token_cache.json
+surge_state.json
+data/
+backup-*/
