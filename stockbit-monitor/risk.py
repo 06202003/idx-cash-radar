@@ -104,3 +104,50 @@ def cost_line(r: dict, always: bool = False) -> str:
     if bad:
         return f"💸 <b>TIDAK LAYAK SCALPING</b> — {txt}"
     return f"💸 {txt}"
+
+
+# ---------- gap pembukaan hari ini (research/2026-11-22-gap-pembukaan.md, ide I4) ----------
+GAP_BIG = 0.05
+GAP_PATH = "/company-price-feed/v2/orderbook/companies/{code}"  # field open & previous
+_gap: dict[tuple[str, str], float | None] = {}
+_gap_quota = {"day": "", "n": 0}
+GAP_MAX_REQ = 400  # per hari
+
+
+def fetch_gap(auth, sym: str) -> float | None:
+    """open hari ini / close kemarin − 1, dari endpoint orderbook (sekali per saham per hari).
+    Blocking (panggil lewat thread). None kalau belum buka / gagal / kuota habis."""
+    now = datetime.now(WIB)
+    today = now.strftime("%Y-%m-%d")
+    key = (sym, today)
+    if key in _gap:
+        return _gap[key]
+    if now.strftime("%H:%M") < "09:00" or auth is None:
+        return None  # open resmi baru ada setelah pre-opening
+    if _gap_quota["day"] != today:
+        _gap_quota.update(day=today, n=0)
+    if _gap_quota["n"] >= GAP_MAX_REQ:
+        return None
+    _gap_quota["n"] += 1
+    try:
+        r = auth._get(GAP_PATH.format(code=sym), auth.token.access_token)
+        d = (r.json().get("data") or {}) if r.status_code == 200 else {}
+        o, p = float(d.get("open") or 0), float(d.get("previous") or 0)
+        gap = (o / p - 1) if o > 0 and p > 0 else None
+    except Exception:  # noqa: BLE001
+        gap = None
+    if gap is not None:
+        _gap[key] = gap
+    return gap
+
+
+def gap_cached(sym: str) -> float | None:
+    return _gap.get((sym, datetime.now(WIB).strftime("%Y-%m-%d")))
+
+
+def gap_line(gap: float | None) -> str:
+    if gap is None or gap < GAP_BIG:
+        return ""
+    return (f"⚠️ <b>GAP NAIK BESAR</b> — buka +{gap * 100:.1f}% dari close kemarin. Historis median "
+            f"−2% dari open s.d. close, cuma 34% naik (jangan beli di open; pemegang: jual di open "
+            f"historis lebih baik)").replace(".", ",", 1)

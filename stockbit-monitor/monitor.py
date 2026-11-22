@@ -683,6 +683,8 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                 except Exception as e:  # noqa: BLE001
                     rk = {}
                     log.warning("Risiko %s gagal: %s", stock, e)
+                # gap pembukaan: 1 request per saham per hari (open & previous dari endpoint orderbook)
+                gap = await asyncio.to_thread(risk.fetch_gap, auth, stock)
                 log_alert({
                     "ts": round(now), "stock": stock, "action": surge_result["dominant_action"],
                     "price": price, "change": snap["change"], "sum": surge_result["current_sum"],
@@ -692,6 +694,7 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                     "at_high": snap["at_high"], "at_low": snap["at_low"], "liquid": liquid,
                     "code": code, "muted": muted,
                     "lock_prev": f"{rk['lock']}{rk['lock_days']}" if rk.get("lock") else None,
+                    "gap_open": round(gap, 4) if gap is not None else None,
                     "be": round(rk["be"], 4) if rk.get("be") else None,
                     "be_ratio": round(rk["be_ratio"], 3) if rk.get("be_ratio") else None,
                 })
@@ -719,7 +722,7 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                 log.info("ALERT LONJAKAN %s [%s] action=%s total=%.0f z=%s count=%d", stock, code,
                           surge_result["dominant_action"], surge_result["current_sum"],
                           surge_result["z"], surge_result["count"])
-                extra_lines = [x for x in (risk.lock_line(rk), risk.cost_line(rk)) if x]
+                extra_lines = [x for x in (risk.gap_line(gap), risk.lock_line(rk), risk.cost_line(rk)) if x]
                 if extra_lines:
                     msg += "\n" + "\n".join(extra_lines)
                 if _market["m"] is not None:
@@ -803,7 +806,8 @@ async def main():
 
         def watch_risk_lines(sym: str, px: float) -> list[str]:
             rk = risk.assess(DATA_DIR, sym, px)  # cache disk, tanpa jaringan
-            return [x for x in (risk.lock_line(rk), risk.cost_line(rk, always=True)) if x]
+            gap_ln = risk.gap_line(risk.gap_cached(sym))  # sudah diambil di alert pemicunya
+            return [x for x in (gap_ln, risk.lock_line(rk), risk.cost_line(rk, always=True)) if x]
 
         watch.extra_fn = watch_risk_lines
         watch.note_fn = lambda: ("IHSG sedang tren turun (di bawah MA20 & MA50) — sinyal beli historis lebih lemah"
