@@ -135,7 +135,8 @@ def advise(ind: dict) -> list[str]:
     t, rsi = trend(ind), ind["rsi"]
     out = []
     if t == "up" and rsi > 70:
-        out.append("🚀 Uptrend kuat — RSI di atas 70. Historis +1,2% vs pasar dalam 5 hari; RSI tinggi bukan sinyal jual")
+        out.append("🚀 Uptrend kuat — RSI di atas 70. Historis +2,5% vs pasar per 5 hari saat IHSG tren naik, "
+                   "tapi TIDAK signifikan saat IHSG tren turun (cek baris IHSG); RSI tinggi bukan sinyal jual")
     elif t == "up":
         out.append("📈 Uptrend — di atas MA20 dan MA50. Historis hanya sedikit di atas pasar (+0,3% per 5 hari)")
     elif t == "down":

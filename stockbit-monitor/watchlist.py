@@ -71,6 +71,8 @@ class AutoWatchlist:
         self.closed: list[dict] = []  # pantauan yang sudah keluar hari ini (buat rekap)
         self.flow: dict[str, deque] = {}  # stock -> deque[(ts, action, value)] -- hanya saham aktif
         self.recap_sent_day = ""
+        self.context_fn = None  # -> dict kondisi IHSG, diisi monitor.py
+        self.note_fn = None  # -> str catatan kondisi pasar buat pesan masuk pantauan
 
     # ---------- siklus hari & persistensi ----------
     def _roll_day(self, ts: float) -> None:
@@ -103,7 +105,15 @@ class AutoWatchlist:
         self.flow = {s: deque() for s in self.active}
         log.info("Watchlist dimuat balik: %d saham aktif.", len(self.active))
 
+    def _ctx(self) -> dict:
+        """Label kondisi pasar (market.MarketContext.snapshot) kalau disambungkan."""
+        try:
+            return self.context_fn() if self.context_fn else {}
+        except Exception:  # noqa: BLE001
+            return {}
+
     def _log(self, event: str, stock: str, ts: float, **extra) -> None:
+        extra = {**self._ctx(), **extra}
         try:
             path = os.path.join(self.data_dir, f"watch-{datetime.fromtimestamp(ts, tz=WIB).strftime('%Y-%m')}.jsonl")
             with open(path, "a", encoding="utf-8") as f:
@@ -156,6 +166,12 @@ class AutoWatchlist:
         self._log("enter", stock, ts, price=price, code=code, buy=n_buy, sell=n_sell, manual=manual)
         why = ("ditambah manual" if manual else
                f"alert beli berulang hari ini: {n_buy} beli · {n_sell} jual (pemicu: {code})")
+        note = ""
+        try:
+            note = self.note_fn() if self.note_fn else ""
+        except Exception:  # noqa: BLE001
+            pass
+        why = f"{why}\n🌐 {note}" if note else why
         return (f"👁 <b>{stock}</b>  ·  MASUK PANTAUAN  ·  {_rp(price)}\n{why}\n"
                 f"Keluar otomatis: −{self.stop_pct:g}% dari masuk, −{self.trail_pct:g}% dari puncak, "
                 f"arus berbalik jual, {self.max_sell_alerts}× lonjakan jual, atau {self.idle_sec // 60} mnt "

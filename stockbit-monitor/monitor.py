@@ -22,7 +22,10 @@ import requests
 from dotenv import load_dotenv
 
 import broksum
+import broksum_adaptive
+import market
 import market_context
+import measure
 import obdetect
 import orderbook
 import technical
@@ -46,6 +49,10 @@ NEGO_ALERT_COOLDOWN_SEC = 60
 _live_auth: dict = {"auth": None}
 # pendeteksi pola orderbook/algo (diisi di main kalau watchlist nyala) -- dipakai _poll_loop
 _pattern: dict = {"det": None}
+# pengukuran kelengkapan running trade (lihat measure.py)
+_meter: dict = {"m": None}
+# konteks IHSG (lihat market.py)
+_market: dict = {"m": None}
 
 
 def get_auth() -> StockbitAuthClient:
@@ -308,6 +315,8 @@ def format_nego_alert(item: dict, stock: str, price: float, lot: float, value_id
 
 def log_alert(record: dict) -> None:
     """Catat tiap alert ke data/alerts-YYYY-MM.jsonl (buat evaluasi/riset belakangan)."""
+    if _market["m"] is not None:
+        record = {**_market["m"].snapshot(), **record}
     try:
         path = os.path.join(DATA_DIR, f"alerts-{datetime.now(WIB).strftime('%Y-%m')}.jsonl")
         with open(path, "a", encoding="utf-8") as f:
@@ -609,12 +618,19 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
         for k in [k for k, t in seen.items() if t < cutoff]:
             del seen[k]
 
+        meter = _meter["m"]
+        if meter is not None:
+            n_new = sum(1 for it in trades if f"{it.get('code')}|{it.get('trade_number')}" not in seen)
+            meter.on_poll(len(trades), n_new)
+
         # urutkan dari yang paling lama ke paling baru biar kronologis wajar
         for item in reversed(trades):
             trade_key = f"{item.get('code')}|{item.get('trade_number')}"
             if trade_key in seen:
                 continue
             seen[trade_key] = now
+            if meter is not None:
+                meter.on_trade(item)
 
             action = item.get("action", "")
             try:
@@ -692,6 +708,10 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                 log.info("ALERT LONJAKAN %s [%s] action=%s total=%.0f z=%s count=%d", stock, code,
                           surge_result["dominant_action"], surge_result["current_sum"],
                           surge_result["z"], surge_result["count"])
+                if _market["m"] is not None:
+                    ihsg = _market["m"].line()
+                    if ihsg:
+                        msg += "\n" + ihsg
                 notifier.send(msg)
                 for m in watch_msgs:
                     log.info("WATCH %s: %s", stock, m.splitlines()[0])
@@ -733,6 +753,22 @@ async def main():
     )
 
     os.makedirs(DATA_DIR, exist_ok=True)
+    mkt = market.MarketContext(DATA_DIR)
+    _market["m"] = mkt
+
+    async def market_poll_loop():
+        """IHSG tiap ~5 menit, hanya selama sesi polling aktif (pakai sesi yang sama)."""
+        while True:
+            await asyncio.sleep(random.uniform(270, 330))
+            auth = _live_auth["auth"]
+            if auth is None:
+                continue
+            try:
+                await asyncio.to_thread(mkt.poll, auth)
+            except Exception as e:  # noqa: BLE001
+                log.warning("Ambil IHSG gagal: %s", e)
+
+    asyncio.create_task(market_poll_loop())
     watch = None
     if cfg["watch_auto"]:
         watch = watchlist.AutoWatchlist(
@@ -749,6 +785,9 @@ async def main():
             max_sell_alerts=cfg["watch_max_sell_alerts"],
         )
         watch.load_state()
+        watch.context_fn = mkt.snapshot
+        watch.note_fn = lambda: ("IHSG sedang tren turun (di bawah MA20 & MA50) — sinyal beli historis lebih lemah"
+                                 if (mkt.regime() or {}).get("trend") == "down" else "")
 
     async def periodic_save_state():
         while True:
@@ -784,6 +823,31 @@ async def main():
     if watch is not None:
         asyncio.create_task(watch_recap_loop())
 
+    if os.environ.get("MEASURE_COVERAGE", "1") == "1":
+        meter = measure.CoverageMeter(DATA_DIR)
+        meter.context_fn = mkt.snapshot
+        _meter["m"] = meter
+
+        async def measure_report_loop():
+            """Sekali per hari bursa setelah MARKET_CLOSE: laporan kelengkapan running trade."""
+            while True:
+                await asyncio.sleep(60)
+                now = datetime.now(WIB)
+                today = now.strftime("%Y-%m-%d")
+                if (not is_trading_day(now) or now.strftime("%H:%M") < cfg["market_close"]
+                        or meter.day != today or meter.report_done or meter.polls == 0):
+                    continue
+                meter.report_done = True
+                try:
+                    _rep, text = await asyncio.to_thread(
+                        meter.build_report, get_auth(), cfg["orderbook_path"], universe, meter.probe_result)
+                    notifier.send(text)
+                    log.info("Laporan pengukuran %s terkirim.", today)
+                except Exception as e:  # noqa: BLE001
+                    log.exception("Laporan pengukuran gagal: %s", e)
+
+        asyncio.create_task(measure_report_loop())
+
     ob = orderbook.OrderbookCollector(
         DATA_DIR, cfg["orderbook_path"], cfg["orderbook_interval_sec"],
         cfg["orderbook_levels"], cfg["orderbook_max_mb_per_day"],
@@ -797,6 +861,7 @@ async def main():
             algo_min_trades=int(os.environ.get("OBD_ALGO_MIN_TRADES", "6")),
             algo_max_cv=float(os.environ.get("OBD_ALGO_MAX_CV", "0.15")),
         )
+        det.context_fn = mkt.snapshot
         _pattern["det"] = det
 
         def on_snapshot(code: str, ts: float, payload) -> None:
@@ -810,6 +875,12 @@ async def main():
     prices = market_context.PriceContext()
     store = broksum.BroksumStore(DATA_DIR)
     bars = technical.DailyBars(DATA_DIR)
+    adaptive = broksum_adaptive.AdaptiveBroksum(
+        DATA_DIR, store, bars, is_trading_day,
+        max_range_req=int(os.environ.get("BROKSUM_ADAPTIVE_MAX_REQ", "60")),
+    ) if os.environ.get("BROKSUM_ADAPTIVE", "1") == "1" else None
+    if adaptive is not None:
+        adaptive.context_fn = mkt.snapshot
     try:
         with open(UNIVERSE_PATH, encoding="utf-8") as f:
             universe = json.load(f)
@@ -849,7 +920,28 @@ async def main():
                 broksum.build_recap, store, get_auth(), day, alert_counts_today(), is_trading_day,
                 cfg["eod_recap_min_alerts"], cfg["eod_recap_max_stocks"], evening_tech_line,
             )
-        for m in msgs + screen:
+            extra = []
+            if adaptive is not None:
+                counts = alert_counts_today()
+                recap_syms = sorted(
+                    (s for s, c in counts.items() if c.get("buy", 0) + c.get("sell", 0) >= cfg["eod_recap_min_alerts"]),
+                    key=lambda s: -(counts[s].get("buy", 0) + counts[s].get("sell", 0)),
+                )[:cfg["eod_recap_max_stocks"]]
+                watched = set()
+                if watch is not None and watch.day == day:
+                    watched = set(watch.active) | {r["stock"] for r in watch.closed}
+                cands = [(s, counts.get(s, {}).get("buy", 0), counts.get(s, {}).get("sell", 0), s in watched)
+                         for s in dict.fromkeys(recap_syms + sorted(watched))]
+                try:
+                    extra = await asyncio.to_thread(adaptive.run, get_auth(), day, cands)
+                except Exception as e:  # noqa: BLE001
+                    log.exception("Broksum adaptif gagal: %s", e)
+        try:
+            summary = await asyncio.to_thread(mkt.evening_summary)
+        except Exception as e:  # noqa: BLE001
+            summary = ""
+            log.warning("Ringkasan pasar gagal: %s", e)
+        for m in ([summary] if summary else []) + msgs + extra + screen:
             notifier.send(m)
 
     async def eod_recap_loop():

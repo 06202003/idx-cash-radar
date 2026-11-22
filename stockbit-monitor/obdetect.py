@@ -63,6 +63,7 @@ class PatternDetector:
         self.algo_last: dict[tuple, float] = {}
         self.today_counts: Counter = Counter()
         self.recent: deque = deque(maxlen=200)
+        self.context_fn = None  # -> dict kondisi IHSG, diisi monitor.py
 
     # ---------- util ----------
     def _roll_day(self, ts: float) -> None:
@@ -74,7 +75,12 @@ class PatternDetector:
             self.today_counts, self.recent = Counter(), deque(maxlen=200)
 
     def _emit(self, kind: str, stock: str, ts: float, **info) -> dict:
-        rec = {"ts": round(ts), "kind": kind, "stock": stock, **info}
+        ctx = {}
+        try:
+            ctx = self.context_fn() if self.context_fn else {}
+        except Exception:  # noqa: BLE001
+            pass
+        rec = {"ts": round(ts), "kind": kind, "stock": stock, **ctx, **info}
         self.today_counts[(stock, kind)] += 1
         self.recent.append(rec)
         try:
