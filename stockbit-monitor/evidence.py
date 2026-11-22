@@ -70,7 +70,7 @@ class EvidenceTable:
         return os.path.join(self.data_dir, f"{prefix}-{day[:7]}.jsonl")
 
     def _alerts(self, day: str):
-        out = defaultdict(lambda: {"buy": 0, "sell": 0, "codes": Counter()})
+        out = defaultdict(lambda: {"buy": 0, "sell": 0, "codes": Counter(), "liquid": None})
         for r in _read_jsonl(self._month_files("alerts", day)):
             if _day_of(r.get("ts", 0)) != day:
                 continue
@@ -78,6 +78,8 @@ class EvidenceTable:
             if r.get("action") in ("buy", "sell"):
                 a[r["action"]] += 1
             a["codes"][r.get("code") or "?"] += 1
+            if r.get("liquid") is not None:
+                a["liquid"] = bool(r["liquid"]) if a["liquid"] is None else (a["liquid"] or bool(r["liquid"]))
         return out
 
     def _watch(self, day: str):
@@ -167,7 +169,7 @@ class EvidenceTable:
                     row["acc_today"] = round(acc["today"], 4)
             a = alerts.get(sym)
             if a:
-                row.update({"n_buy": a["buy"], "n_sell": a["sell"], "codes": dict(a["codes"]),
+                row.update({"n_buy": a["buy"], "n_sell": a["sell"], "codes": dict(a["codes"]), "liquid": a["liquid"],
                             "buy_dom": (a["buy"] + a["sell"]) >= 3 and a["buy"] >= 2 * a["sell"]})
             row.update(watch.get(sym, {}))
             row.update(dict(pats.get(sym, {})))

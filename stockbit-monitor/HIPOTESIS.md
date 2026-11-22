@@ -23,5 +23,11 @@ Aturan main:
 | H6 | Kandidat tembok bid dicabut (WALL_PULLED sisi bid) di saham pantauan | rel1 negatif | |
 | H7 | Saham dijaga (konsentrasi ≥45%): IHSG hari merah vs hijau | selisih return dijaga vs tidak dijaga mengecil saat IHSG hijau (efek "tahan turun") | |
 
+## Klarifikasi definisi (2026-11-22, SEBELUM forward test mulai 2026-11-23)
+- "Alert beli dominan" (H1, H2) hanya saham **likuid** menurut alert (ADV ≥ Rp1 M) dan harga
+  ≥ Rp50. Alasan: uji coba paper menunjukkan saham Rp10-an rugi ±20% cuma dari 1 tick beli +
+  1 tick jual — itu biaya spread, bukan informasi sinyal.
+- Paper trading: `papertrade.py` aturan v1, mulai 2026-11-23, kertas saja.
+
 ## Ide baru (dinilai hanya di data sesudah tanggalnya)
 _(kosong)_

@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 import broksum
 import broksum_adaptive
 import evidence
+import papertrade
 import market
 import market_context
 import measure
@@ -889,6 +890,8 @@ async def main():
         universe = []
     evid = (evidence.EvidenceTable(DATA_DIR, store, bars, is_trading_day, universe)
             if os.environ.get("EVIDENCE_TABLE", "1") == "1" else None)
+    paper = (papertrade.PaperBook(DATA_DIR, bars, is_trading_day)
+             if evid is not None and os.environ.get("PAPER_TRADE", "1") == "1" else None)
 
     def evening_tech_line(sym: str) -> str:
         ind = technical.indicators(bars.get(sym, max_age=1800))
@@ -951,6 +954,18 @@ async def main():
                 await asyncio.to_thread(evid.run_daily, day)
             except Exception as e:  # noqa: BLE001
                 log.exception("Tabel bukti gagal: %s", e)
+            if paper is not None:
+                try:
+                    await asyncio.to_thread(paper.run_daily, day)
+                    # laporan mingguan: hari bursa terakhir minggu ini
+                    d = datetime.strptime(day, "%Y-%m-%d")
+                    nxt = d + timedelta(days=1)
+                    while not is_trading_day(nxt):
+                        nxt += timedelta(days=1)
+                    if nxt.isocalendar()[1] != d.isocalendar()[1]:
+                        notifier.send(await asyncio.to_thread(paper.report))
+                except Exception as e:  # noqa: BLE001
+                    log.exception("Paper trading gagal: %s", e)
 
     async def eod_recap_loop():
         """Sekali per hari bursa, setelah EOD_RECAP_TIME: rekap broksum saham yang ramai alert."""
@@ -1106,6 +1121,12 @@ async def main():
         sym = args[0].upper() if args and args[0].isalnum() and len(args[0]) <= 6 else None
         notifier.send(det.format_summary(sym))
 
+    async def cmd_paper(_args: list[str]) -> None:
+        if paper is None:
+            notifier.send("Paper trading mati (PAPER_TRADE=0 / EVIDENCE_TABLE=0).")
+            return
+        notifier.send(await asyncio.to_thread(paper.report))
+
     async def cmd_ob(args: list[str]) -> None:
         if not ob.enabled:
             notifier.send("Orderbook belum aktif: ORDERBOOK_PATH di .env belum diisi.")
@@ -1139,6 +1160,7 @@ async def main():
             "/lepas KODE — keluarkan saham dari pantauan\n"
             "/ob KODE — orderbook 5 level (butuh ORDERBOOK_PATH)\n"
             "/pola [KODE] — kandidat tembok dicabut / iceberg / pola algo hari ini\n"
+            "/paper — hasil paper trading (kertas, tanpa uang)\n"
             "/broksum KODE [YYYY-MM-DD] — broker summary, broker penggerak 10 hari + penilaian\n"
             "/ta KODE — teknikal harian (tren, RSI, support/resisten) + saran\n"
             "/akumulasi — screening saham dijaga & masih sepi\n"
@@ -1152,7 +1174,7 @@ async def main():
         token_cache_path=TOKEN_CACHE_PATH,
         reply_fn=notifier.send,
         commands={"/broksum": cmd_broksum, "/ta": cmd_ta, "/akumulasi": cmd_akumulasi, "/rekap": cmd_rekap,
-                  "/status": cmd_status, "/help": cmd_help, "/pantau": cmd_pantau, "/lepas": cmd_lepas, "/ob": cmd_ob, "/pola": cmd_pola},
+                  "/status": cmd_status, "/help": cmd_help, "/pantau": cmd_pantau, "/lepas": cmd_lepas, "/ob": cmd_ob, "/pola": cmd_pola, "/paper": cmd_paper},
     )
     asyncio.create_task(listener.poll_forever())
 
