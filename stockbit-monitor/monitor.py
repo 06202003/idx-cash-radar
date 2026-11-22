@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 import broksum
 import broksum_adaptive
 import evidence
+import research_collect
 import papertrade
 import market
 import market_context
@@ -914,6 +915,13 @@ async def main():
             if os.environ.get("EVIDENCE_TABLE", "1") == "1" else None)
     paper = (papertrade.PaperBook(DATA_DIR, bars, is_trading_day)
              if evid is not None and os.environ.get("PAPER_TRADE", "1") == "1" else None)
+    collector = None
+    if os.environ.get("RESEARCH_COLLECT", "1") == "1" and universe:
+        win = os.environ.get("RESEARCH_WINDOW", "19:00-06:30").split("-")
+        collector = research_collect.ResearchCollector(
+            DATA_DIR, TOKEN_CACHE_PATH, is_trading_day, universe,
+            max_req=int(os.environ.get("RESEARCH_MAX_REQ", "5000")), window=(win[0], win[1]), store=store)
+        asyncio.create_task(collector.run_forever(notifier.send))
 
     def evening_tech_line(sym: str) -> str:
         ind = technical.indicators(bars.get(sym, max_age=1800))
@@ -1143,6 +1151,12 @@ async def main():
         sym = args[0].upper() if args and args[0].isalnum() and len(args[0]) <= 6 else None
         notifier.send(det.format_summary(sym))
 
+    async def cmd_riset(_args: list[str]) -> None:
+        if collector is None:
+            notifier.send("Penarik riset mati (RESEARCH_COLLECT=0).")
+            return
+        notifier.send(await asyncio.to_thread(collector.status_text))
+
     async def cmd_paper(_args: list[str]) -> None:
         if paper is None:
             notifier.send("Paper trading mati (PAPER_TRADE=0 / EVIDENCE_TABLE=0).")
@@ -1183,6 +1197,7 @@ async def main():
             "/ob KODE — orderbook 5 level (butuh ORDERBOOK_PATH)\n"
             "/pola [KODE] — kandidat tembok dicabut / iceberg / pola algo hari ini\n"
             "/paper — hasil paper trading (kertas, tanpa uang)\n"
+            "/riset — progres penarikan data riset malam\n"
             "/broksum KODE [YYYY-MM-DD] — broker summary, broker penggerak 10 hari + penilaian\n"
             "/ta KODE — teknikal harian (tren, RSI, support/resisten) + saran\n"
             "/akumulasi — screening saham dijaga & masih sepi\n"
@@ -1196,7 +1211,7 @@ async def main():
         token_cache_path=TOKEN_CACHE_PATH,
         reply_fn=notifier.send,
         commands={"/broksum": cmd_broksum, "/ta": cmd_ta, "/akumulasi": cmd_akumulasi, "/rekap": cmd_rekap,
-                  "/status": cmd_status, "/help": cmd_help, "/pantau": cmd_pantau, "/lepas": cmd_lepas, "/ob": cmd_ob, "/pola": cmd_pola, "/paper": cmd_paper},
+                  "/status": cmd_status, "/help": cmd_help, "/pantau": cmd_pantau, "/lepas": cmd_lepas, "/ob": cmd_ob, "/pola": cmd_pola, "/paper": cmd_paper, "/riset": cmd_riset},
     )
     asyncio.create_task(listener.poll_forever())
 
