@@ -30,4 +30,8 @@ Aturan main:
 - Paper trading: `papertrade.py` aturan v1, mulai 2026-11-23, kertas saja.
 
 ## Ide baru (dinilai hanya di data sesudah tanggalnya)
-_(kosong)_
+| # | Tanggal | Ide | Dugaan | Sumber |
+|---|---|---|---|---|
+| I1 | 2026-11-22 | Beli open sesudah hari terkunci ARA (saham likuid) | negatif (rel1 < 0) | research/2026-11-22-biaya-tick-dan-ara-arb.md |
+| I2 | 2026-11-22 | Beli open (gap ≤ −5%) sesudah hari terkunci ARB | median negatif, rata-rata positif karena ekor — keyakinan rendah | sama |
+| I3 | 2026-11-22 | Rentetan ARB lebih panjang kalau naik ≥30% dlm 20 hari / IHSG tren turun | P(≥3 hari) lebih tinggi | sama |
