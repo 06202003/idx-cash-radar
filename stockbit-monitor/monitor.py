@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 
 import broksum
 import broksum_adaptive
+import evidence
 import market
 import market_context
 import measure
@@ -886,6 +887,8 @@ async def main():
             universe = json.load(f)
     except (OSError, json.JSONDecodeError):
         universe = []
+    evid = (evidence.EvidenceTable(DATA_DIR, store, bars, is_trading_day, universe)
+            if os.environ.get("EVIDENCE_TABLE", "1") == "1" else None)
 
     def evening_tech_line(sym: str) -> str:
         ind = technical.indicators(bars.get(sym, max_age=1800))
@@ -943,6 +946,11 @@ async def main():
             log.warning("Ringkasan pasar gagal: %s", e)
         for m in ([summary] if summary else []) + msgs + extra + screen:
             notifier.send(m)
+        if evid is not None:
+            try:
+                await asyncio.to_thread(evid.run_daily, day)
+            except Exception as e:  # noqa: BLE001
+                log.exception("Tabel bukti gagal: %s", e)
 
     async def eod_recap_loop():
         """Sekali per hari bursa, setelah EOD_RECAP_TIME: rekap broksum saham yang ramai alert."""
