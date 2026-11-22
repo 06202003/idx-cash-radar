@@ -38,3 +38,5 @@ Aturan main:
 | I4 | 2026-11-22 | Gap naik ≥ +5% (saham likuid): open → close | median negatif (≈ −2%) | research/2026-11-22-gap-pembukaan.md |
 | I5 | 2026-11-22 | Gap turun ≤ −5%: beli open → close | tidak ada edge sesudah biaya | sama |
 | I6 | 2026-11-22 | IHSG buka gap ≥ +1% / ≤ −1% → saham buka datar ikut arah IHSG s.d. close | searah, keyakinan rendah | sama |
+| I7 | 2026-11-22 | Bar 15:45 naik lalu lelang penutupan turun | 15:45 > 0, lelang < 0 | research/2026-11-22-jam-intraday.md |
+| I8 | 2026-11-22 | 30 menit pertama berbalik (kuintil paling turun s.d. 09:30 mengungguli sisa hari) | kuintil bawah > kuintil atas | sama |
