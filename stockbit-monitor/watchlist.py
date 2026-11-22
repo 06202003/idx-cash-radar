@@ -73,6 +73,7 @@ class AutoWatchlist:
         self.recap_sent_day = ""
         self.context_fn = None  # -> dict kondisi IHSG, diisi monitor.py
         self.note_fn = None  # -> str catatan kondisi pasar buat pesan masuk pantauan
+        self.extra_fn = None  # (saham, harga) -> list baris risiko (ARA/ARB, titik impas)
 
     # ---------- siklus hari & persistensi ----------
     def _roll_day(self, ts: float) -> None:
@@ -172,6 +173,12 @@ class AutoWatchlist:
         except Exception:  # noqa: BLE001
             pass
         why = f"{why}\n🌐 {note}" if note else why
+        try:
+            extra = self.extra_fn(stock, price) if self.extra_fn else []
+        except Exception:  # noqa: BLE001
+            extra = []
+        if extra:
+            why += "\n" + "\n".join(extra)
         return (f"👁 <b>{stock}</b>  ·  MASUK PANTAUAN  ·  {_rp(price)}\n{why}\n"
                 f"Keluar otomatis: −{self.stop_pct:g}% dari masuk, −{self.trail_pct:g}% dari puncak, "
                 f"arus berbalik jual, {self.max_sell_alerts}× lonjakan jual, atau {self.idle_sec // 60} mnt "

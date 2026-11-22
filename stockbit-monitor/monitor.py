@@ -27,6 +27,7 @@ import evidence
 import papertrade
 import market
 import market_context
+import risk
 import measure
 import obdetect
 import orderbook
@@ -677,6 +678,11 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                     surge_result["repeat_buy"], surge_result["repeat_sell"],
                 )
                 muted = code in cfg["alert_mute_codes"]
+                try:  # baca cache harian di disk saja, tanpa jaringan
+                    rk = await asyncio.to_thread(risk.assess, DATA_DIR, stock, price)
+                except Exception as e:  # noqa: BLE001
+                    rk = {}
+                    log.warning("Risiko %s gagal: %s", stock, e)
                 log_alert({
                     "ts": round(now), "stock": stock, "action": surge_result["dominant_action"],
                     "price": price, "change": snap["change"], "sum": surge_result["current_sum"],
@@ -685,6 +691,9 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                     "repeat_sell": surge_result["repeat_sell"], "pre15": snap["pre15"],
                     "at_high": snap["at_high"], "at_low": snap["at_low"], "liquid": liquid,
                     "code": code, "muted": muted,
+                    "lock_prev": f"{rk['lock']}{rk['lock_days']}" if rk.get("lock") else None,
+                    "be": round(rk["be"], 4) if rk.get("be") else None,
+                    "be_ratio": round(rk["be_ratio"], 3) if rk.get("be_ratio") else None,
                 })
                 # watchlist ikut menilai SEMUA alert (termasuk yang dibisukan)
                 watch_msgs = (watch.on_surge(stock, surge_result["dominant_action"], price, code, liquid, now)
@@ -710,6 +719,9 @@ async def _poll_loop(cfg, notifier, on_connected, surge, power, prices, store, b
                 log.info("ALERT LONJAKAN %s [%s] action=%s total=%.0f z=%s count=%d", stock, code,
                           surge_result["dominant_action"], surge_result["current_sum"],
                           surge_result["z"], surge_result["count"])
+                extra_lines = [x for x in (risk.lock_line(rk), risk.cost_line(rk)) if x]
+                if extra_lines:
+                    msg += "\n" + "\n".join(extra_lines)
                 if _market["m"] is not None:
                     ihsg = _market["m"].line()
                     if ihsg:
@@ -788,6 +800,12 @@ async def main():
         )
         watch.load_state()
         watch.context_fn = mkt.snapshot
+
+        def watch_risk_lines(sym: str, px: float) -> list[str]:
+            rk = risk.assess(DATA_DIR, sym, px)  # cache disk, tanpa jaringan
+            return [x for x in (risk.lock_line(rk), risk.cost_line(rk, always=True)) if x]
+
+        watch.extra_fn = watch_risk_lines
         watch.note_fn = lambda: ("IHSG sedang tren turun (di bawah MA20 & MA50) — sinyal beli historis lebih lemah"
                                  if (mkt.regime() or {}).get("trend") == "down" else "")
 
