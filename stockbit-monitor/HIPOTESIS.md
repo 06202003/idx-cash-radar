@@ -35,3 +35,6 @@ Aturan main:
 | I1 | 2026-11-22 | Beli open sesudah hari terkunci ARA (saham likuid) | negatif (rel1 < 0) | research/2026-11-22-biaya-tick-dan-ara-arb.md |
 | I2 | 2026-11-22 | Beli open (gap ≤ −5%) sesudah hari terkunci ARB | median negatif, rata-rata positif karena ekor — keyakinan rendah | sama |
 | I3 | 2026-11-22 | Rentetan ARB lebih panjang kalau naik ≥30% dlm 20 hari / IHSG tren turun | P(≥3 hari) lebih tinggi | sama |
+| I4 | 2026-11-22 | Gap naik ≥ +5% (saham likuid): open → close | median negatif (≈ −2%) | research/2026-11-22-gap-pembukaan.md |
+| I5 | 2026-11-22 | Gap turun ≤ −5%: beli open → close | tidak ada edge sesudah biaya | sama |
+| I6 | 2026-11-22 | IHSG buka gap ≥ +1% / ≤ −1% → saham buka datar ikut arah IHSG s.d. close | searah, keyakinan rendah | sama |
