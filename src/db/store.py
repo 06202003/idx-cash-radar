@@ -459,8 +459,27 @@ class AlertStore:
         if levels:
             notes.append(", ".join(levels))
 
+        is_dist = bool(flips and "DISTRIBUSI" in str(flips[-1].get("side") or "").upper())
+        is_serap = bool(flips and "SERAPAN" in str(flips[-1].get("side") or "").upper())
+        if (haki > haka * 1.2 and haki >= 2) or is_dist:
+            if haki > haka and is_dist:
+                advice = "💡 *Saran:* Jangan buy/kejar dulu — tunggu distribusi reda dan HAKA berbalik dominan."
+            elif is_dist:
+                advice = "💡 *Saran:* Hati-hati (jangan FOMO buy) — masih ada distribusi ke ritel, pantau ketahanan bid."
+            else:
+                advice = "💡 *Saran:* Tahan buy dulu — tekanan jual (HAKI) masih lebih deras."
+        elif (haka > haki * 1.2 and haka >= 2) or is_serap:
+            if haka > haki and is_serap:
+                advice = "💡 *Saran:* Jangan buru-buru sell (hold/pantau) — serapan non-ritel & HAKA masih dominan."
+            elif is_serap:
+                advice = "💡 *Saran:* Jangan panic sell dulu — ada serapan non-ritel, pantau konfirmasi HAKA."
+            else:
+                advice = "💡 *Saran:* Bias positif (hold/scalp) — tekanan beli (HAKA) unggul, pasang trailing stop."
+        else:
+            advice = "💡 *Saran:* Wait & see dulu — aliran order masih imbang, tunggu arah breakout bid/offer."
+
         extra = f"\n📌 {'; '.join(notes)}." if notes else ""
-        return f"{flow_txt}{extra}"
+        return f"{flow_txt}{extra}\n{advice}"
 
     def format_mm_pattern_report(self, ticker: str, day_wib: str | None = None) -> str:
         clean_t = ticker.strip().upper().replace(".JK", "")
