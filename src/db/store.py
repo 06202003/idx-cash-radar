@@ -383,6 +383,85 @@ class AlertStore:
             )
         return list(reversed(rows))
 
+    @staticmethod
+    def _format_mm_event_line(ev: dict[str, Any]) -> str:
+        et = str(ev.get("event_type") or "")
+        side = str(ev.get("side") or "").upper()
+        px = f"@{ev['price']:,}".replace(",", ".") if ev.get("price") else ""
+        lot = f"{ev['lot_delta']:+,} lot".replace(",", ".") if ev.get("lot_delta") is not None else ""
+        val = ""
+        if ev.get("value_idr"):
+            v = float(ev["value_idr"])
+            val = f"Rp {v/1e9:.2f}M" if abs(v) >= 1e9 else f"Rp {v/1e6:.0f}Jt"
+        detail = str(ev.get("detail") or "").replace("_", " ").strip()
+
+        if et == "WALL_ADDED":
+            label = f"Pasang {'Bid' if side == 'BID' else 'Offer' if side == 'OFFER' else side}".strip()
+            parts = [label, px, f"({lot})" if lot else ""]
+        elif et == "WALL_PULLED":
+            label = f"Cabut {'Bid' if side == 'BID' else 'Offer' if side == 'OFFER' else side}".strip()
+            parts = [label, px, f"({lot})" if lot else ""]
+        elif et == "WALL_EATEN":
+            label = f"{'Bid' if side == 'BID' else 'Offer' if side == 'OFFER' else 'Wall'} Dimakan"
+            parts = [label, px, f"({lot})" if lot else ""]
+        elif et in ("HAKA_1M", "HAKI_1M"):
+            label = "HAKA 1M" if et == "HAKA_1M" else "HAKI 1M"
+            clean_det = detail.split("(")[0].strip() if "(" in detail else detail
+            info = ", ".join(x for x in (val, clean_det) if x)
+            parts = [label, lot, f"({info})" if info else ""]
+        elif et == "BROKER_FLIP":
+            if "DISTRIBUSI" in side:
+                label = "Distribusi ke Ritel"
+            elif "SERAPAN" in side:
+                label = "Serapan Non-Ritel"
+            else:
+                label = "Broker Flip"
+            parts = [label, val, f"({detail})" if detail else ""]
+        else:
+            label = et.replace("_", " ").title()
+            parts = [label, side.replace("_", " "), px, lot, val, detail]
+
+        body = " ".join(p for p in parts if p)
+        return f"• `{ev['ts_wib']}` — {body}"
+
+    @staticmethod
+    def _build_mm_analysis(events: list[dict[str, Any]], counts: dict[str, int]) -> str:
+        haka = counts.get("HAKA_1M", 0)
+        haki = counts.get("HAKI_1M", 0)
+        if haka > haki * 1.2 and haka >= 2:
+            flow_txt = f"🟢 *Dominan Beli* (HAKA {haka}x vs HAKI {haki}x)"
+        elif haki > haka * 1.2 and haki >= 2:
+            flow_txt = f"🔴 *Dominan Jual* (HAKI {haki}x vs HAKA {haka}x)"
+        else:
+            flow_txt = f"🟡 *Tarik-Ulur Seimbang* (HAKA {haka}x vs HAKI {haki}x)"
+
+        notes: list[str] = []
+        flips = [e for e in events if e.get("event_type") == "BROKER_FLIP"]
+        if flips:
+            last_flip = flips[-1]
+            f_side = str(last_flip.get("side") or "").upper()
+            f_det = str(last_flip.get("detail") or "").replace("_", " ").strip()
+            if "DISTRIBUSI" in f_side:
+                notes.append(f"Distribusi ke ritel ({f_det})" if f_det else "Distribusi ke ritel")
+            elif "SERAPAN" in f_side:
+                notes.append(f"Serapan non-ritel ({f_det})" if f_det else "Serapan non-ritel")
+
+        last_bid_add = next((e for e in reversed(events) if e.get("event_type") == "WALL_ADDED" and e.get("side") == "BID" and e.get("price")), None)
+        last_off_add = next((e for e in reversed(events) if e.get("event_type") == "WALL_ADDED" and e.get("side") == "OFFER" and e.get("price")), None)
+        last_off_pull = next((e for e in reversed(events) if e.get("event_type") == "WALL_PULLED" and e.get("side") == "OFFER" and e.get("price")), None)
+        levels: list[str] = []
+        if last_bid_add:
+            levels.append(f"Bid dijaga @{int(last_bid_add['price']):,}".replace(",", "."))
+        if last_off_pull and (not last_off_add or last_off_pull["ts_wib"] >= last_off_add["ts_wib"]):
+            levels.append(f"Offer @{int(last_off_pull['price']):,} dicabut".replace(",", "."))
+        elif last_off_add:
+            levels.append(f"Offer ditahan @{int(last_off_add['price']):,}".replace(",", "."))
+        if levels:
+            notes.append(", ".join(levels))
+
+        extra = f"\n📌 {'; '.join(notes)}." if notes else ""
+        return f"{flow_txt}{extra}"
+
     def format_mm_pattern_report(self, ticker: str, day_wib: str | None = None) -> str:
         clean_t = ticker.strip().upper().replace(".JK", "")
         target_day = day_wib or datetime.now(WIB).strftime("%Y-%m-%d")
@@ -399,27 +478,20 @@ class AlertStore:
             et = ev["event_type"]
             counts[et] = counts.get(et, 0) + 1
 
+        analysis = self._build_mm_analysis(events, counts)
         summary_lines = [
-            f"• Wall Dipasang: `{counts.get('WALL_ADDED', 0)}x` | Wall Dicabut: `{counts.get('WALL_PULLED', 0)}x`",
-            f"• Dimakan HAKA/HAKI: `{counts.get('WALL_EATEN', 0)}x` | Dominan 1M: HAKA `{counts.get('HAKA_1M', 0)}x` / HAKI `{counts.get('HAKI_1M', 0)}x`",
+            f"• Tekanan Order: HAKA `{counts.get('HAKA_1M', 0)}x` vs HAKI `{counts.get('HAKI_1M', 0)}x`",
+            f"• Antrean Wall: Pasang `{counts.get('WALL_ADDED', 0)}x` | Cabut `{counts.get('WALL_PULLED', 0)}x` | Dimakan `{counts.get('WALL_EATEN', 0)}x`",
             f"• Broker Flip: `{counts.get('BROKER_FLIP', 0)}x`",
         ]
-
-        timeline: list[str] = []
-        for ev in events[-10:]:
-            px = f"@{ev['price']:,}".replace(",", ".") if ev.get("price") else ""
-            lot = f"{ev['lot_delta']:+,} lot".replace(",", ".") if ev.get("lot_delta") is not None else ""
-            val = ""
-            if ev.get("value_idr"):
-                v = float(ev["value_idr"])
-                val = f"Rp {v/1e9:.2f}M" if abs(v) >= 1e9 else f"Rp {v/1e6:.0f}Jt"
-            parts = [p for p in (ev["event_type"], ev.get("side") or "", px, lot, val, ev.get("detail") or "") if p]
-            timeline.append(f"`{ev['ts_wib']}` {' '.join(parts)}")
+        timeline = [self._format_mm_event_line(ev) for ev in events[-8:]]
 
         return (
-            f"📊 *REKAMAN POLA MARKET MAKER | {clean_t} ({target_day})*\n"
+            f"📊 *POLA MARKET MAKER | {clean_t} ({target_day})*\n"
+            f"{analysis}\n\n"
+            "*Ringkasan Hari Ini:*\n"
             + "\n".join(summary_lines)
-            + "\n\n*Timeline Terakhir:*\n"
+            + "\n\n*Aktivitas Terakhir:*\n"
             + "\n".join(timeline)
         )
 
