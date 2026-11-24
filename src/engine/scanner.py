@@ -142,8 +142,11 @@ def format_ticker_alert(res: dict[str, Any], capital_idr: float = 100_000_000.0)
     lines.extend([
         "",
         "🎯 *FORECAST 5H & BACKTEST OOS:*",
-        f"• Arah: *{fc.get('direction', 'NETRAL')}* (P(Naik): `{fc.get('p_up_pct', 50.0)}%` | Skor: `{res['composite_score']}%`)",
+        f"• Arah: *{fc.get('direction', 'NETRAL')}* (P(Naik): `{fc.get('p_up_pct', 50.0)}%` | Raw: `{fc.get('p_up_raw_pct', fc.get('p_up_pct', 50.0))}%` | Skor: `{res['composite_score']}%`)",
     ])
+
+    if fc.get("holding_guidance"):
+        lines.append(f"• Panduan Hold: {fc['holding_guidance']}")
 
     if fc.get("oos_sample_count", 0) > 0:
         win_s = f"{fc['oos_bullish_win_rate_pct']}%" if fc.get("oos_bullish_win_rate_pct") is not None else "N/A"
@@ -152,6 +155,11 @@ def format_ticker_alert(res: dict[str, Any], capital_idr: float = 100_000_000.0)
             f"• OOS ({fc['oos_sample_count']}H): Akurasi `{fc.get('oos_accuracy_pct')}%` | "
             f"Win-rate `{win_s}` | Avg Net `{net_s}`"
         )
+        if fc.get("oos_dynamic_exit_avg_net_ret_pct") is not None:
+            dyn_net = f"{fc['oos_dynamic_exit_avg_net_ret_pct']:+.2f}%"
+            dyn_win = f"{fc.get('oos_dynamic_exit_win_rate_pct')}%"
+            strat = "Hold 5H" if fc.get("oos_recommended_strategy") == "HOLD_5D" else "Cut saat Flip 2H"
+            lines.append(f"• Simulasi Exit Flip 2H: Win-rate `{dyn_win}` | Avg Net `{dyn_net}` → Unggul: *{strat}*")
 
     if funda:
         cov_disp = funda.get("cash_coverage_display") or "-"

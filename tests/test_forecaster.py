@@ -28,9 +28,14 @@ def test_forecaster_walk_forward_outputs() -> None:
     res = forecast_direction_with_backtest(df)
     assert res["status"] == "ok"
     assert 0.0 <= res["p_up_pct"] <= 100.0
+    assert 0.0 <= res["p_up_raw_pct"] <= 100.0
     assert res["direction"] in ("BULLISH (Cenderung Naik)", "BEARISH (Cenderung Turun)", "NETRAL")
+    assert isinstance(res["direction_confirmed"], bool)
+    assert res["holding_guidance"]
     assert res["oos_sample_count"] > 0
     assert res["oos_accuracy_pct"] is not None
+    if res["oos_bullish_signals"] > 0:
+        assert res["oos_recommended_strategy"] in ("HOLD_5D", "EXIT_ON_FLIP")
 
 
 def test_forecaster_insufficient_data_guard() -> None:
