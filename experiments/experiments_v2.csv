@@ -1,0 +1,15 @@
+group,id,description,segment,metric_1,metric_2,ci_or_detail
+H1_vol,V0,Vol candidate V0,DISCOVERY,qlike=-6.5773,mae_log=0.443,"dm_vs_v0={'mean': 0.0, 'ci_lo': 0.0, 'ci_hi': 0.0, 'p_val': 1.0}"
+H1_vol,V1,Vol candidate V1,DISCOVERY,qlike=-6.5936,mae_log=0.4303,"dm_vs_v0={'mean': -0.0161, 'ci_lo': -0.0314, 'ci_hi': -0.0032, 'p_val': 0.014, 'n_dates': 1069}"
+H1_vol,V2,Vol candidate V2,DISCOVERY,qlike=-6.615,mae_log=0.4338,"dm_vs_v0={'mean': -0.0375, 'ci_lo': -0.0484, 'ci_hi': -0.0279, 'p_val': 0.0, 'n_dates': 1069}"
+H1_vol,V3,Vol candidate V3,DISCOVERY,qlike=-6.5151,mae_log=0.4148,"dm_vs_v0={'mean': 0.0622, 'ci_lo': 0.0265, 'ci_hi': 0.0894, 'p_val': 0.0004, 'n_dates': 1069}"
+H1_vol,V5,Vol candidate V5,DISCOVERY,qlike=-6.4087,mae_log=0.4136,"dm_vs_v0={'mean': 0.1676, 'ci_lo': 0.1177, 'ci_hi': 0.212, 'p_val': 0.0, 'n_dates': 1069}"
+H1_vol,V6,Vol candidate V6,DISCOVERY,qlike=-6.5946,mae_log=0.4121,"dm_vs_v0={'mean': -0.0172, 'ci_lo': -0.04, 'ci_hi': 0.0005, 'p_val': 0.0572, 'n_dates': 1069}"
+H1_vol,V7,Vol candidate V7,DISCOVERY,qlike=-6.5682,mae_log=0.4072,"dm_vs_v0={'mean': 0.009, 'ci_lo': -0.0126, 'ci_hi': 0.0263, 'p_val': 0.4956, 'n_dates': 1069}"
+H1_vol,V2,Selected H1 candidate,LOCK-RECENT,qlike=-5.8284,cov68=69.0,cov90=89.7
+H2_mr,R1,Mean reversion R1,DISCOVERY,n=3221,ex_mean=-0.3136,p_holm=0.224
+H2_mr,R2,Mean reversion R2,DISCOVERY,n=1800,ex_mean=-0.0531,p_holm=1.0
+H2_mr,R3,Mean reversion R3,DISCOVERY,n=1431,ex_mean=-0.4046,p_holm=0.208
+H2_mr,R4,Mean reversion R4,DISCOVERY,n=1472,ex_mean=-0.2259,p_holm=0.6684
+H2_mr,R5,Mean reversion R5,DISCOVERY,n=4832,ex_mean=-0.3572,p_holm=0.0456
+H2_mr,R6,Mean reversion R6,DISCOVERY,n=772,ex_mean=0.0692,p_holm=1.0

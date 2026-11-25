@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.config import LEGACY_ML_SIGNAL
 from src.data.fundamental_client import fetch_cash_radar_map
 from src.data.market_feed import fetch_jk_ohlcv
 from src.data.news_feed import fetch_latest_news
@@ -13,7 +14,7 @@ from src.data.stockbit_feed import (
     fetch_stockbit_daily,
 )
 from src.data.stockbit_token_manager import load_active_token, refresh_token_via_playwright
-from src.engine.forecaster import forecast_direction_with_backtest
+from src.engine.forecaster import compute_v2_volatility_cone, forecast_direction_with_backtest
 from src.engine.indicators import compute_indicators, summarize_latest_technicals
 from src.engine.risk_manager import compute_risk_reward_plan, format_risk_reward_block
 
@@ -47,7 +48,8 @@ def analyze_ticker(ticker: str, cash_map: dict[str, dict[str, Any]] | None = Non
     df = fetch_jk_ohlcv(clean_t, range_str="2y")
     ind_df = compute_indicators(df) if not df.empty else df
     tech = summarize_latest_technicals(ind_df)
-    forecast = forecast_direction_with_backtest(df)
+    forecast = forecast_direction_with_backtest(df) if LEGACY_ML_SIGNAL else {"status": "disabled"}
+    vol_cone = compute_v2_volatility_cone(df)
     news = fetch_latest_news(clean_t, max_items=3)
 
     if cash_map is None:
@@ -57,8 +59,17 @@ def analyze_ticker(ticker: str, cash_map: dict[str, dict[str, Any]] | None = Non
     top_news = news[0] if news else None
     news_sent = top_news["sentiment"] if top_news else "NETRAL"
 
-    # Overall composite sentiment score (ML direction + news + fundamental safety)
-    score = float(forecast.get("p_up_pct") or 50.0)
+    if LEGACY_ML_SIGNAL:
+        score = float(forecast.get("p_up_pct") or 50.0)
+    else:
+        # Non-probabilistic descriptive score from technical regime & safety only
+        score = 50.0
+        trend_str = str(tech.get("trend") or "")
+        if trend_str.startswith("UPTREND"):
+            score += 10.0
+        elif trend_str.startswith("DOWNTREND"):
+            score -= 10.0
+
     if news_sent == "POSITIF":
         score += 5.0
     elif news_sent == "PERHATIAN":
@@ -71,12 +82,22 @@ def analyze_ticker(ticker: str, cash_map: dict[str, dict[str, Any]] | None = Non
             score -= 10.0
 
     score = max(min(round(score, 1), 99.0), 1.0)
-    if score >= 60.0 and funda_safe:
-        badge = "🟢 SENTIMEN NAIK"
-    elif score <= 42.0 or not funda_safe:
-        badge = "🔴 WASPADA / TURUN"
+    if LEGACY_ML_SIGNAL:
+        if score >= 60.0 and funda_safe:
+            badge = "🟢 SENTIMEN NAIK"
+        elif score <= 42.0 or not funda_safe:
+            badge = "🔴 WASPADA / TURUN"
+        else:
+            badge = "🟡 NETRAL"
     else:
-        badge = "🟡 NETRAL"
+        if not funda_safe:
+            badge = "🔴 WASPADA FUNDAMENTAL"
+        elif str(tech.get("trend") or "").startswith("UPTREND"):
+            badge = "🟢 UPTREND"
+        elif str(tech.get("trend") or "").startswith("DOWNTREND"):
+            badge = "🔴 DOWNTREND"
+        else:
+            badge = "🟡 SIDEWAYS / TRANSISI"
 
     return {
         "ticker": clean_t,
@@ -88,6 +109,7 @@ def analyze_ticker(ticker: str, cash_map: dict[str, dict[str, Any]] | None = Non
         "stockbit_daily": sb_daily,
         "stockbit_auth_expired": auth_expired,
         "forecast": forecast,
+        "vol_cone": vol_cone,
         "news": news,
         "fundamental": funda,
         "funda_safe": funda_safe,
@@ -139,27 +161,32 @@ def format_ticker_alert(res: dict[str, Any], capital_idr: float = 100_000_000.0)
     if rr_plan:
         lines.extend(format_risk_reward_block(rr_plan))
 
-    lines.extend([
-        "",
-        "🎯 *FORECAST 5H & BACKTEST OOS:*",
-        f"• Arah: *{fc.get('direction', 'NETRAL')}* (P(Naik): `{fc.get('p_up_pct', 50.0)}%` | Raw: `{fc.get('p_up_raw_pct', fc.get('p_up_pct', 50.0))}%` | Skor: `{res['composite_score']}%`)",
-    ])
-
-    if fc.get("holding_guidance"):
-        lines.append(f"• Panduan Hold: {fc['holding_guidance']}")
-
-    if fc.get("oos_sample_count", 0) > 0:
-        win_s = f"{fc['oos_bullish_win_rate_pct']}%" if fc.get("oos_bullish_win_rate_pct") is not None else "N/A"
-        net_s = f"{fc['oos_bullish_avg_net_ret_pct']:+.2f}%" if fc.get("oos_bullish_avg_net_ret_pct") is not None else "N/A"
-        lines.append(
-            f"• OOS ({fc['oos_sample_count']}H): Akurasi `{fc.get('oos_accuracy_pct')}%` | "
-            f"Win-rate `{win_s}` | Avg Net `{net_s}`"
-        )
-        if fc.get("oos_dynamic_exit_avg_net_ret_pct") is not None:
-            dyn_net = f"{fc['oos_dynamic_exit_avg_net_ret_pct']:+.2f}%"
-            dyn_win = f"{fc.get('oos_dynamic_exit_win_rate_pct')}%"
-            strat = "Hold 5H" if fc.get("oos_recommended_strategy") == "HOLD_5D" else "Cut saat Flip 2H"
-            lines.append(f"• Simulasi Exit Flip 2H: Win-rate `{dyn_win}` | Avg Net `{dyn_net}` → Unggul: *{strat}*")
+    if LEGACY_ML_SIGNAL and fc.get("status") == "ok":
+        lines.extend([
+            "",
+            "🎯 *FORECAST 5H & BACKTEST OOS:*",
+            f"• Arah: *{fc.get('direction', 'NETRAL')}* (P(Naik): `{fc.get('p_up_pct', 50.0)}%` | Raw: `{fc.get('p_up_raw_pct', fc.get('p_up_pct', 50.0))}%` | Skor: `{res['composite_score']}%`)",
+        ])
+        if fc.get("holding_guidance"):
+            lines.append(f"• Panduan Hold: {fc['holding_guidance']}")
+        if fc.get("oos_sample_count", 0) > 0:
+            win_s = f"{fc['oos_bullish_win_rate_pct']}%" if fc.get("oos_bullish_win_rate_pct") is not None else "N/A"
+            net_s = f"{fc['oos_bullish_avg_net_ret_pct']:+.2f}%" if fc.get("oos_bullish_avg_net_ret_pct") is not None else "N/A"
+            lines.append(
+                f"• OOS ({fc['oos_sample_count']}H): Akurasi `{fc.get('oos_accuracy_pct')}%` | "
+                f"Win-rate `{win_s}` | Avg Net `{net_s}`"
+            )
+    else:
+        d20 = tech.get("dist_ma20_pct")
+        d50 = tech.get("dist_ma50_pct")
+        p20 = tech.get("pos_20d_pct")
+        v20 = tech.get("volatility_20d_pct")
+        lines.extend([
+            "",
+            "📊 *INDIKATOR DESKRIPTIF (NON-PROBABILISTIK):*",
+            f"• RSI14: `{rsi}` | Jarak MA20: `{d20 if d20 is not None else '-'}%` | Jarak MA50: `{d50 if d50 is not None else '-'}%`",
+            f"• Posisi Range 20H: `{p20 if p20 is not None else '-'}%` | Volatilitas 20H: `{v20 if v20 is not None else '-'}%`",
+        ])
 
     if funda:
         cov_disp = funda.get("cash_coverage_display") or "-"

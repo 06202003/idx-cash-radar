@@ -61,6 +61,12 @@ def summarize_latest_technicals(ind_df: pd.DataFrame) -> dict[str, object]:
         trend = "DATA TERBATAS"
 
     spike_chase_warning = bool(vol_ratio >= 3.0 and ret_1d >= 0.03)
+    dist_ma20 = float(last["dist_ma20"]) if "dist_ma20" in last and pd.notna(last["dist_ma20"]) else None
+    dist_ma50 = float(last["dist_ma50"]) if "dist_ma50" in last and pd.notna(last["dist_ma50"]) else None
+    vol20 = float(last["volatility_20d"]) if "volatility_20d" in last and pd.notna(last["volatility_20d"]) else None
+    h20 = float(last["high_20d"]) if pd.notna(last["high_20d"]) else None
+    l20 = float(last["low_20d"]) if pd.notna(last["low_20d"]) else None
+    pos20 = ((close - l20) / (h20 - l20) * 100.0) if (h20 is not None and l20 is not None and h20 > l20) else None
     return {
         "date": str(last["date"]),
         "close": close,
@@ -68,8 +74,12 @@ def summarize_latest_technicals(ind_df: pd.DataFrame) -> dict[str, object]:
         "ret_5d_pct": round(float(last["ret_5d"] or 0.0) * 100.0, 2),
         "rsi14": round(rsi, 1) if rsi is not None else None,
         "vol_ratio_20d": round(vol_ratio, 2),
+        "dist_ma20_pct": round(dist_ma20 * 100.0, 2) if dist_ma20 is not None else None,
+        "dist_ma50_pct": round(dist_ma50 * 100.0, 2) if dist_ma50 is not None else None,
+        "pos_20d_pct": round(pos20, 1) if pos20 is not None else None,
+        "volatility_20d_pct": round(vol20 * 100.0, 2) if vol20 is not None else None,
         "trend": trend,
         "spike_chase_warning": spike_chase_warning,
-        "high_20d": float(last["high_20d"]) if pd.notna(last["high_20d"]) else None,
-        "low_20d": float(last["low_20d"]) if pd.notna(last["low_20d"]) else None,
+        "high_20d": h20,
+        "low_20d": l20,
     }

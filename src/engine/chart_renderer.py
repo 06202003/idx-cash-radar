@@ -12,6 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from src.config import LEGACY_ML_SIGNAL
 from src.engine.risk_manager import compute_risk_reward_plan
 
 
@@ -67,9 +68,14 @@ def render_morning_chart(
 
     # Header title
     ret_color = green_color if ret_1d >= 0 else red_color
-    p_up_txt = f" | P(Naik 5H): {p_up:.0f}%" if p_up is not None else ""
+    if LEGACY_ML_SIGNAL and p_up is not None:
+        header_tail = f"  |  Score {score}/100 | P(Naik 5H): {p_up:.0f}%"
+    else:
+        rsi_val = tech.get("rsi14")
+        vol_r = tech.get("vol_ratio_20d")
+        header_tail = f"  |  RSI {rsi_val if rsi_val is not None else '-'}  |  Vol {vol_r if vol_r is not None else '-'}x"
     fig.suptitle(
-        f"{clean_t}  |  {_fmt_rp_short(close_px)} ({ret_1d:+.2f}%)  |  Score {score}/100{p_up_txt}",
+        f"{clean_t}  |  {_fmt_rp_short(close_px)} ({ret_1d:+.2f}%){header_tail}",
         color=text_color,
         fontsize=12.5,
         fontweight="bold",
@@ -123,12 +129,13 @@ def render_morning_chart(
                 va="bottom",
             )
 
-        # Plot 5-Day Forward ML Trajectory & Cone if available
-        traj = fc.get("trajectory") or {}
+        # Plot 5-Day Cone: H1'-validated flat V2 volatility cone by default, or legacy ML trajectory if enabled
+        traj = (fc.get("trajectory") or {}) if LEGACY_ML_SIGNAL else {}
+        vol_cone = analysis_res.get("vol_cone") or {}
         mid_pts = traj.get("mid") or []
         up_pts = traj.get("upper") or []
         lo_pts = traj.get("lower") or []
-        if mid_pts and len(mid_pts) == len(up_pts) == len(lo_pts):
+        if LEGACY_ML_SIGNAL and mid_pts and len(mid_pts) == len(up_pts) == len(lo_pts):
             last_x = xs[-1]
             last_c = closes[-1]
             fx = [last_x] + [last_x + k + 1 for k in range(len(mid_pts))]
@@ -142,7 +149,7 @@ def render_morning_chart(
             ax1.text(
                 fx[-1],
                 f_mid[-1],
-                f" ML+5H ({t_pct:+.1f}%)",
+                f" ML+5H indikatif ({t_pct:+.1f}%)",
                 color=f_col,
                 fontsize=7.5,
                 fontweight="bold",
@@ -151,15 +158,35 @@ def render_morning_chart(
                 bbox={"facecolor": bg_color, "edgecolor": "none", "alpha": 0.78, "pad": 1.2},
             )
             ax1.set_xlim(-0.5, fx[-1] + 4.2)
+        elif (not LEGACY_ML_SIGNAL) and vol_cone.get("mid"):
+            last_x = xs[-1]
+            last_c = closes[-1]
+            c_mid = [last_c] + [float(v) for v in vol_cone["mid"]]
+            fx = [last_x] + [last_x + k + 1 for k in range(len(vol_cone["mid"]))]
+            ax1.fill_between(fx, [last_c] + vol_cone["lo90"], [last_c] + vol_cone["hi90"], color=cyan_color, alpha=0.10)
+            ax1.fill_between(fx, [last_c] + vol_cone["lo68"], [last_c] + vol_cone["hi68"], color=cyan_color, alpha=0.22)
+            ax1.plot(fx, c_mid, color=muted_color, linestyle="--", linewidth=1.3)
+            ax1.text(
+                fx[-1],
+                c_mid[-1],
+                " rentang volatilitas\n historis 68%/90%",
+                color=cyan_color,
+                fontsize=7.0,
+                va="center",
+                ha="left",
+                bbox={"facecolor": bg_color, "edgecolor": "none", "alpha": 0.78, "pad": 1.2},
+            )
+            ax1.set_xlim(-0.5, fx[-1] + 6.5)
 
         # Sparse x-axis date ticks
         step = max(1, len(xs) // 5)
         tick_idx = xs[::step]
         tick_lbl = [str(df_tail.iloc[i]["date"])[5:10] for i in tick_idx]
-        if mid_pts:
+        n_fwd = len(mid_pts) if (LEGACY_ML_SIGNAL and mid_pts) else len(vol_cone.get("mid") or [])
+        if n_fwd > 0:
             last_d = str(df_tail.iloc[-1]["date"])[:10]
-            tick_idx = tick_idx + [xs[-1] + len(mid_pts)]
-            tick_lbl = tick_lbl + [_next_trading_date_label(last_d, len(mid_pts))]
+            tick_idx = tick_idx + [xs[-1] + n_fwd]
+            tick_lbl = tick_lbl + [_next_trading_date_label(last_d, n_fwd)]
         ax1.set_xticks(tick_idx)
         ax1.set_xticklabels(tick_lbl, color=muted_color, fontsize=7.5)
     else:

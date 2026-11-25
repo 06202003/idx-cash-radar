@@ -92,7 +92,7 @@ async def cmd_start(message: Message) -> None:
         "• `/watch BBCA` — Pantau real-time *Wall, HAKA/HAKI, & Broker Flip*\n"
         "• `/morning` — Scan Morning Confluence + *Grafik & Pola Broker*\n\n"
         "🧭 *MENU & PERINTAH*\n"
-        "• `/cek <KODE>` — Teknikal, Forecast 5H, OOS Backtest, Berita & Kas XBRL\n"
+        "• `/cek <KODE>` — Teknikal, Rentang Volatilitas, Berita & Kas XBRL\n"
         "• `/chart <KODE>` — Grafik mini intraday real-time (ASCII terminal)\n"
         "• `/pola <KODE>` — Rekap jejak Market Maker & orderbook hari ini\n"
         "• `/watchlist` / `/unwatch <KODE>` — Kelola daftar pantauan\n"
@@ -115,7 +115,7 @@ def _skeleton_ticker_loading(ticker: str, pct: int = 35, step_note: str = "Menar
         f"⏳ *ANALISIS RADAR | {ticker}*\n"
         f"`[{bar}] {pct}%` — _{step_note}_\n\n"
         f"• 📐 Teknikal & Level 20H: `{t_done}`\n"
-        f"• 🎯 Forecast 5H & OOS: `{f_done}`\n"
+        f"• 📊 Analisis & Volatilitas: `{f_done}`\n"
         f"• 🤝 Broksum & Kas XBRL: `{t_done}`\n"
         f"• 📰 Berita & Sparkline: `{s_done}`"
     )

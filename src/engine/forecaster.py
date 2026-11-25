@@ -6,13 +6,14 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import ExtraTreesRegressor, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from src.config import ROUND_TRIP_FEE
 from src.engine.indicators import compute_indicators
+
+BULLISH_PROB_THRESHOLD = 0.58
 
 FEATURE_COLS = [
     "ret_1d",
@@ -23,34 +24,62 @@ FEATURE_COLS = [
     "rsi14",
     "vol_ratio_log",
     "volatility_20d",
-    "bar_pos",
-    "atr14_pct",
-    "pos_20d",
-    "ma20_slope5",
-    "signed_vol_5d",
 ]
 
 
 def _prepare_dataset(df: pd.DataFrame, horizon_days: int = 5, fee: float = ROUND_TRIP_FEE) -> pd.DataFrame:
     ind = compute_indicators(df)
-    c = ind["close"].astype(float)
-    h = ind["high"].astype(float)
-    l = ind["low"].astype(float)
-    v = ind["volume"].astype(float)
-    rng = (h - l).replace(0.0, np.nan)
-
     ind["vol_ratio_log"] = np.log1p(ind["vol_ratio_20d"].clip(lower=0.0))
-    ind["bar_pos"] = ((c - l) / rng).fillna(0.5)
-    ind["atr14_pct"] = (rng.rolling(14, min_periods=14).mean() / c.replace(0.0, np.nan)).fillna(0.0)
-    ind["pos_20d"] = ((c - ind["low_20d"]) / (ind["high_20d"] - ind["low_20d"]).replace(0.0, np.nan)).fillna(0.5)
-    ind["ma20_slope5"] = ind["ma20"].pct_change(5).fillna(0.0)
-    signed_v = np.sign(c.diff().fillna(0.0)) * v
-    vol_denom = (v.rolling(20, min_periods=20).mean() * 5.0).replace(0.0, np.nan)
-    ind["signed_vol_5d"] = (signed_v.rolling(5, min_periods=5).sum() / vol_denom).fillna(0.0)
-
-    ind["fwd_ret"] = (c.shift(-horizon_days) / c) - 1.0
+    ind["fwd_ret"] = (ind["close"].shift(-horizon_days) / ind["close"]) - 1.0
     ind["target_up"] = (ind["fwd_ret"] > fee).astype(float)
     return ind
+
+
+def compute_v2_volatility_cone(df: pd.DataFrame, horizon_days: int = 5) -> dict[str, Any] | None:
+    """
+    Computes H1'-validated V2 (EWMA lambda=0.97) volatility cone centered at flat last close
+    (zero directional claim) using causal empirical quantiles of standardized residuals.
+    """
+    if df.empty or len(df) < 90:
+        return None
+    c = df["close"].astype(float)
+    last_close = float(c.iloc[-1])
+    if last_close <= 0:
+        return None
+    log_r = np.log(c / c.shift(1)).to_numpy(dtype=float)
+    n = len(log_r)
+    valid = np.where(np.isfinite(log_r))[0]
+    if len(valid) < 60:
+        return None
+
+    var = max(float(np.var(log_r[valid[:20]])), 1e-8)
+    sig = np.full(n, np.nan, dtype=float)
+    for i in range(valid[0], n):
+        if np.isfinite(log_r[i]):
+            var = 0.97 * var + 0.03 * (log_r[i] ** 2)
+        sig[i] = np.sqrt(max(var, 1e-8))
+    cur_sig = float(sig[-1])
+    if not np.isfinite(cur_sig) or cur_sig <= 0:
+        return None
+
+    mid = [round(last_close, 2)] * horizon_days
+    lo68, hi68, lo90, hi90 = [], [], [], []
+    for h in range(1, horizon_days + 1):
+        cum_r = np.log(c.shift(-h) / c).to_numpy(dtype=float)
+        # Strictly causal prior residuals up to n - 1 - h
+        end_idx = max(0, n - 1 - h)
+        ok = np.isfinite(cum_r[:end_idx]) & np.isfinite(sig[:end_idx]) & (sig[:end_idx] > 0)
+        if ok.sum() < 40:
+            return None
+        z = cum_r[:end_idx][ok] / sig[:end_idx][ok]
+        q16, q84 = np.quantile(z, [0.16, 0.84])
+        q05, q95 = np.quantile(z, [0.05, 0.95])
+        lo68.append(round(last_close * float(np.exp(cur_sig * q16)), 2))
+        hi68.append(round(last_close * float(np.exp(cur_sig * q84)), 2))
+        lo90.append(round(last_close * float(np.exp(cur_sig * q05)), 2))
+        hi90.append(round(last_close * float(np.exp(cur_sig * q95)), 2))
+
+    return {"mid": mid, "lo68": lo68, "hi68": hi68, "lo90": lo90, "hi90": hi90}
 
 
 def _forecast_5d_trajectory(
@@ -80,25 +109,20 @@ def _forecast_5d_trajectory(
     Y_train = train_df[target_cols].to_numpy(dtype=float)
     X_curr = latest_row[FEATURE_COLS]
 
-    ridge = Pipeline([("scaler", StandardScaler()), ("reg", Ridge(alpha=15.0))])
-    ridge.fit(X_train, Y_train)
-    pred_rets = ridge.predict(X_curr)[0]
+    ridge = Pipeline([("scaler", StandardScaler()), ("reg", Ridge(alpha=30.0))])
+    ridge.fit(X_train, Y_train[:, -1])
+    pred_5d = float(np.clip(ridge.predict(X_curr)[0], -0.20, 0.20))
+    pred_rets = np.array([pred_5d * (((k + 1) / horizon_days) ** 0.85) for k in range(horizon_days)])
 
-    try:
-        et = ExtraTreesRegressor(n_estimators=100, max_depth=4, min_samples_leaf=10, random_state=42)
-        et.fit(X_train, Y_train)
-        pred_et = et.predict(X_curr)[0]
-        pred_rets = 0.5 * pred_rets + 0.5 * pred_et
-    except Exception:
-        pass
-
-    pred_rets = np.clip(pred_rets, -0.20, 0.20)
-    daily_vol = float(latest_row["volatility_20d"].iloc[0]) if pd.notna(latest_row["volatility_20d"].iloc[0]) else 0.02
-    daily_vol = max(0.008, min(0.06, daily_vol))
+    tr_5d = np.clip(ridge.predict(X_train), -0.20, 0.20)
+    tr_paths = np.column_stack([tr_5d * (((k + 1) / horizon_days) ** 0.85) for k in range(horizon_days)])
+    res = Y_train - tr_paths
+    q_lo = np.quantile(res, 0.16, axis=0)
+    q_hi = np.quantile(res, 0.84, axis=0)
 
     mid = [round(last_close * (1.0 + float(pred_rets[k])), 2) for k in range(horizon_days)]
-    upper = [round(last_close * (1.0 + float(pred_rets[k]) + daily_vol * np.sqrt(k + 1)), 2) for k in range(horizon_days)]
-    lower = [round(last_close * (1.0 + float(pred_rets[k]) - daily_vol * np.sqrt(k + 1)), 2) for k in range(horizon_days)]
+    upper = [round(last_close * (1.0 + float(pred_rets[k] + q_hi[k])), 2) for k in range(horizon_days)]
+    lower = [round(last_close * (1.0 + float(pred_rets[k] + q_lo[k])), 2) for k in range(horizon_days)]
 
     return {
         "mid": mid,
@@ -114,34 +138,11 @@ def _recency_weights(length: int, half_life: float = 150.0) -> np.ndarray:
     return np.exp(-np.log(2.0) * age / half_life)
 
 
-class _SoftEnsemble:
-    """Blends a regularized linear classifier with a shallow gradient-boosted tree."""
-
-    def __init__(self) -> None:
-        self.lr = Pipeline([
-            ("scaler", StandardScaler()),
-            ("clf", LogisticRegression(C=0.3, max_iter=500, random_state=42)),
-        ])
-        self.gb = HistGradientBoostingClassifier(
-            max_depth=3,
-            max_iter=60,
-            learning_rate=0.05,
-            min_samples_leaf=15,
-            l2_regularization=3.0,
-            random_state=42,
-        )
-
-    def fit(self, X: pd.DataFrame, y: pd.Series, sample_weight: np.ndarray | None = None) -> _SoftEnsemble:
-        self.lr.fit(X, y, clf__sample_weight=sample_weight)
-        self.gb.fit(X, y, sample_weight=sample_weight)
-        return self
-
-    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
-        return 0.4 * self.lr.predict_proba(X) + 0.6 * self.gb.predict_proba(X)
-
-
-def _build_model() -> _SoftEnsemble:
-    return _SoftEnsemble()
+def _build_model() -> Pipeline:
+    return Pipeline([
+        ("scaler", StandardScaler()),
+        ("clf", LogisticRegression(C=0.5, max_iter=500, random_state=42)),
+    ])
 
 
 def _ema_smooth(probs: np.ndarray, alpha: float = 0.5) -> np.ndarray:
@@ -156,7 +157,7 @@ def _ema_smooth(probs: np.ndarray, alpha: float = 0.5) -> np.ndarray:
 
 
 def _classify_direction(p_up_pct: float) -> str:
-    if p_up_pct >= 58.0:
+    if p_up_pct >= BULLISH_PROB_THRESHOLD * 100.0:
         return "BULLISH (Cenderung Naik)"
     if p_up_pct <= 42.0:
         return "BEARISH (Cenderung Turun)"
@@ -230,8 +231,7 @@ def forecast_direction_with_backtest(
         if len(test_df) == 0 or train_df["target_up"].nunique() < 2:
             continue
         model = _build_model()
-        w_tr = _recency_weights(len(train_df))
-        model.fit(train_df[FEATURE_COLS], train_df["target_up"].astype(int), sample_weight=w_tr)
+        model.fit(train_df[FEATURE_COLS], train_df["target_up"].astype(int))
 
         # Score extra horizon_days bars ahead so dynamic-exit simulation can observe flips
         ext_end = min(end + horizon_days, n)
@@ -239,7 +239,7 @@ def forecast_direction_with_backtest(
         ext_probs = _ema_smooth(ext_probs_raw, alpha=0.5)
 
         probs = ext_probs[: len(test_df)]
-        preds = (probs >= 0.58).astype(int)
+        preds = (probs >= BULLISH_PROB_THRESHOLD).astype(int)
         oos_probs.extend(probs.tolist())
         oos_preds.extend(preds.tolist())
         oos_actuals.extend(test_df["target_up"].astype(int).tolist())
@@ -300,8 +300,7 @@ def forecast_direction_with_backtest(
         prev_p_up_smooth = 0.50
     else:
         final_model = _build_model()
-        w_all = _recency_weights(len(labeled))
-        final_model.fit(labeled[FEATURE_COLS], labeled["target_up"].astype(int), sample_weight=w_all)
+        final_model.fit(labeled[FEATURE_COLS], labeled["target_up"].astype(int))
         recent_rows = valid_feat.iloc[-5:]
         recent_raw = final_model.predict_proba(recent_rows[FEATURE_COLS])[:, 1]
         recent_smooth = _ema_smooth(recent_raw, alpha=0.5)

@@ -28,11 +28,15 @@ def parse_safe_float(val: Any) -> float | None:
 
 def fetch_jk_ohlcv(ticker: str, range_str: str = "2y", timeout: float = 10.0) -> pd.DataFrame:
     """
-    Fetches daily OHLCV bars for an IDX ticker (<TICKER>.JK) from Yahoo Finance chart API.
+    Fetches daily OHLCV bars for an IDX ticker (<TICKER>.JK) or index (^...) from Yahoo Finance chart API.
     Returns DataFrame with columns: date, open, high, low, close, volume.
     """
-    clean_t = ticker.strip().upper().replace(".JK", "")
-    symbol = urllib.parse.quote(f"{clean_t}.JK")
+    raw_t = ticker.strip().upper()
+    if raw_t.startswith("^"):
+        symbol = urllib.parse.quote(raw_t)
+    else:
+        clean_t = raw_t.replace(".JK", "")
+        symbol = urllib.parse.quote(f"{clean_t}.JK")
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range={range_str}&interval=1d"
     req = urllib.request.Request(
         url,
