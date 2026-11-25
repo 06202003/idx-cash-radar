@@ -42,7 +42,7 @@ def test_mm_event_recording_and_pattern_report(tmp_path: Path) -> None:
     events = store.get_mm_events("BBRI", day_wib="2026-11-19")
     assert len(events) == 3
     report = store.format_mm_pattern_report("BBRI", day_wib="2026-11-19")
-    assert "REKAMAN POLA MARKET MAKER | BBRI" in report
-    assert "Wall Dipasang: `1x`" in report
-    assert "Dimakan HAKA/HAKI: `1x`" in report
+    assert "POLA MARKET MAKER | BBRI" in report
+    assert "Pasang `1x`" in report
+    assert "Dimakan `1x`" in report
     assert "14:45:23" in report
