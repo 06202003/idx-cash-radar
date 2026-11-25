@@ -31,6 +31,7 @@ MORNING_ALERT_MINUTE = int(os.getenv("MORNING_ALERT_MINUTE", "45"))
 EVENING_RECAP_HOUR = int(os.getenv("EVENING_RECAP_HOUR", "18"))
 EVENING_RECAP_MINUTE = int(os.getenv("EVENING_RECAP_MINUTE", "0"))
 ROUND_TRIP_FEE = float(os.getenv("ROUND_TRIP_FEE", "0.004"))
+LEGACY_ML_SIGNAL = os.getenv("LEGACY_ML_SIGNAL", "false").strip().lower() in ("1", "true", "yes")
 
 DEFAULT_UNIVERSE: list[str] = [
     "BBCA", "BBRI", "BMRI", "BBNI", "BRIS",

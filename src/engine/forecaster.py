@@ -7,12 +7,13 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from src.config import ROUND_TRIP_FEE
 from src.engine.indicators import compute_indicators
+
+BULLISH_PROB_THRESHOLD = 0.58
 
 FEATURE_COLS = [
     "ret_1d",
@@ -32,6 +33,53 @@ def _prepare_dataset(df: pd.DataFrame, horizon_days: int = 5, fee: float = ROUND
     ind["fwd_ret"] = (ind["close"].shift(-horizon_days) / ind["close"]) - 1.0
     ind["target_up"] = (ind["fwd_ret"] > fee).astype(float)
     return ind
+
+
+def compute_v2_volatility_cone(df: pd.DataFrame, horizon_days: int = 5) -> dict[str, Any] | None:
+    """
+    Computes H1'-validated V2 (EWMA lambda=0.97) volatility cone centered at flat last close
+    (zero directional claim) using causal empirical quantiles of standardized residuals.
+    """
+    if df.empty or len(df) < 90:
+        return None
+    c = df["close"].astype(float)
+    last_close = float(c.iloc[-1])
+    if last_close <= 0:
+        return None
+    log_r = np.log(c / c.shift(1)).to_numpy(dtype=float)
+    n = len(log_r)
+    valid = np.where(np.isfinite(log_r))[0]
+    if len(valid) < 60:
+        return None
+
+    var = max(float(np.var(log_r[valid[:20]])), 1e-8)
+    sig = np.full(n, np.nan, dtype=float)
+    for i in range(valid[0], n):
+        if np.isfinite(log_r[i]):
+            var = 0.97 * var + 0.03 * (log_r[i] ** 2)
+        sig[i] = np.sqrt(max(var, 1e-8))
+    cur_sig = float(sig[-1])
+    if not np.isfinite(cur_sig) or cur_sig <= 0:
+        return None
+
+    mid = [round(last_close, 2)] * horizon_days
+    lo68, hi68, lo90, hi90 = [], [], [], []
+    for h in range(1, horizon_days + 1):
+        cum_r = np.log(c.shift(-h) / c).to_numpy(dtype=float)
+        # Strictly causal prior residuals up to n - 1 - h
+        end_idx = max(0, n - 1 - h)
+        ok = np.isfinite(cum_r[:end_idx]) & np.isfinite(sig[:end_idx]) & (sig[:end_idx] > 0)
+        if ok.sum() < 40:
+            return None
+        z = cum_r[:end_idx][ok] / sig[:end_idx][ok]
+        q16, q84 = np.quantile(z, [0.16, 0.84])
+        q05, q95 = np.quantile(z, [0.05, 0.95])
+        lo68.append(round(last_close * float(np.exp(cur_sig * q16)), 2))
+        hi68.append(round(last_close * float(np.exp(cur_sig * q84)), 2))
+        lo90.append(round(last_close * float(np.exp(cur_sig * q05)), 2))
+        hi90.append(round(last_close * float(np.exp(cur_sig * q95)), 2))
+
+    return {"mid": mid, "lo68": lo68, "hi68": hi68, "lo90": lo90, "hi90": hi90}
 
 
 def _forecast_5d_trajectory(
@@ -61,28 +109,20 @@ def _forecast_5d_trajectory(
     Y_train = train_df[target_cols].to_numpy(dtype=float)
     X_curr = latest_row[FEATURE_COLS]
 
-    ridge = Pipeline([("scaler", StandardScaler()), ("reg", Ridge(alpha=15.0))])
-    ridge.fit(X_train, Y_train)
-    pred_rets = ridge.predict(X_curr)[0]
+    ridge = Pipeline([("scaler", StandardScaler()), ("reg", Ridge(alpha=30.0))])
+    ridge.fit(X_train, Y_train[:, -1])
+    pred_5d = float(np.clip(ridge.predict(X_curr)[0], -0.20, 0.20))
+    pred_rets = np.array([pred_5d * (((k + 1) / horizon_days) ** 0.85) for k in range(horizon_days)])
 
-    try:
-        mlp = Pipeline([
-            ("scaler", StandardScaler()),
-            ("mlp", MLPRegressor(hidden_layer_sizes=(32, 16), max_iter=500, tol=1e-3, early_stopping=True, random_state=42)),
-        ])
-        mlp.fit(X_train, Y_train)
-        pred_mlp = mlp.predict(X_curr)[0]
-        pred_rets = 0.5 * pred_rets + 0.5 * pred_mlp
-    except Exception:
-        pass
-
-    pred_rets = np.clip(pred_rets, -0.20, 0.20)
-    daily_vol = float(latest_row["volatility_20d"].iloc[0]) if pd.notna(latest_row["volatility_20d"].iloc[0]) else 0.02
-    daily_vol = max(0.008, min(0.06, daily_vol))
+    tr_5d = np.clip(ridge.predict(X_train), -0.20, 0.20)
+    tr_paths = np.column_stack([tr_5d * (((k + 1) / horizon_days) ** 0.85) for k in range(horizon_days)])
+    res = Y_train - tr_paths
+    q_lo = np.quantile(res, 0.16, axis=0)
+    q_hi = np.quantile(res, 0.84, axis=0)
 
     mid = [round(last_close * (1.0 + float(pred_rets[k])), 2) for k in range(horizon_days)]
-    upper = [round(last_close * (1.0 + float(pred_rets[k]) + daily_vol * np.sqrt(k + 1)), 2) for k in range(horizon_days)]
-    lower = [round(last_close * (1.0 + float(pred_rets[k]) - daily_vol * np.sqrt(k + 1)), 2) for k in range(horizon_days)]
+    upper = [round(last_close * (1.0 + float(pred_rets[k] + q_hi[k])), 2) for k in range(horizon_days)]
+    lower = [round(last_close * (1.0 + float(pred_rets[k] + q_lo[k])), 2) for k in range(horizon_days)]
 
     return {
         "mid": mid,
@@ -90,6 +130,12 @@ def _forecast_5d_trajectory(
         "lower": lower,
         "target_5d_pct": round(float(pred_rets[-1]) * 100.0, 2),
     }
+
+
+def _recency_weights(length: int, half_life: float = 150.0) -> np.ndarray:
+    """Exponential decay weights so recent market regimes carry more influence."""
+    age = np.arange(length, dtype=float)[::-1]
+    return np.exp(-np.log(2.0) * age / half_life)
 
 
 def _build_model() -> Pipeline:
@@ -111,7 +157,7 @@ def _ema_smooth(probs: np.ndarray, alpha: float = 0.5) -> np.ndarray:
 
 
 def _classify_direction(p_up_pct: float) -> str:
-    if p_up_pct >= 58.0:
+    if p_up_pct >= BULLISH_PROB_THRESHOLD * 100.0:
         return "BULLISH (Cenderung Naik)"
     if p_up_pct <= 42.0:
         return "BEARISH (Cenderung Turun)"
@@ -179,7 +225,9 @@ def forecast_direction_with_backtest(
     for split in range(start_eval, n, step):
         end = min(split + step, n)
         test_df = labeled.iloc[split:end]
-        train_df = labeled.iloc[:split]
+        # Purge horizon_days before split to prevent overlapping 5-day label leakage
+        tr_end = max(30, split - horizon_days)
+        train_df = labeled.iloc[:tr_end]
         if len(test_df) == 0 or train_df["target_up"].nunique() < 2:
             continue
         model = _build_model()
@@ -191,7 +239,7 @@ def forecast_direction_with_backtest(
         ext_probs = _ema_smooth(ext_probs_raw, alpha=0.5)
 
         probs = ext_probs[: len(test_df)]
-        preds = (probs >= 0.55).astype(int)
+        preds = (probs >= BULLISH_PROB_THRESHOLD).astype(int)
         oos_probs.extend(probs.tolist())
         oos_preds.extend(preds.tolist())
         oos_actuals.extend(test_df["target_up"].astype(int).tolist())

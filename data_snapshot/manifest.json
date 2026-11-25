@@ -1,0 +1,210 @@
+{
+  "created_at_utc": "2026-11-25T03:08:22.532595+00:00",
+  "range_str": "10y",
+  "format": "csv.gz (pyarrow/fastparquet unavailable)",
+  "files": {
+    "VKTR": {
+      "filename": "VKTR_10y.csv.gz",
+      "rows": 821,
+      "start_date": "2023-06-19",
+      "end_date": "2026-11-25",
+      "sha256": "7e9945eb78b48e5021949829dd14629d64acfb96932cd90e5cf3f1dde1ab8adf"
+    },
+    "BBCA": {
+      "filename": "BBCA_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "97e3cea3cfd8f14f77ba476ef66d08516a0beb02d7092b269aa28243173cea9b"
+    },
+    "BBRI": {
+      "filename": "BBRI_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "e0395f04124689cf781e73e5d2940cfb34025ae435103cf068cf72ef57f78763"
+    },
+    "ADRO": {
+      "filename": "ADRO_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "3aeea75428367512c52f33a3ae6801058d09ec1771b97cdf4a819449555456b0"
+    },
+    "ANTM": {
+      "filename": "ANTM_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "e37e5c512240e99406dca601eb0b5e70ed99ce22e983d4e88530b2a0799ff089"
+    },
+    "BRIS": {
+      "filename": "BRIS_10y.csv.gz",
+      "rows": 2089,
+      "start_date": "2018-05-09",
+      "end_date": "2026-11-25",
+      "sha256": "24ad8956e09515833510c44bb14a5798c97db9bc8509e64e43398a556f6cfef5"
+    },
+    "BMRI": {
+      "filename": "BMRI_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "771bc9d76ed237e8f7a0b001035b3f7c88d2350dccbd2fa89cc05c178b36ccd4"
+    },
+    "BBNI": {
+      "filename": "BBNI_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "2d6b83fe715b930fd5f91c9f20692f9c9efee7a4d2329d65ec07ff3b57899eb9"
+    },
+    "TLKM": {
+      "filename": "TLKM_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "3a207e02bc0e9c059d021e4a8d55823c0807a9db7952e2df9e3e10fbaa594864"
+    },
+    "ISAT": {
+      "filename": "ISAT_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "062e6b67e817b638439fd729a9ff5c3c7b638239831d6722415f28afc97b1730"
+    },
+    "EXCL": {
+      "filename": "EXCL_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "fc68bfc7106e6ed2cbf99ec13838ee443a59753a8491c02c94d22d286fb48aa1"
+    },
+    "ASII": {
+      "filename": "ASII_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "7e2ad3b8637a422c55de11da0c923d1b1761dd0c383870d68abb11336a59faea"
+    },
+    "UNTR": {
+      "filename": "UNTR_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "6b3c3e0343c06d6766528f1c2fe1afce878e48c57e627e896b302c7971194f59"
+    },
+    "PTBA": {
+      "filename": "PTBA_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "7c556247b9771efd022e7815f51b8903d67606d9189735bb8c21fc12ccd13813"
+    },
+    "ITMG": {
+      "filename": "ITMG_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "514a8c1906ff0ad5cbf3f7ed9af7ed47b42fa1d561d74e7730b610947527b593"
+    },
+    "INCO": {
+      "filename": "INCO_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "4960b8ed014e69816b4e686d6828fd07c05279bb94d1bebcbcdfcfb6df9a0b71"
+    },
+    "MEDC": {
+      "filename": "MEDC_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "2e2392c9a521b8e7d66deb322cb01a17fd7f60fd91cddfe945e18a2b90a64782"
+    },
+    "PGAS": {
+      "filename": "PGAS_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "ed0c5d6ee52bc363fc67e4976383ecd0a47c377307b432b353fafc2405cb4dea"
+    },
+    "AKRA": {
+      "filename": "AKRA_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "26b5741770d8a7987f3a0fa55b9f0b7e7fa8d7aa14eb343addedac8389fd98c3"
+    },
+    "ICBP": {
+      "filename": "ICBP_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "2986cd5b1b5a852c40fe4d2a801cda137899a3c85b50a51463a09213929de835"
+    },
+    "INDF": {
+      "filename": "INDF_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "e96c41d0803079f7745b710178d6b0478cea5f14cb7c6fe11ecfaf5a740cef4d"
+    },
+    "MYOR": {
+      "filename": "MYOR_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "77ab10ba4d5c620999775296cc261e46c8a10fa1980ef3e8c31955389017014e"
+    },
+    "KLBF": {
+      "filename": "KLBF_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "3e991017f1be06fd10a58bef32cdd7199f7a27a83f9a91310943e3c419f985d3"
+    },
+    "AMRT": {
+      "filename": "AMRT_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "3b2ed84073272289c2eec68ad79c1d9d96aa380fcd066fc89e62e302fa1c836c"
+    },
+    "MAPI": {
+      "filename": "MAPI_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "777093f4bf0ebe07fda0d74607db291d1f5c217cadc5e7cf4c0a9dea1131056c"
+    },
+    "UNVR": {
+      "filename": "UNVR_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "d486b5be86ba6301c758329eba3ad2e12611ccdc2481ff2328ef227feabbe268"
+    },
+    "CPIN": {
+      "filename": "CPIN_10y.csv.gz",
+      "rows": 2459,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "b40e2b00cf767c41e45dbaab54a2c2464b0b7cb8ac2645a2d9ff431d652f71ee"
+    },
+    "SMGR": {
+      "filename": "SMGR_10y.csv.gz",
+      "rows": 2460,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "506c99308ccc2c6b883cd3626adae43ed01fa66fdcf4e87ac88d1c70c0761d9f"
+    },
+    "^JKSE": {
+      "filename": "IDX_JKSE_10y.csv.gz",
+      "rows": 2411,
+      "start_date": "2016-11-25",
+      "end_date": "2026-11-25",
+      "sha256": "84c03443284c59d3724ee28fa81c746eaacf0b60163108c2f1e8446fbcbfea92"
+    }
+  }
+}

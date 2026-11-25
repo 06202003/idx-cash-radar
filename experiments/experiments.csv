@@ -1,0 +1,11 @@
+id,description,n_features,purge_5d,threshold,recency,ensemble,ihsg,trend_gate,dev28_n_sig,dev28_bull_wr,dev28_bull_ret,dev28_acc,dev28_maj_acc,dev28_auc,dev28_brier,dev6_acc,dev6_bull_wr,dev6_bull_ret
+A0,"Model lama (LR 8 feat, no purge, th=0.55)",8,False,0.55,False,False,False,False,2152,46.05,-0.113,54.57,54.17,0.4977,0.2562,56.49,49.47,0.417
+A1,A0 + purge gap 5H saja,8,True,0.55,False,False,False,False,2190,46.07,-0.134,54.56,54.17,0.4985,0.2565,56.72,50.72,0.606
+A2,A0 + threshold 0.58 saja,8,False,0.58,False,False,False,False,1330,49.62,0.334,55.65,54.17,0.4977,0.2562,57.6,59.87,1.479
+A3,A0 + recency weighting saja,8,False,0.55,True,False,False,False,2617,44.78,-0.254,53.88,54.17,0.4887,0.2631,54.94,45.76,0.471
+A4,A0 + 5 fitur OHLCV baru saja,13,False,0.55,False,False,False,False,3023,44.82,-0.372,53.61,54.17,0.5021,0.2606,55.11,44.55,-0.216
+A5,A0 + ensemble LR+HistGB saja,8,False,0.55,False,True,False,False,2209,46.99,0.003,54.82,54.17,0.4991,0.2554,56.58,50.0,0.725
+A6,Gabungan A1+A2+A3+A4+A5,13,True,0.58,True,True,False,False,1867,45.47,-0.392,54.58,54.17,0.4994,0.2604,54.84,43.01,-0.396
+A7,A6 + fitur IHSG (^JKSE),16,True,0.58,True,True,True,False,2030,45.07,-0.376,54.37,54.17,0.4956,0.262,55.21,44.93,-0.036
+A8,A6 + trend gate (blokir downtrend),13,True,0.58,True,True,False,True,784,40.94,-1.135,54.76,54.17,0.4994,0.2604,55.21,39.5,-1.253
+A1_th58,LR 8 feat + purge 5H + th 0.58 (sederhana),8,True,0.58,False,False,False,False,1362,49.12,0.17,55.55,54.17,0.4985,0.2565,57.57,59.74,1.267
