@@ -6,8 +6,8 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from sklearn.ensemble import ExtraTreesRegressor, HistGradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression, Ridge
-from sklearn.neural_network import MLPRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -23,13 +23,32 @@ FEATURE_COLS = [
     "rsi14",
     "vol_ratio_log",
     "volatility_20d",
+    "bar_pos",
+    "atr14_pct",
+    "pos_20d",
+    "ma20_slope5",
+    "signed_vol_5d",
 ]
 
 
 def _prepare_dataset(df: pd.DataFrame, horizon_days: int = 5, fee: float = ROUND_TRIP_FEE) -> pd.DataFrame:
     ind = compute_indicators(df)
+    c = ind["close"].astype(float)
+    h = ind["high"].astype(float)
+    l = ind["low"].astype(float)
+    v = ind["volume"].astype(float)
+    rng = (h - l).replace(0.0, np.nan)
+
     ind["vol_ratio_log"] = np.log1p(ind["vol_ratio_20d"].clip(lower=0.0))
-    ind["fwd_ret"] = (ind["close"].shift(-horizon_days) / ind["close"]) - 1.0
+    ind["bar_pos"] = ((c - l) / rng).fillna(0.5)
+    ind["atr14_pct"] = (rng.rolling(14, min_periods=14).mean() / c.replace(0.0, np.nan)).fillna(0.0)
+    ind["pos_20d"] = ((c - ind["low_20d"]) / (ind["high_20d"] - ind["low_20d"]).replace(0.0, np.nan)).fillna(0.5)
+    ind["ma20_slope5"] = ind["ma20"].pct_change(5).fillna(0.0)
+    signed_v = np.sign(c.diff().fillna(0.0)) * v
+    vol_denom = (v.rolling(20, min_periods=20).mean() * 5.0).replace(0.0, np.nan)
+    ind["signed_vol_5d"] = (signed_v.rolling(5, min_periods=5).sum() / vol_denom).fillna(0.0)
+
+    ind["fwd_ret"] = (c.shift(-horizon_days) / c) - 1.0
     ind["target_up"] = (ind["fwd_ret"] > fee).astype(float)
     return ind
 
@@ -66,13 +85,10 @@ def _forecast_5d_trajectory(
     pred_rets = ridge.predict(X_curr)[0]
 
     try:
-        mlp = Pipeline([
-            ("scaler", StandardScaler()),
-            ("mlp", MLPRegressor(hidden_layer_sizes=(32, 16), max_iter=500, tol=1e-3, early_stopping=True, random_state=42)),
-        ])
-        mlp.fit(X_train, Y_train)
-        pred_mlp = mlp.predict(X_curr)[0]
-        pred_rets = 0.5 * pred_rets + 0.5 * pred_mlp
+        et = ExtraTreesRegressor(n_estimators=100, max_depth=4, min_samples_leaf=10, random_state=42)
+        et.fit(X_train, Y_train)
+        pred_et = et.predict(X_curr)[0]
+        pred_rets = 0.5 * pred_rets + 0.5 * pred_et
     except Exception:
         pass
 
@@ -92,11 +108,40 @@ def _forecast_5d_trajectory(
     }
 
 
-def _build_model() -> Pipeline:
-    return Pipeline([
-        ("scaler", StandardScaler()),
-        ("clf", LogisticRegression(C=0.5, max_iter=500, random_state=42)),
-    ])
+def _recency_weights(length: int, half_life: float = 150.0) -> np.ndarray:
+    """Exponential decay weights so recent market regimes carry more influence."""
+    age = np.arange(length, dtype=float)[::-1]
+    return np.exp(-np.log(2.0) * age / half_life)
+
+
+class _SoftEnsemble:
+    """Blends a regularized linear classifier with a shallow gradient-boosted tree."""
+
+    def __init__(self) -> None:
+        self.lr = Pipeline([
+            ("scaler", StandardScaler()),
+            ("clf", LogisticRegression(C=0.3, max_iter=500, random_state=42)),
+        ])
+        self.gb = HistGradientBoostingClassifier(
+            max_depth=3,
+            max_iter=60,
+            learning_rate=0.05,
+            min_samples_leaf=15,
+            l2_regularization=3.0,
+            random_state=42,
+        )
+
+    def fit(self, X: pd.DataFrame, y: pd.Series, sample_weight: np.ndarray | None = None) -> _SoftEnsemble:
+        self.lr.fit(X, y, clf__sample_weight=sample_weight)
+        self.gb.fit(X, y, sample_weight=sample_weight)
+        return self
+
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        return 0.4 * self.lr.predict_proba(X) + 0.6 * self.gb.predict_proba(X)
+
+
+def _build_model() -> _SoftEnsemble:
+    return _SoftEnsemble()
 
 
 def _ema_smooth(probs: np.ndarray, alpha: float = 0.5) -> np.ndarray:
@@ -179,11 +224,14 @@ def forecast_direction_with_backtest(
     for split in range(start_eval, n, step):
         end = min(split + step, n)
         test_df = labeled.iloc[split:end]
-        train_df = labeled.iloc[:split]
+        # Purge horizon_days before split to prevent overlapping 5-day label leakage
+        tr_end = max(30, split - horizon_days)
+        train_df = labeled.iloc[:tr_end]
         if len(test_df) == 0 or train_df["target_up"].nunique() < 2:
             continue
         model = _build_model()
-        model.fit(train_df[FEATURE_COLS], train_df["target_up"].astype(int))
+        w_tr = _recency_weights(len(train_df))
+        model.fit(train_df[FEATURE_COLS], train_df["target_up"].astype(int), sample_weight=w_tr)
 
         # Score extra horizon_days bars ahead so dynamic-exit simulation can observe flips
         ext_end = min(end + horizon_days, n)
@@ -191,7 +239,7 @@ def forecast_direction_with_backtest(
         ext_probs = _ema_smooth(ext_probs_raw, alpha=0.5)
 
         probs = ext_probs[: len(test_df)]
-        preds = (probs >= 0.55).astype(int)
+        preds = (probs >= 0.58).astype(int)
         oos_probs.extend(probs.tolist())
         oos_preds.extend(preds.tolist())
         oos_actuals.extend(test_df["target_up"].astype(int).tolist())
@@ -252,7 +300,8 @@ def forecast_direction_with_backtest(
         prev_p_up_smooth = 0.50
     else:
         final_model = _build_model()
-        final_model.fit(labeled[FEATURE_COLS], labeled["target_up"].astype(int))
+        w_all = _recency_weights(len(labeled))
+        final_model.fit(labeled[FEATURE_COLS], labeled["target_up"].astype(int), sample_weight=w_all)
         recent_rows = valid_feat.iloc[-5:]
         recent_raw = final_model.predict_proba(recent_rows[FEATURE_COLS])[:, 1]
         recent_smooth = _ema_smooth(recent_raw, alpha=0.5)

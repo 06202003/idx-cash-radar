@@ -148,6 +148,7 @@ def render_morning_chart(
                 fontweight="bold",
                 va="center",
                 ha="left",
+                bbox={"facecolor": bg_color, "edgecolor": "none", "alpha": 0.78, "pad": 1.2},
             )
             ax1.set_xlim(-0.5, fx[-1] + 4.2)
 
