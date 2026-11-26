@@ -25,7 +25,7 @@ from src.config import (
     TELEGRAM_BOT_TOKEN,
 )
 from src.data.fundamental_client import fetch_cash_radar_map
-from src.data.market_feed import fetch_jk_ohlcv
+from src.data.market_feed import fetch_jk_intraday, fetch_jk_ohlcv
 from src.data.stockbit_feed import (
     StockbitAuthError,
     _get_json,
@@ -167,20 +167,69 @@ async def cmd_cek(message: Message) -> None:
     await wait_msg.edit_text(format_ticker_alert(res, capital_idr=cap) + "\n\n" + spark_txt)
 
 
-def _fetch_chart_series(ticker: str, fallback_ohlcv: Any = None) -> tuple[list[float], list[str], str]:
-    """Fetches Stockbit intraday prices/labels, falling back to 24D daily OHLCV."""
+def _extract_hhmm(date_str: str, fallback: str) -> str:
+    s = (date_str or "").strip()
+    if " " in s:
+        time_part = s.split(" ", 1)[1]
+        if len(time_part) >= 5 and ":" in time_part[:5]:
+            return time_part[:5]
+    if "T" in s:
+        time_part = s.split("T", 1)[1]
+        if len(time_part) >= 5 and ":" in time_part[:5]:
+            return time_part[:5]
+    if len(s) >= 5 and ":" in s[:5]:
+        return s[:5]
+    return fallback
+
+
+def _slice_latest_session(df: Any) -> tuple[Any, float | None]:
+    """Slices an ascending intraday DataFrame to its latest trading date and extracts previous close."""
+    prev_close = df.attrs.get("previous_close") if hasattr(df, "attrs") else None
+    dates = df["date"].astype(str)
+    day_prefix = dates.str.slice(0, 10)
+    latest_day = day_prefix.max()
+    session_df = df[day_prefix == latest_day]
+    if prev_close is None and len(session_df) < len(df):
+        prior_df = df[day_prefix < latest_day]
+        if not prior_df.empty:
+            prev_close = float(prior_df["close"].iloc[-1])
+    if len(session_df) >= 4:
+        return session_df, prev_close
+    return df, prev_close
+
+
+def _fetch_chart_data(
+    ticker: str,
+    fallback_ohlcv: Any = None,
+) -> tuple[list[float], list[str], str, float | None]:
+    """Fetches Stockbit intraday prices/labels, falling back to Yahoo Finance intraday then 24D daily OHLCV."""
     try:
         tok = load_active_token()
         if tok:
             intra = fetch_stockbit_intraday(ticker, token=tok, lookback_days=2)
             if intra is not None and not intra.empty and len(intra) >= 4:
-                prices = intra["close"].astype(float).tolist()[-48:]
-                dates_raw = intra["date"].astype(str).tolist()[-48:]
-                t0 = dates_raw[0][-5:] if len(dates_raw[0]) >= 5 else "Open"
-                t1 = dates_raw[-1][-5:] if len(dates_raw[-1]) >= 5 else "Now"
-                return prices, [t0, t1], "Intraday"
-    except Exception:
-        pass
+                session_df, prev_close = _slice_latest_session(intra)
+                prices = session_df["close"].astype(float).tolist()
+                dates_raw = session_df["date"].astype(str).tolist()
+                t0 = _extract_hhmm(dates_raw[0], "Open")
+                t1 = _extract_hhmm(dates_raw[-1], "Now")
+                return prices, [t0, t1], "Intraday", prev_close
+    except Exception as exc:
+        logger.warning("Stockbit intraday fetch failed for %s: %s", ticker, exc)
+
+    try:
+        yf_intra = fetch_jk_intraday(ticker, interval="5m", range_str="1d")
+        if yf_intra is None or yf_intra.empty or len(yf_intra) < 4:
+            yf_intra = fetch_jk_intraday(ticker, interval="5m", range_str="5d")
+        if yf_intra is not None and not yf_intra.empty and len(yf_intra) >= 4:
+            session_df, prev_close = _slice_latest_session(yf_intra)
+            prices = session_df["close"].astype(float).tolist()
+            dates_raw = session_df["date"].astype(str).tolist()
+            t0 = _extract_hhmm(dates_raw[0], "Open")
+            t1 = _extract_hhmm(dates_raw[-1], "Now")
+            return prices, [t0, t1], "Intraday (Yahoo)", prev_close
+    except Exception as exc:
+        logger.warning("Yahoo intraday fetch failed for %s: %s", ticker, exc)
 
     df = fallback_ohlcv if (fallback_ohlcv is not None and not getattr(fallback_ohlcv, "empty", True)) else fetch_jk_ohlcv(ticker, range_str="1mo")
     if df is not None and not df.empty and len(df) >= 2:
@@ -188,13 +237,18 @@ def _fetch_chart_series(ticker: str, fallback_ohlcv: Any = None) -> tuple[list[f
         prices = tail["close"].astype(float).tolist()
         d0 = str(tail["date"].iloc[0])[5:10]
         d1 = str(tail["date"].iloc[-1])[5:10]
-        return prices, [d0, d1], "24H"
-    return [], [], "Intraday"
+        return prices, [d0, d1], "Daily 24H", None
+    return [], [], "Intraday", None
+
+
+def _fetch_chart_series(ticker: str, fallback_ohlcv: Any = None) -> tuple[list[float], list[str], str]:
+    prices, labels, subtitle, _ = _fetch_chart_data(ticker, fallback_ohlcv=fallback_ohlcv)
+    return prices, labels, subtitle
 
 
 def _build_sparkline_for_ticker(ticker: str, fallback_ohlcv: Any = None) -> str:
-    prices, _, subtitle = _fetch_chart_series(ticker, fallback_ohlcv=fallback_ohlcv)
-    return render_sparkline_line(ticker, prices, subtitle=subtitle)
+    prices, _, subtitle, prev_close = _fetch_chart_data(ticker, fallback_ohlcv=fallback_ohlcv)
+    return render_sparkline_line(ticker, prices, subtitle=subtitle, prev_close=prev_close)
 
 
 async def cmd_chart(message: Message) -> None:
@@ -204,9 +258,9 @@ async def cmd_chart(message: Message) -> None:
         return
     wait_msg = await message.answer(
         f"📈 *MEMUAT GRAFIK | {ticker}*\n"
-        "`[▓▓▓▓░░░░░░] 40%` — _Mengambil data intraday Stockbit..._"
+        "`[▓▓▓▓░░░░░░] 40%` — _Mengambil data intraday..._"
     )
-    prices, labels, subtitle = await asyncio.to_thread(_fetch_chart_series, ticker)
+    prices, labels, subtitle, prev_close = await asyncio.to_thread(_fetch_chart_data, ticker)
     if len(prices) < 2:
         await wait_msg.edit_text(f"❌ Data grafik *{ticker}* belum tersedia.")
         return
@@ -217,14 +271,21 @@ async def cmd_chart(message: Message) -> None:
         )
     except Exception:
         pass
-    png_bytes = await asyncio.to_thread(render_intraday_png, ticker, prices, labels, subtitle)
+    png_bytes = await asyncio.to_thread(
+        render_intraday_png,
+        ticker,
+        prices,
+        labels,
+        subtitle,
+        prev_close,
+    )
     try:
         await wait_msg.delete()
     except Exception:
         pass
     await message.answer_photo(
         BufferedInputFile(png_bytes, filename=f"{ticker}_chart.png"),
-        caption=render_sparkline_line(ticker, prices, subtitle=subtitle),
+        caption=render_sparkline_line(ticker, prices, subtitle=subtitle, prev_close=prev_close),
     )
 
 

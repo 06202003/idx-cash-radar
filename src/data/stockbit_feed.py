@@ -7,6 +7,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import pandas as pd
@@ -74,20 +75,38 @@ def fetch_stockbit_intraday(
     payload = _get_json(url, tok)
     data_block = payload.get("data") or {}
     bars = data_block.get("chartbit") or data_block.get("prices") or []
+    wib = timezone(timedelta(hours=7))
     rows: list[dict[str, Any]] = []
     for b in bars:
         c = parse_safe_float(b.get("close") or b.get("value"))
         if c is None or c <= 0:
             continue
+        unix_raw = parse_safe_float(b.get("unixdate") or b.get("timestamp"))
+        date_raw = str(b.get("date") or "").strip()
+        if not date_raw and unix_raw is not None:
+            date_raw = datetime.fromtimestamp(int(unix_raw), tz=wib).strftime("%Y-%m-%d %H:%M:%S")
         rows.append({
-            "date": str(b.get("date") or b.get("unixdate") or ""),
+            "date": date_raw,
             "open": parse_safe_float(b.get("open")) or c,
             "high": parse_safe_float(b.get("high")) or c,
             "low": parse_safe_float(b.get("low")) or c,
             "close": c,
             "volume": parse_safe_float(b.get("volume")) or 0.0,
+            "_ts": int(unix_raw) if unix_raw is not None else 0,
         })
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    if not df.empty:
+        if (df["_ts"] > 0).any():
+            df = df.sort_values(["_ts", "date"], kind="mergesort")
+        else:
+            df = df.sort_values("date", kind="mergesort")
+        df = df.drop(columns=["_ts"]).reset_index(drop=True)
+    prev_close = parse_safe_float(
+        data_block.get("previous") or data_block.get("prev_price") or data_block.get("previous_close")
+    )
+    if prev_close is not None and prev_close > 0:
+        df.attrs["previous_close"] = prev_close
+    return df
 
 
 def parse_marketdetectors_summary(payload: dict[str, Any]) -> dict[str, Any]:

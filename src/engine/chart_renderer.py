@@ -350,6 +350,7 @@ def render_sparkline_line(
     prices: list[float],
     subtitle: str = "Intraday",
     width: int = 18,
+    prev_close: float | None = None,
 ) -> str:
     """Renders a clean 1-line Unicode sparkline (no code block, no COPY CODE button on mobile)."""
     clean_t = ticker.strip().upper().replace(".JK", "")
@@ -368,7 +369,8 @@ def render_sparkline_line(
     spark = "".join(blocks[min(7, max(0, int((p - lo) / span * 7)))] for p in sampled)
 
     first_px, last_px = valid[0], valid[-1]
-    chg = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
+    ref_px = prev_close if (prev_close is not None and prev_close > 0) else first_px
+    chg = ((last_px / ref_px) - 1.0) * 100.0 if ref_px > 0 else 0.0
     return (
         f"📈 *{clean_t} {subtitle}:* `{spark}`\n"
         f"   Now `{_fmt_rp_short(last_px)}` (`{chg:+.2f}%`) | Range `{_fmt_rp_short(lo)}`–`{_fmt_rp_short(hi)}`"
@@ -380,6 +382,7 @@ def render_intraday_png(
     prices: list[float],
     labels: list[str] | None = None,
     subtitle: str = "Intraday",
+    prev_close: float | None = None,
 ) -> bytes:
     """Renders a sleek dark-mode PNG price chart for /chart command (0 AI tokens)."""
     clean_t = ticker.strip().upper().replace(".JK", "")
@@ -391,7 +394,8 @@ def render_intraday_png(
     muted = "#94a3b8"
     first_px = valid[0] if valid else 0.0
     last_px = valid[-1] if valid else 0.0
-    chg = ((last_px / first_px) - 1.0) * 100.0 if first_px > 0 else 0.0
+    ref_px = prev_close if (prev_close is not None and prev_close > 0) else first_px
+    chg = ((last_px / ref_px) - 1.0) * 100.0 if ref_px > 0 else 0.0
     accent = "#22c55e" if chg >= 0 else "#ef4444"
 
     fig, ax = plt.subplots(figsize=(7.2, 3.8), dpi=140, facecolor=bg)
@@ -404,7 +408,7 @@ def render_intraday_png(
         ax.plot(xs, valid, color=accent, linewidth=2.4)
         ax.fill_between(xs, valid, lo, color=accent, alpha=0.16)
         ax.scatter([xs[-1]], [last_px], color=accent, s=45, zorder=5)
-        ax.axhline(first_px, color=muted, linestyle=":", linewidth=0.9, alpha=0.7)
+        ax.axhline(ref_px, color=muted, linestyle=":", linewidth=0.9, alpha=0.7)
         if labels and len(labels) >= 2:
             ax.set_xticks([0, len(valid) - 1])
             ax.set_xticklabels([labels[0], labels[-1]], color=muted, fontsize=8.5)

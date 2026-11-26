@@ -127,3 +127,37 @@ def test_render_sparkline_and_ascii_bar_chart() -> None:
     assert "BMRI Intraday" in bar
     assert "```" not in bar
     assert "█" in bar
+
+
+def test_stockbit_intraday_sorts_descending_and_slices_session(monkeypatch) -> None:
+    from src.data import stockbit_feed
+    from src.bot import main as bot_main
+
+    fake_payload = {
+        "data": {
+            "previous": 5825,
+            "chartbit": [
+                {"date": "2026-11-26 15:00:00", "close": 5925, "unixdate": 1795680000},
+                {"date": "2026-11-26 14:00:00", "close": 5900, "unixdate": 1795676400},
+                {"date": "2026-11-26 10:00:00", "close": 5875, "unixdate": 1795662000},
+                {"date": "2026-11-26 09:00:00", "close": 5850, "unixdate": 1795658400},
+                {"date": "2026-11-25 15:50:00", "close": 5825, "unixdate": 1795596600},
+            ],
+        }
+    }
+    monkeypatch.setattr(stockbit_feed, "_get_json", lambda url, tok: fake_payload)
+    df = stockbit_feed.fetch_stockbit_intraday("BBCA", token="dummy", lookback_days=2)
+    assert df["close"].tolist() == [5825.0, 5850.0, 5875.0, 5900.0, 5925.0]
+    assert df.attrs.get("previous_close") == 5825.0
+
+    monkeypatch.setattr(bot_main, "load_active_token", lambda: "dummy")
+    monkeypatch.setattr(bot_main, "fetch_stockbit_intraday", lambda *a, **kw: df)
+    prices, labels, subtitle, prev_close = bot_main._fetch_chart_data("BBCA")
+    assert prices == [5850.0, 5875.0, 5900.0, 5925.0]
+    assert labels == ["09:00", "15:00"]
+    assert subtitle == "Intraday"
+    assert prev_close == 5825.0
+
+    spark = render_sparkline_line("BBCA", prices, subtitle=subtitle, prev_close=prev_close)
+    assert "+1.72%" in spark
+
